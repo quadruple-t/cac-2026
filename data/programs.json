@@ -1,0 +1,161 @@
+[
+  {
+    "id": "fema-ia",
+    "name": "FEMA Individual Assistance",
+    "agency": "Federal Emergency Management Agency (FEMA)",
+    "maxAmount": 43600,
+    "deadline": "Ongoing",
+    "eligibility": {
+      "ownerOrRenter": "both",
+      "county": ["all"],
+      "incomeMax": null,
+      "damageType": ["flood", "wind", "structural", "personal-property"]
+    },
+    "requiredDocs": [
+      "Photo ID",
+      "Social Security number",
+      "Proof of occupancy or ownership (deed, lease, or utility bill)",
+      "Insurance policy information or denial letter",
+      "List of disaster-caused damages and losses",
+      "Bank account information for direct deposit"
+    ],
+    "applyUrl": "https://www.disasterassistance.gov",
+    "description": "Grants for homeowners and renters to cover temporary housing, essential home repairs, and other disaster-related needs not covered by insurance. This is usually the first program to apply to."
+  },
+  {
+    "id": "sba-disaster-loan",
+    "name": "SBA Disaster Loans",
+    "agency": "U.S. Small Business Administration (SBA)",
+    "maxAmount": 500000,
+    "deadline": "Ongoing",
+    "eligibility": {
+      "ownerOrRenter": "both",
+      "county": ["all"],
+      "incomeMax": null,
+      "damageType": ["flood", "wind", "structural", "personal-property", "business"]
+    },
+    "requiredDocs": [
+      "Photo ID",
+      "FEMA registration number",
+      "Most recent federal income tax return",
+      "Proof of ownership or lease",
+      "Insurance settlement or denial documentation",
+      "List of damaged property and estimated losses"
+    ],
+    "applyUrl": "https://www.sba.gov/funding-programs/disaster-assistance",
+    "description": "Low-interest, long-term loans for homeowners (up to $500,000 for real estate), renters, and businesses to repair or replace disaster-damaged property. You do not have to accept a loan if approved."
+  },
+  {
+    "id": "nc-disaster-recovery",
+    "name": "NC Disaster Recovery Assistance",
+    "agency": "NC Office of Recovery & Resiliency (NCORR / ReBuild NC)",
+    "maxAmount": 150000,
+    "deadline": "2026-12-31",
+    "eligibility": {
+      "ownerOrRenter": "owner",
+      "county": [
+        "Ashe", "Avery", "Buncombe", "Burke", "Caldwell", "Haywood",
+        "Henderson", "Jackson", "Macon", "Madison", "McDowell", "Mitchell",
+        "Polk", "Rutherford", "Swain", "Transylvania", "Watauga", "Yancey"
+      ],
+      "incomeMax": 90000,
+      "damageType": ["flood", "wind", "structural"]
+    },
+    "requiredDocs": [
+      "Photo ID for all household members over 18",
+      "Proof of homeownership (deed or property tax record)",
+      "Proof that the home is your primary residence",
+      "Household income documentation for the past 30 days",
+      "FEMA award or denial letter",
+      "Insurance documentation"
+    ],
+    "applyUrl": "https://www.rebuild.nc.gov",
+    "description": "State-funded rehabilitation, reconstruction, and reimbursement for owner-occupied homes damaged by Hurricane Helene, prioritizing low-to-moderate income households. Fills gaps left by FEMA and insurance."
+  },
+  {
+    "id": "usda-emergency-loan",
+    "name": "USDA Emergency Farm Loans",
+    "agency": "USDA Farm Service Agency (FSA)",
+    "maxAmount": 500000,
+    "deadline": "2026-10-15",
+    "eligibility": {
+      "ownerOrRenter": "both",
+      "county": ["all"],
+      "incomeMax": null,
+      "damageType": ["flood", "wind", "agricultural", "business"]
+    },
+    "requiredDocs": [
+      "Photo ID",
+      "Farm operating records and production history",
+      "Proof of ownership or lease of the farm operation",
+      "Documentation of crop, livestock, or equipment losses",
+      "Most recent federal income tax return",
+      "Insurance or crop coverage documentation"
+    ],
+    "applyUrl": "https://www.fsa.usda.gov/resources/programs/emergency-farm-loans",
+    "description": "Low-interest emergency loans to help farmers and ranchers in declared counties recover from production and physical losses, including replacing equipment, livestock, and restoring farmland."
+  },
+  {
+    "id": "dua",
+    "name": "Disaster Unemployment Assistance",
+    "agency": "NC Division of Employment Security",
+    "maxAmount": 600,
+    "deadline": "Ongoing",
+    "eligibility": {
+      "ownerOrRenter": "both",
+      "county": ["all"],
+      "incomeMax": null,
+      "damageType": ["business", "flood", "wind"]
+    },
+    "requiredDocs": [
+      "Photo ID and Social Security number",
+      "Proof of employment or self-employment at time of disaster",
+      "Most recent federal income tax return (for self-employed)",
+      "Documentation showing work loss was caused by the disaster",
+      "Bank account information for payment"
+    ],
+    "applyUrl": "https://des.nc.gov/apply-unemployment/disaster-unemployment-assistance",
+    "description": "Weekly benefits for workers and the self-employed who lost their jobs or income as a direct result of the disaster and do not qualify for regular unemployment insurance."
+  },
+  {
+    "id": "nc-211",
+    "name": "NC 211 Resource Line",
+    "agency": "United Way of North Carolina",
+    "maxAmount": null,
+    "deadline": "Ongoing",
+    "eligibility": {
+      "ownerOrRenter": "both",
+      "county": ["all"],
+      "incomeMax": null,
+      "damageType": ["any"]
+    },
+    "requiredDocs": [
+      "No documents required to call or search"
+    ],
+    "applyUrl": "https://nc211.org",
+    "description": "Free, confidential referral service (dial 2-1-1) connecting survivors to local resources: food, shelter, cleanup, mental health, and other assistance. A good starting point when you are not sure where to turn."
+  },
+  {
+    "id": "baptists-on-mission",
+    "name": "Baptists on Mission Disaster Relief",
+    "agency": "Baptists on Mission (NC Baptists)",
+    "maxAmount": null,
+    "deadline": "Ongoing",
+    "eligibility": {
+      "ownerOrRenter": "both",
+      "county": [
+        "Ashe", "Avery", "Buncombe", "Burke", "Caldwell", "Haywood",
+        "Henderson", "Jackson", "Madison", "McDowell", "Mitchell",
+        "Rutherford", "Transylvania", "Watauga", "Wilkes", "Yancey"
+      ],
+      "incomeMax": null,
+      "damageType": ["flood", "wind", "structural"]
+    },
+    "requiredDocs": [
+      "No application fee or documents required to request help",
+      "Description and photos of the damage (helpful but not required)"
+    ],
+    "applyUrl": "https://baptistsonmission.org/mission-projects/disaster-relief",
+    "description": "Volunteer-powered mud-out, cleanup, tree removal, temporary roof repair, and rebuilding for homeowners at no cost. Focused on western NC communities recovering from flooding."
+  }
+]
