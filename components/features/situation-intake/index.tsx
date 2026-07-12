@@ -3,6 +3,24 @@
 import { useState } from 'react';
 import { UserSituation } from '@/lib/document-requirements';
 
+const NC_COUNTIES = [
+  'Alamance', 'Alexander', 'Alleghany', 'Anson', 'Ashe', 'Avery', 'Beaufort',
+  'Bertie', 'Bladen', 'Brunswick', 'Buncombe', 'Burke', 'Cabarrus', 'Caldwell',
+  'Camden', 'Carteret', 'Caswell', 'Catawba', 'Chatham', 'Cherokee', 'Chowan',
+  'Clay', 'Cleveland', 'Columbus', 'Craven', 'Cumberland', 'Currituck', 'Dare',
+  'Davidson', 'Davie', 'Duplin', 'Durham', 'Edgecombe', 'Forsyth', 'Franklin',
+  'Gaston', 'Gates', 'Graham', 'Granville', 'Greene', 'Guilford', 'Halifax',
+  'Harnett', 'Haywood', 'Henderson', 'Hertford', 'Hoke', 'Hyde', 'Iredell',
+  'Jackson', 'Johnston', 'Jones', 'Lee', 'Lenoir', 'Lincoln', 'Macon',
+  'Madison', 'Martin', 'McDowell', 'Mecklenburg', 'Mitchell', 'Montgomery',
+  'Moore', 'Nash', 'New Hanover', 'Northampton', 'Onslow', 'Orange', 'Pamlico',
+  'Pasquotank', 'Pender', 'Perquimans', 'Person', 'Pitt', 'Polk', 'Randolph',
+  'Richmond', 'Robeson', 'Rockingham', 'Rowan', 'Rutherford', 'Sampson',
+  'Scotland', 'Stanly', 'Stokes', 'Surry', 'Swain', 'Transylvania', 'Tyrrell',
+  'Union', 'Vance', 'Wake', 'Warren', 'Washington', 'Watauga', 'Wayne',
+  'Wilkes', 'Wilson', 'Yadkin', 'Yancey',
+];
+
 interface SituationIntakeProps {
   onSubmit: (situation: UserSituation) => void;
 }
@@ -21,19 +39,7 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isValidForm()) {
-      onSubmit(formData as UserSituation);
-    }
-  };
-
-  const isValidForm = () => {
-    return (
-      formData.county &&
-      formData.damageType &&
-      formData.ownershipStatus &&
-      formData.incomeRange &&
-      formData.damageSeverity !== undefined
-    );
+    onSubmit(formData as UserSituation);
   };
 
   const handleChange = (
@@ -45,6 +51,11 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
     }));
   };
+
+  const countyQuery = formData.county ?? '';
+  const countyMatches = countyQuery
+    ? NC_COUNTIES.filter(county => county.toLowerCase().startsWith(countyQuery.toLowerCase()))
+    : [];
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -59,31 +70,47 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
         {/* County */}
         <div>
           <label htmlFor="county" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
-            What county are you in? <span className="text-[#b0673f]">*</span>
+            What county are you in?
           </label>
-          <input
-            type="text"
-            id="county"
-            name="county"
-            value={formData.county}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
-            placeholder="e.g., Buncombe County"
-          />
+          <div className="flex items-start gap-4">
+            <input
+              type="text"
+              id="county"
+              name="county"
+              value={formData.county}
+              onChange={handleChange}
+              autoComplete="off"
+              placeholder="Start typing a county…"
+              className="flex-1 px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+            />
+            {countyMatches.length > 0 && (
+              <ul className="w-56 max-h-[220px] overflow-y-auto border border-[#e4d9cf] rounded-[14px] bg-white p-1.5 space-y-0.5">
+                {countyMatches.map((county) => (
+                  <li key={county}>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, county }))}
+                      className="w-full text-left px-3 py-1.5 rounded-lg text-[0.95rem] text-[#1f1610] hover:bg-[#f2ece5]"
+                    >
+                      {county}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
 
         {/* Damage Type */}
         <div>
           <label htmlFor="damageType" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
-            What type of property was damaged? <span className="text-[#b0673f]">*</span>
+            What type of property was damaged?
           </label>
           <select
             id="damageType"
             name="damageType"
             value={formData.damageType || ''}
             onChange={handleChange}
-            required
             className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
           >
             <option value="">Select an option</option>
@@ -97,14 +124,13 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
         {/* Ownership Status */}
         <div>
           <label htmlFor="ownershipStatus" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
-            Do you own or rent? <span className="text-[#b0673f]">*</span>
+            Do you own or rent?
           </label>
           <select
             id="ownershipStatus"
             name="ownershipStatus"
             value={formData.ownershipStatus || ''}
             onChange={handleChange}
-            required
             className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
           >
             <option value="">Select an option</option>
@@ -133,14 +159,13 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
         {/* Income Range */}
         <div>
           <label htmlFor="incomeRange" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
-            What is your household income range? <span className="text-[#b0673f]">*</span>
+            What is your household income range?
           </label>
           <select
             id="incomeRange"
             name="incomeRange"
             value={formData.incomeRange || ''}
             onChange={handleChange}
-            required
             className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
           >
             <option value="">Select an option</option>
@@ -154,7 +179,7 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
         {/* Farmer */}
         <div>
           <label htmlFor="isFarmer" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
-            Are you a farmer or do you own agricultural land? <span className="text-[#b0673f]">*</span>
+            Are you a farmer or do you own agricultural land?
           </label>
           <div className="flex space-x-6">
             <label className="flex items-center space-x-2">
@@ -201,14 +226,13 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
         {/* Damage Severity */}
         <div>
           <label htmlFor="damageSeverity" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
-            How would you describe the damage severity? <span className="text-[#b0673f]">*</span>
+            How would you describe the damage severity?
           </label>
           <select
             id="damageSeverity"
             name="damageSeverity"
             value={formData.damageSeverity || ''}
             onChange={handleChange}
-            required
             className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
           >
             <option value="">Select an option</option>
@@ -222,8 +246,7 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={!isValidForm()}
-          className="w-full bg-[#3d2b20] text-white py-3.5 px-6 rounded-[10px] font-semibold text-[1.05rem] hover:bg-[#2b1e15] focus:ring-2 focus:ring-[#b0673f] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full bg-[#3d2b20] text-white py-3.5 px-6 rounded-[10px] font-semibold text-[1.05rem] hover:bg-[#2b1e15] focus:ring-2 focus:ring-[#b0673f] focus:ring-offset-2 transition-colors"
         >
           Generate My Document Checklist
         </button>
