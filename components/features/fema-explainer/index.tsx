@@ -123,19 +123,19 @@ Return ONLY the JSON, no other text.`;
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Header */}
       <div className="text-center mb-8">
-        <p className="mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
+        <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
           FEMA Letter Explainer
         </p>
-        <h2 className="font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
+        <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
           Understand Your FEMA Letter
-        </h2>
-        <p className="text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
+        </h1>
+        <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
           We'll help you understand your FEMA letter in plain English and guide you through what to do next.
         </p>
       </div>
 
       {/* Progress Steps */}
-      <div className="flex items-center justify-center mb-8">
+      <div className="ac-reveal-3 flex items-center justify-center mb-8">
         {steps.map((step, index) => {
           const isActive = step.id === currentStep;
           const isCompleted = getStepIndex() > index;
@@ -177,7 +177,7 @@ Return ONLY the JSON, no other text.`;
 
       {/* Upload Step */}
       {currentStep === 'upload' && (
-        <div className="bg-[#faf6f1] rounded-[14px] shadow-lg p-8 border border-[#e4d9cf] animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="ac-reveal-3 bg-[#faf6f1] rounded-[14px] shadow-lg p-8 border border-[#e4d9cf] animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="text-center mb-6">
             <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-[#b0673f] flex items-center justify-center">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
@@ -220,7 +220,7 @@ Return ONLY the JSON, no other text.`;
 
       {/* Analyzing Step */}
       {currentStep === 'analyzing' && (
-        <div className="bg-[#faf6f1] rounded-[14px] shadow-lg p-12 border border-[#e4d9cf] text-center animate-in fade-in duration-500">
+        <div className="ac-reveal-3 bg-[#faf6f1] rounded-[14px] shadow-lg p-12 border border-[#e4d9cf] text-center animate-in fade-in duration-500">
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#b0673f] flex items-center justify-center animate-pulse">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
               <circle cx="11" cy="11" r="8"></circle>
@@ -241,7 +241,7 @@ Return ONLY the JSON, no other text.`;
 
       {/* Results Step */}
       {currentStep === 'results' && analysis && (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="ac-reveal space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           {/* Status Card */}
           <div className="bg-gradient-to-br from-[#b0673f] to-[#895031] rounded-[14px] shadow-lg p-8 text-white">
             <div className="flex items-center justify-between mb-4">
@@ -331,7 +331,7 @@ Return ONLY the JSON, no other text.`;
 
       {/* Walkthrough Step */}
       {currentStep === 'walkthrough' && analysis && (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="ac-reveal space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="bg-[#faf6f1] rounded-[14px] shadow-lg p-8 border border-[#e4d9cf]">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-serif text-[1.5rem] font-medium text-[#1f1610]">

@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { getAdminAuth } from "@/lib/firebase/admin";
+import { getAdminAuth, verifyAppCheckToken } from "@/lib/firebase/admin";
 import { createSessionCookie, SESSION_COOKIE_NAME } from "@/lib/firebase/session";
 
 export const runtime = "nodejs";
@@ -8,6 +8,12 @@ export const runtime = "nodejs";
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 5; // 5 days
 
 export async function POST(request: Request) {
+  try {
+    await verifyAppCheckToken(request);
+  } catch {
+    return NextResponse.json({ error: "Invalid App Check token" }, { status: 401 });
+  }
+
   const { idToken } = await request.json();
   if (typeof idToken !== "string" || !idToken) {
     return NextResponse.json({ error: "Missing idToken" }, { status: 400 });
@@ -32,7 +38,13 @@ export async function POST(request: Request) {
   return NextResponse.json({ ok: true });
 }
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
+  try {
+    await verifyAppCheckToken(request);
+  } catch {
+    return NextResponse.json({ error: "Invalid App Check token" }, { status: 401 });
+  }
+
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE_NAME);
   return NextResponse.json({ ok: true });
