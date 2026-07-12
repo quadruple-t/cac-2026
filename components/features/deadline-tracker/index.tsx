@@ -74,6 +74,44 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
               <span className="text-sm text-[#6b5a4e]">{program.deadline}</span>
             </div>
 
+            {/* Contact Information */}
+            {program.contactInfo && (
+              <div className="bg-white border border-[#e4d9cf] rounded-[10px] p-3 mb-4">
+                <h4 className="text-xs font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2">Contact Information</h4>
+                <div className="space-y-1 text-sm">
+                  {program.contactInfo.phone && (
+                    <div className="flex items-center gap-2 text-[#6b5a4e]">
+                      <span>📞</span>
+                      <a href={`tel:${program.contactInfo.phone}`} className="hover:text-[#b0673f] transition-colors">
+                        {program.contactInfo.phone}
+                      </a>
+                    </div>
+                  )}
+                  {program.contactInfo.email && (
+                    <div className="flex items-center gap-2 text-[#6b5a4e]">
+                      <span>✉️</span>
+                      <a href={`mailto:${program.contactInfo.email}`} className="hover:text-[#b0673f] transition-colors">
+                        {program.contactInfo.email}
+                      </a>
+                    </div>
+                  )}
+                  {program.contactInfo.website && (
+                    <div className="flex items-center gap-2 text-[#6b5a4e]">
+                      <span>🌐</span>
+                      <a 
+                        href={program.contactInfo.website} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="hover:text-[#b0673f] transition-colors"
+                      >
+                        {program.contactInfo.website}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center gap-2">
               <select
                 className="flex-1 px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
