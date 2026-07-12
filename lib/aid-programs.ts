@@ -8,6 +8,12 @@ export interface AidProgram {
   deadlineUrgency: 'high' | 'medium' | 'low';
   requiredDocuments: string[];
   applicationUrl: string;
+  contactInfo: {
+    phone?: string;
+    email?: string;
+    website?: string;
+    address?: string;
+  };
   eligibility: {
     counties?: string[];
     damageTypes?: ('home' | 'business' | 'both' | 'other')[];
@@ -58,6 +64,11 @@ const aidPrograms: AidProgram[] = [
       'Detailed list of damages'
     ],
     applicationUrl: 'https://www.disasterassistance.gov/',
+    contactInfo: {
+      phone: '1-800-621-3362',
+      website: 'https://www.fema.gov/',
+      email: 'fema-helpline@fema.dhs.gov'
+    },
     eligibility: {
       damageTypes: ['home', 'both'],
       ownershipStatus: ['owner', 'renter'],
@@ -82,6 +93,11 @@ const aidPrograms: AidProgram[] = [
       'Proof of ownership or lease'
     ],
     applicationUrl: 'https://www.sba.gov/disaster',
+    contactInfo: {
+      phone: '1-800-659-2955',
+      website: 'https://www.sba.gov/',
+      email: 'disastercustomerservice@sba.gov'
+    },
     eligibility: {
       damageTypes: ['home', 'business', 'both'],
       ownershipStatus: ['owner', 'renter'],
@@ -105,6 +121,11 @@ const aidPrograms: AidProgram[] = [
       'Financial statements'
     ],
     applicationUrl: 'https://www.fsa.usda.gov/services/disaster-assistance',
+    contactInfo: {
+      phone: '1-877-508-8362',
+      website: 'https://www.fsa.usda.gov/',
+      email: 'fsa.outreach@usda.gov'
+    },
     eligibility: {
       damageTypes: ['home', 'business', 'both', 'other'],
       ownershipStatus: ['owner'],
@@ -129,6 +150,11 @@ const aidPrograms: AidProgram[] = [
       'Proof of ownership or lease'
     ],
     applicationUrl: 'https://www.ncdps.gov/emergency-management',
+    contactInfo: {
+      phone: '1-888-835-5806',
+      website: 'https://www.ncdps.gov/',
+      email: 'ncem@ncdps.gov'
+    },
     eligibility: {
       counties: ['Buncombe', 'Haywood', 'Madison', 'Yancey', 'Mitchell', 'Avery', 'McDowell', 'Rutherford', 'Polk', 'Henderson', 'Transylvania', 'Jackson', 'Swain', 'Macon', 'Cherokee', 'Clay', 'Graham'],
       damageTypes: ['home', 'business', 'both'],
@@ -151,6 +177,11 @@ const aidPrograms: AidProgram[] = [
       'Basic information about household'
     ],
     applicationUrl: 'https://www.redcross.org/get-help.html',
+    contactInfo: {
+      phone: '1-800-733-2767',
+      website: 'https://www.redcross.org/',
+      email: 'disaster.inquiry@redcross.org'
+    },
     eligibility: {
       damageTypes: ['home', 'business', 'both'],
       ownershipStatus: ['owner', 'renter'],
@@ -170,6 +201,11 @@ const aidPrograms: AidProgram[] = [
       'Basic household information'
     ],
     applicationUrl: 'https://www.nc211.org/',
+    contactInfo: {
+      phone: '2-1-1',
+      website: 'https://www.nc211.org/',
+      email: 'info@nc211.org'
+    },
     eligibility: {
       damageTypes: ['home', 'business', 'both', 'other'],
       ownershipStatus: ['owner', 'renter'],
@@ -193,6 +229,11 @@ const aidPrograms: AidProgram[] = [
       'Bank account information'
     ],
     applicationUrl: 'https://www.disasterassistance.gov/',
+    contactInfo: {
+      phone: '1-800-621-3362',
+      website: 'https://www.disasterassistance.gov/',
+      email: 'fema-helpline@fema.dhs.gov'
+    },
     eligibility: {
       damageTypes: ['home', 'business', 'both'],
       ownershipStatus: ['owner', 'renter'],

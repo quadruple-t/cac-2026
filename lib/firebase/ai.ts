@@ -21,7 +21,7 @@ export function getFirebaseAI(): AI {
 
 const modelCache = new Map<string, GenerativeModel>();
 
-export function getGeminiModel(modelName = "gemini-2.5-flash"): GenerativeModel {
+export function getGeminiModel(modelName = "gemini-3.5-flash"): GenerativeModel {
   let model = modelCache.get(modelName);
   if (!model) {
     model = getGenerativeModel(getFirebaseAI(), { model: modelName });

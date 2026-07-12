@@ -44,44 +44,6 @@ const steps = [
   },
 ];
 
-const contributors = [
-  {
-    name: "Taran Duba",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    name: "Mukesh Ramanathan",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    name: "Ansh Nayak",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    name: "Hannah Kim",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-];
-
-const trustPoints = [
-  {
-    title: "Made by students in NC-08",
-    body: "A student team building this for the Congressional App Challenge, for the western North Carolina communities recovering from Helene.",
-  },
-  {
-    title: "Free, and always will be",
-    body: "No cost, no upsell, no account required to see your matches. Recovery is expensive enough.",
-  },
-  {
-    title: "Independent — not a government site",
-    body: "Aid Compass is not FEMA, the State of North Carolina, or any agency. We point you to their official pages; we don't speak for them.",
-  },
-  {
-    title: "We don't want your sensitive data",
-    body: "You apply on each program's own secure site. Aid Compass never asks for Social Security or bank details to get you your matches.",
-  },
-];
-
 export default function Home() {
   return (
     <div className="min-h-full bg-[#f2ece5] flex flex-col flex-1">
@@ -140,7 +102,7 @@ export default function Home() {
                   Get started — it&apos;s free
                 </a>
                 <span className="text-[0.9rem] text-[#6b5a4e]">
-                  Free · No account to start · Independent, not a government
+                  Free · make an account to start · Independent, not a government
                   site
                 </span>
               </div>
@@ -215,64 +177,6 @@ export default function Home() {
               </li>
             ))}
           </ol>
-        </section>
-
-        {/* TRUST */}
-        <section aria-labelledby="trust-h" className="bg-[#33241a] text-[#eaddd0]">
-          <div className="mx-auto max-w-[1080px] px-[22px] py-[66px]">
-            <div className="max-w-[760px]">
-              <p className="mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#cc9c82]">
-                Who built this
-              </p>
-              <h2
-                id="trust-h"
-                className="mb-[30px] font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-white"
-              >
-                Built to help, not to collect.
-              </h2>
-            </div>
-            <ul className="m-0 flex list-none flex-wrap gap-[22px] p-0">
-              {trustPoints.map((point) => (
-                <li key={point.title} className="min-w-[280px] flex-1 basis-[300px]">
-                  <h3 className="mb-1.5 text-[1.05rem] font-semibold text-white">
-                    {point.title}
-                  </h3>
-                  <p className="m-0 text-[0.98rem] text-[#cbb8a8]">
-                    {point.body}
-                  </p>
-                </li>
-              ))}
-            </ul>
-            <ul className="m-0 mt-10 grid list-none grid-cols-1 gap-x-6 gap-y-10 p-0 sm:grid-cols-2">
-              {contributors.map((person) => (
-                <li key={person.name} className="flex flex-col items-center text-center">
-                  <span
-                    aria-hidden="true"
-                    className="h-[216px] w-[216px] flex-none rounded-full border border-[#4a362a] bg-[#3d2b20] bg-cover bg-center"
-                    style={{
-                      backgroundImage: `url(/team/${person.name
-                        .toLowerCase()
-                        .replace(/\s+/g, "-")}.jpg)`,
-                    }}
-                  />
-                  <h3 className="mb-1 mt-4 font-serif text-[1.02rem] font-semibold text-white">
-                    {person.name}
-                  </h3>
-                  <p className="m-0 max-w-[240px] font-sans text-[0.92rem] text-[#cbb8a8]">
-                    {person.bio}
-                  </p>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-10">
-              <a
-                href="/sign-up"
-                className="inline-block rounded-[10px] bg-[#b0673f] px-[26px] py-3.5 text-[1.05rem] font-bold text-[#241811] no-underline transition-[filter] hover:brightness-110 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-white"
-              >
-                Get started
-              </a>
-            </div>
-          </div>
         </section>
       </main>
 
