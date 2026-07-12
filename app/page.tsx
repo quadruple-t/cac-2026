@@ -1,6 +1,7 @@
 'use client';
 
 import Navigation from '@/components/navigation';
+import { CompassMark } from '@/components/compass-mark';
 
 const CONTOUR_PATHS = [
   "M -40 90 C 220 40 460 150 720 95 S 1180 40 1480 110",
@@ -12,15 +13,6 @@ const CONTOUR_PATHS = [
   "M -40 555 C 220 610 480 500 720 560 S 1220 615 1480 550",
   "M -40 640 C 240 590 520 690 780 635 S 1200 585 1480 650",
 ];
-
-function CompassMark({ needleColor }: { needleColor: string }) {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
-      <polygon points="8,1.5 10,8 8,14.5 6,8" fill="#b0673f" />
-      <polygon points="1.5,8 8,6 14.5,8 8,10" fill={needleColor} />
-    </svg>
-  );
-}
 
 const problemPoints = [
   {

@@ -57,7 +57,7 @@ export default function DeadlinesPage() {
       <Navigation />
 
       <main className="flex-1">
-        <section className="mx-auto max-w-[1400px] px-[22px] py-[66px]">
+        <section className="mx-auto max-w-[1080px] px-[22px] py-[66px]">
           <DeadlineTracker
             programs={programs}
             applicationStatuses={applicationStatuses}

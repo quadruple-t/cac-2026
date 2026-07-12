@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { DocumentRequirement, groupDocumentsByCategory } from '@/lib/document-requirements';
+import { CompassStatus } from '@/components/compass-status';
+import { TipIcon, CompleteIcon } from '@/components/feature-icons';
 
 interface DocumentChecklistProps {
   documents: DocumentRequirement[];
@@ -45,10 +47,14 @@ export default function DocumentChecklist({ documents, onReset }: DocumentCheckl
   const totalCount = documents.length;
   const progressPercent = Math.round((completedCount / totalCount) * 100);
 
+  // Needle sweeps from off-axis (0% complete) to aligned (100% complete).
+  const progressAngle = 100 - progressPercent;
+  const progressTone = progressPercent === 100 ? 'success' : progressPercent > 0 ? 'progress' : 'neutral';
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
-      <div className="bg-[#faf6f1] rounded-[14px] shadow-lg p-6 border border-[#e4d9cf]">
+      <div className="ac-reveal bg-[#faf6f1] rounded-[14px] p-6 border border-[#e4d9cf]">
         <div className="flex justify-between items-start mb-4">
           <div>
             <h2 className="font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-2">
@@ -66,10 +72,10 @@ export default function DocumentChecklist({ documents, onReset }: DocumentCheckl
           </button>
         </div>
 
-        {/* Progress Bar */}
+        {/* Progress */}
         <div className="mb-2">
-          <div className="flex justify-between text-sm text-[#6b5a4e] mb-2">
-            <span className="font-medium">Progress</span>
+          <div className="flex items-center justify-between text-sm text-[#6b5a4e] mb-2">
+            <CompassStatus tone={progressTone} angle={progressAngle} label="Progress" />
             <span>{completedCount} of {totalCount} completed ({progressPercent}%)</span>
           </div>
           <div className="w-full bg-[#e4d9cf] rounded-full h-2">
@@ -86,7 +92,7 @@ export default function DocumentChecklist({ documents, onReset }: DocumentCheckl
         if (docs.length === 0) return null;
 
         return (
-          <div key={category} className="bg-[#faf6f1] rounded-[14px] shadow-lg p-6 border border-[#e4d9cf]">
+          <div key={category} className="ac-reveal-2 bg-[#faf6f1] rounded-[14px] p-6 border border-[#e4d9cf]">
             <h3 className="font-serif text-[1.4rem] font-medium text-[#1f1610] mb-4 border-b border-[#e4d9cf] pb-3">
               {categoryLabels[category] || category}
             </h3>
@@ -106,9 +112,10 @@ export default function DocumentChecklist({ documents, onReset }: DocumentCheckl
 
       {/* Completion Message */}
       {progressPercent === 100 && (
-        <div className="bg-[#faf6f1] border-2 border-[#b0673f] rounded-[14px] p-6 text-center">
-          <h3 className="font-serif text-[1.6rem] font-medium text-[#1f1610] mb-2">
-            🎉 You're All Set!
+        <div className="ac-reveal bg-[#faf6f1] border-2 border-[#b0673f] rounded-[14px] p-6 text-center">
+          <h3 className="flex items-center justify-center gap-2 font-serif text-[1.6rem] font-medium text-[#1f1610] mb-2">
+            <CompleteIcon className="text-[#10b981]" />
+            You're All Set!
           </h3>
           <p className="text-[#6b5a4e] text-[1.05rem]">
             You've gathered all the documents you need. You're ready to apply for your aid programs.
@@ -145,7 +152,10 @@ function DocumentCard({ document, status, onStatusChange }: DocumentCardProps) {
       {/* Tips */}
       {document.tips && document.tips.length > 0 && (
         <div className="bg-[#faf6f1] rounded-[10px] p-4 mb-4 border border-[#e4d9cf]">
-          <p className="text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2">💡 Tips:</p>
+          <p className="flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2">
+            <TipIcon className="text-[#b0673f]" />
+            Tips:
+          </p>
           <ul className="text-[0.98rem] text-[#6b5a4e] space-y-1">
             {document.tips.map((tip, index) => (
               <li key={index} className="flex items-start gap-2">

@@ -54,6 +54,11 @@
   animation: ac-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) 0.24s both;
 }
 
+.compass-needle {
+  transform-origin: 8px 8px;
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -62,5 +67,8 @@
   .ac-reveal-2,
   .ac-reveal-3 {
     animation: none !important;
+  }
+  .compass-needle {
+    transition: none;
   }
 }
