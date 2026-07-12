@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AidProgram } from '@/lib/aid-programs';
+import { AidProgram, ApplicationStatus } from '@/lib/aid-programs';
 
 interface AidDashboardProps {
   programs: AidProgram[];
@@ -10,19 +10,43 @@ interface AidDashboardProps {
     damageType: string;
     ownershipStatus: string;
   };
+  applicationStatuses?: Record<string, ApplicationStatus>;
+  onStatusChange?: (programId: string, status: ApplicationStatus) => void;
 }
 
-export default function AidDashboard({ programs, userSituation }: AidDashboardProps) {
+export default function AidDashboard({ programs, userSituation, applicationStatuses = {}, onStatusChange }: AidDashboardProps) {
   const [expandedProgram, setExpandedProgram] = useState<string | null>(null);
+  const [localStatuses, setLocalStatuses] = useState<Record<string, ApplicationStatus>>(applicationStatuses);
 
   const toggleExpand = (programId: string) => {
     setExpandedProgram(expandedProgram === programId ? null : programId);
+  };
+
+  const handleStatusChange = (programId: string, status: ApplicationStatus) => {
+    setLocalStatuses(prev => ({ ...prev, [programId]: status }));
+    if (onStatusChange) {
+      onStatusChange(programId, status);
+    }
   };
 
   const urgencyColors = {
     high: 'bg-[#dc2626] text-white',
     medium: 'bg-[#f59e0b] text-white',
     low: 'bg-[#10b981] text-white'
+  };
+
+  const statusColors = {
+    not_applied: 'bg-[#faf6f1] border-[#e4d9cf] text-[#2a201a]',
+    applied: 'bg-[#faf6f1] border-[#b0673f] text-[#895031]',
+    approved: 'bg-[#faf6f1] border-[#10b981] text-[#10b981]',
+    received: 'bg-[#faf6f1] border-[#10b981] text-[#10b981]'
+  };
+
+  const statusLabels = {
+    not_applied: 'Not Applied',
+    applied: 'Applied',
+    approved: 'Approved',
+    received: 'Received Funds'
   };
 
   return (
@@ -49,6 +73,10 @@ export default function AidDashboard({ programs, userSituation }: AidDashboardPr
             isExpanded={expandedProgram === program.id}
             onToggle={() => toggleExpand(program.id)}
             urgencyColor={urgencyColors[program.deadlineUrgency]}
+            status={localStatuses[program.id] || 'not_applied'}
+            onStatusChange={(status) => handleStatusChange(program.id, status)}
+            statusColor={statusColors[localStatuses[program.id] || 'not_applied']}
+            statusLabel={statusLabels[localStatuses[program.id] || 'not_applied']}
           />
         ))}
       </div>
@@ -69,9 +97,13 @@ interface ProgramCardProps {
   isExpanded: boolean;
   onToggle: () => void;
   urgencyColor: string;
+  status: ApplicationStatus;
+  onStatusChange: (status: ApplicationStatus) => void;
+  statusColor: string;
+  statusLabel: string;
 }
 
-function ProgramCard({ program, isExpanded, onToggle, urgencyColor }: ProgramCardProps) {
+function ProgramCard({ program, isExpanded, onToggle, urgencyColor, status, onStatusChange, statusColor, statusLabel }: ProgramCardProps) {
   return (
     <div className="bg-[#faf6f1] rounded-[14px] shadow-lg border border-[#e4d9cf] overflow-hidden">
       {/* Card Header */}
@@ -83,9 +115,14 @@ function ProgramCard({ program, isExpanded, onToggle, urgencyColor }: ProgramCar
             </h3>
             <p className="text-[#6b5a4e] text-[0.92rem]">{program.agency}</p>
           </div>
-          <span className={`text-[0.7rem] px-2.5 py-1 rounded-full font-medium uppercase tracking-[0.04em] ${urgencyColor}`}>
-            {program.deadlineUrgency} Priority
-          </span>
+          <div className="flex flex-col items-end gap-2">
+            <span className={`text-[0.7rem] px-2.5 py-1 rounded-full font-medium uppercase tracking-[0.04em] ${urgencyColor}`}>
+              {program.deadlineUrgency} Priority
+            </span>
+            <span className={`text-[0.7rem] px-2.5 py-1 rounded-full font-medium uppercase tracking-[0.04em] border ${statusColor}`}>
+              {statusLabel}
+            </span>
+          </div>
         </div>
 
         <p className="text-[#6b5a4e] text-[1.05rem] leading-relaxed mb-4">
@@ -106,6 +143,23 @@ function ProgramCard({ program, isExpanded, onToggle, urgencyColor }: ProgramCar
             <span className="text-[#b0673f] mr-2">📄</span>
             <span>{program.requiredDocuments.length} documents required</span>
           </div>
+        </div>
+
+        {/* Status Tracker */}
+        <div className="mb-4">
+          <label className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2">
+            Application Status
+          </label>
+          <select
+            value={status}
+            onChange={(e) => onStatusChange(e.target.value as ApplicationStatus)}
+            className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+          >
+            <option value="not_applied">Not Applied</option>
+            <option value="applied">Applied</option>
+            <option value="approved">Approved</option>
+            <option value="received">Received Funds</option>
+          </select>
         </div>
 
         <button

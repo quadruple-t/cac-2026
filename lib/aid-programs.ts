@@ -20,6 +20,15 @@ export interface AidProgram {
   };
 }
 
+export type ApplicationStatus = 'not_applied' | 'applied' | 'approved' | 'received';
+
+export interface ProgramApplication {
+  programId: string;
+  status: ApplicationStatus;
+  applicationDate?: string;
+  notes?: string;
+}
+
 export interface UserSituation {
   county: string;
   damageType: 'home' | 'business' | 'both' | 'other';
@@ -163,6 +172,29 @@ const aidPrograms: AidProgram[] = [
     applicationUrl: 'https://www.nc211.org/',
     eligibility: {
       damageTypes: ['home', 'business', 'both', 'other'],
+      ownershipStatus: ['owner', 'renter'],
+      incomeRanges: ['low', 'medium', 'high', 'prefer_not_to_say'],
+      damageSeverities: ['minor', 'moderate', 'severe', 'destroyed']
+    }
+  },
+  {
+    id: 'disaster-assistance-gov',
+    name: 'DisasterAssistance.gov',
+    agency: 'Federal Emergency Management Agency',
+    description: 'Official federal portal for disaster assistance applications, providing access to FEMA Individual Assistance and other federal programs.',
+    maxAmount: 'Varies by program',
+    deadline: '60 days after disaster declaration',
+    deadlineUrgency: 'high',
+    requiredDocuments: [
+      'Proof of identity',
+      'Insurance information',
+      'Damage documentation',
+      'Proof of residence',
+      'Bank account information'
+    ],
+    applicationUrl: 'https://www.disasterassistance.gov/',
+    eligibility: {
+      damageTypes: ['home', 'business', 'both'],
       ownershipStatus: ['owner', 'renter'],
       incomeRanges: ['low', 'medium', 'high', 'prefer_not_to_say'],
       damageSeverities: ['minor', 'moderate', 'severe', 'destroyed']
