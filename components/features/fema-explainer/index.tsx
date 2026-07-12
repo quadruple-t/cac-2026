@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { getGeminiModel } from '@/lib/firebase/ai';
+import { CompleteIcon } from '@/components/feature-icons';
 
 interface AnalysisResult {
   status: string;
@@ -147,13 +148,13 @@ Return ONLY the JSON, no other text.`;
                 <div
                   className={`w-12 h-12 rounded-full flex items-center justify-center text-xl transition-all ${
                     isActive
-                      ? 'bg-[#b0673f] text-white scale-110 shadow-lg'
+                      ? 'bg-[#b0673f] text-white scale-110'
                       : isCompleted
                       ? 'bg-[#10b981] text-white'
                       : 'bg-[#e4d9cf] text-[#6b5a4e]'
                   }`}
                 >
-                  {isCompleted ? '✓' : step.icon}
+                  {isCompleted ? <CompleteIcon /> : step.icon}
                 </div>
                 <span
                   className={`text-xs mt-2 font-medium ${
@@ -177,7 +178,7 @@ Return ONLY the JSON, no other text.`;
 
       {/* Upload Step */}
       {currentStep === 'upload' && (
-        <div className="ac-reveal-3 bg-[#faf6f1] rounded-[14px] shadow-lg p-8 border border-[#e4d9cf] animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="ac-reveal-3 bg-[#faf6f1] rounded-[14px] p-8 border border-[#e4d9cf]">
           <div className="text-center mb-6">
             <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-[#b0673f] flex items-center justify-center">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
@@ -209,7 +210,7 @@ Return ONLY the JSON, no other text.`;
               <button
                 type="submit"
                 disabled={!letterText.trim()}
-                className="bg-[#3d2b20] text-white px-8 py-4 rounded-[10px] font-semibold text-[1.1rem] hover:bg-[#2b1e15] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                className="bg-[#3d2b20] text-white px-8 py-4 rounded-[10px] font-semibold text-[1.1rem] hover:bg-[#2b1e15] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Analyze My Letter →
               </button>
@@ -220,7 +221,7 @@ Return ONLY the JSON, no other text.`;
 
       {/* Analyzing Step */}
       {currentStep === 'analyzing' && (
-        <div className="ac-reveal-3 bg-[#faf6f1] rounded-[14px] shadow-lg p-12 border border-[#e4d9cf] text-center animate-in fade-in duration-500">
+        <div className="ac-reveal-3 bg-[#faf6f1] rounded-[14px] p-12 border border-[#e4d9cf] text-center">
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#b0673f] flex items-center justify-center animate-pulse">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
               <circle cx="11" cy="11" r="8"></circle>
@@ -241,9 +242,9 @@ Return ONLY the JSON, no other text.`;
 
       {/* Results Step */}
       {currentStep === 'results' && analysis && (
-        <div className="ac-reveal space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="ac-reveal space-y-6">
           {/* Status Card */}
-          <div className="bg-gradient-to-br from-[#b0673f] to-[#895031] rounded-[14px] shadow-lg p-8 text-white">
+          <div className="bg-[#3d2b20] rounded-[14px] p-8 text-white">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-serif text-[1.5rem] font-medium">Your Status</h3>
               <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
@@ -315,7 +316,7 @@ Return ONLY the JSON, no other text.`;
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={handleStartWalkthrough}
-              className="bg-[#b0673f] text-white px-8 py-4 rounded-[10px] font-semibold text-[1.1rem] hover:bg-[#895031] transition-colors shadow-lg"
+              className="bg-[#b0673f] text-white px-8 py-4 rounded-[10px] font-semibold text-[1.1rem] hover:bg-[#895031] transition-colors"
             >
               Start Step-by-Step Guide →
             </button>
@@ -331,8 +332,8 @@ Return ONLY the JSON, no other text.`;
 
       {/* Walkthrough Step */}
       {currentStep === 'walkthrough' && analysis && (
-        <div className="ac-reveal space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="bg-[#faf6f1] rounded-[14px] shadow-lg p-8 border border-[#e4d9cf]">
+        <div className="ac-reveal space-y-6">
+          <div className="bg-[#faf6f1] rounded-[14px] p-8 border border-[#e4d9cf]">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-serif text-[1.5rem] font-medium text-[#1f1610]">
                 Your Action Plan
@@ -385,18 +386,16 @@ Return ONLY the JSON, no other text.`;
               </div>
             ) : (
               <div className="text-center">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#dc2626] flex items-center justify-center">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="15" y1="9" x2="9" y2="15"></line>
-                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#10b981] flex items-center justify-center">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" aria-hidden="true">
+                    <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
                 <h4 className="font-serif text-[1.5rem] font-medium text-[#1f1610] mb-4">
-                  I'M NOT ALL SET
+                  You're All Set!
                 </h4>
                 <p className="text-[#6b5a4e] mb-8">
-                  If the result is unknown or does not pass, you may need to take additional action or contact FEMA for clarification.
+                  You've gone through every step in your action plan. If anything changes with your case, come back and re-run the analysis on the new letter.
                 </p>
                 <button
                   onClick={handleReset}
@@ -412,7 +411,7 @@ Return ONLY the JSON, no other text.`;
 
       {/* Error Section */}
       {error && (
-        <div className="bg-[#fee2e2] border-2 border-[#dc2626] rounded-[14px] p-6 animate-in fade-in">
+        <div className="ac-reveal bg-[#fee2e2] border-2 border-[#dc2626] rounded-[14px] p-6">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-full bg-[#dc2626] flex items-center justify-center flex-shrink-0">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
