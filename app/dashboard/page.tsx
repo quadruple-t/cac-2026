@@ -1,16 +1,25 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/lib/firebase/use-auth';
+import { useRouter } from 'next/navigation';
 import Navigation from '@/components/navigation';
 import AidDashboard from '@/components/features/aid-dashboard';
 import { getEligiblePrograms, rankProgramsByUrgency, UserSituation, AidProgram } from '@/lib/aid-programs';
 
 export default function DashboardPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const [userSituation, setUserSituation] = useState<UserSituation | null>(null);
   const [eligiblePrograms, setEligiblePrograms] = useState<AidProgram[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!loading && !user) {
+      router.push('/sign-in');
+      return;
+    }
+
     // Check for saved user situation from Document Generator
     const savedSituation = localStorage.getItem('userSituation');
     if (savedSituation) {
@@ -25,7 +34,7 @@ export default function DashboardPage() {
       }
     }
     setIsLoading(false);
-  }, []);
+  }, [user, loading, router]);
 
   const handleFormSubmit = (situation: UserSituation) => {
     setUserSituation(situation);
@@ -42,6 +51,19 @@ export default function DashboardPage() {
     // Clear from localStorage
     localStorage.removeItem('userSituation');
   };
+
+  if (loading || isLoading) {
+    return (
+      <div className="min-h-full bg-[#f2ece5] flex flex-col flex-1">
+        <Navigation />
+        <main className="flex-1">
+          <div className="text-center py-12">
+            <p className="text-[#6b5a4e]">Loading...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-full bg-[#f2ece5] flex flex-col flex-1">
@@ -63,11 +85,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Main Content */}
-          {isLoading ? (
-            <div className="text-center py-12">
-              <p className="text-[#6b5a4e]">Loading...</p>
-            </div>
-          ) : !userSituation ? (
+          {!userSituation ? (
             <QuickIntakeForm onSubmit={handleFormSubmit} />
           ) : (
             <div>
