@@ -1,26 +1,66 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f2ece5;
+  --foreground: #2a201a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-public-sans);
+  --font-serif: var(--font-newsreader);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    line-height: 1.55;
+  }
+
+  a {
+    color: #8a4f2f;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+  a:hover {
+    color: #5f3620;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes ac-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ac-reveal {
+  animation: ac-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.ac-reveal-2 {
+  animation: ac-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) 0.12s both;
+}
+.ac-reveal-3 {
+  animation: ac-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) 0.24s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .ac-reveal,
+  .ac-reveal-2,
+  .ac-reveal-3 {
+    animation: none !important;
+  }
 }
