@@ -6,9 +6,9 @@ import { AidProgram, ApplicationStatus } from '@/lib/aid-programs';
 interface AidDashboardProps {
   programs: AidProgram[];
   userSituation?: {
-    county: string;
-    damageType: string;
-    ownershipStatus: string;
+    county?: string;
+    damageType?: string;
+    ownershipStatus?: string;
   };
   applicationStatuses?: Record<string, ApplicationStatus>;
   onStatusChange?: (programId: string, status: ApplicationStatus) => void;

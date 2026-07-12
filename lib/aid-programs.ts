@@ -30,14 +30,14 @@ export interface ProgramApplication {
 }
 
 export interface UserSituation {
-  county: string;
-  damageType: 'home' | 'business' | 'both' | 'other';
-  ownershipStatus: 'owner' | 'renter' | 'both';
-  hasInsurance: boolean;
-  incomeRange: 'low' | 'medium' | 'high' | 'prefer_not_to_say';
-  isFarmer: boolean;
-  hasAppliedToFEMA: boolean;
-  damageSeverity: 'minor' | 'moderate' | 'severe' | 'destroyed';
+  county?: string;
+  damageType?: 'home' | 'business' | 'both' | 'other';
+  ownershipStatus?: 'owner' | 'renter' | 'both';
+  hasInsurance?: boolean;
+  incomeRange?: 'low' | 'medium' | 'high' | 'prefer_not_to_say';
+  isFarmer?: boolean;
+  hasAppliedToFEMA?: boolean;
+  damageSeverity?: 'minor' | 'moderate' | 'severe' | 'destroyed';
 }
 
 const aidPrograms: AidProgram[] = [
@@ -206,43 +206,46 @@ export function getEligiblePrograms(situation: UserSituation): AidProgram[] {
   return aidPrograms.filter(program => {
     const eligibility = program.eligibility;
 
+    // Unanswered fields are skipped rather than disqualifying a program —
+    // partial info should narrow results, never exclude the user entirely.
+
     // Check county if specified
-    if (eligibility.counties && !eligibility.counties.includes(situation.county)) {
+    if (eligibility.counties && situation.county && !eligibility.counties.includes(situation.county)) {
       return false;
     }
 
     // Check damage type
-    if (eligibility.damageTypes && !eligibility.damageTypes.includes(situation.damageType)) {
+    if (eligibility.damageTypes && situation.damageType && !eligibility.damageTypes.includes(situation.damageType)) {
       return false;
     }
 
     // Check ownership status
-    if (eligibility.ownershipStatus && !eligibility.ownershipStatus.includes(situation.ownershipStatus)) {
+    if (eligibility.ownershipStatus && situation.ownershipStatus && !eligibility.ownershipStatus.includes(situation.ownershipStatus)) {
       return false;
     }
 
     // Check income range
-    if (eligibility.incomeRanges && !eligibility.incomeRanges.includes(situation.incomeRange)) {
+    if (eligibility.incomeRanges && situation.incomeRange && !eligibility.incomeRanges.includes(situation.incomeRange)) {
       return false;
     }
 
     // Check farmer status
-    if (eligibility.isFarmer !== undefined && eligibility.isFarmer !== situation.isFarmer) {
+    if (eligibility.isFarmer !== undefined && situation.isFarmer !== undefined && eligibility.isFarmer !== situation.isFarmer) {
       return false;
     }
 
     // Check damage severity
-    if (eligibility.damageSeverities && !eligibility.damageSeverities.includes(situation.damageSeverity)) {
+    if (eligibility.damageSeverities && situation.damageSeverity && !eligibility.damageSeverities.includes(situation.damageSeverity)) {
       return false;
     }
 
     // Check insurance (if program requires no insurance)
-    if (eligibility.hasInsurance !== undefined && eligibility.hasInsurance !== situation.hasInsurance) {
+    if (eligibility.hasInsurance !== undefined && situation.hasInsurance !== undefined && eligibility.hasInsurance !== situation.hasInsurance) {
       return false;
     }
 
     // Check FEMA application status
-    if (eligibility.hasAppliedToFEMA !== undefined && eligibility.hasAppliedToFEMA !== situation.hasAppliedToFEMA) {
+    if (eligibility.hasAppliedToFEMA !== undefined && situation.hasAppliedToFEMA !== undefined && eligibility.hasAppliedToFEMA !== situation.hasAppliedToFEMA) {
       return false;
     }
 
