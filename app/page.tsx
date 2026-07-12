@@ -52,6 +52,25 @@ const steps = [
   },
 ];
 
+const contributors = [
+  {
+    name: "Taran Duba",
+    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  },
+  {
+    name: "Mukesh Ramanathan",
+    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  },
+  {
+    name: "Ansh Nayak",
+    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  },
+  {
+    name: "Hannah Kim",
+    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  },
+];
+
 const trustPoints = [
   {
     title: "Made by students in NC-08",
@@ -232,14 +251,27 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <div className="mt-10">
-              <a
-                href="#"
-                className="inline-block rounded-[10px] bg-[#b0673f] px-[26px] py-3.5 text-[1.05rem] font-bold text-[#241811] no-underline transition-[filter] hover:brightness-110 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-white"
-              >
-                Get started
-              </a>
-            </div>
+            <ul className="m-0 mt-10 grid list-none grid-cols-1 gap-x-6 gap-y-10 p-0 sm:grid-cols-2">
+              {contributors.map((person) => (
+                <li key={person.name} className="flex flex-col items-center text-center">
+                  <span
+                    aria-hidden="true"
+                    className="h-[216px] w-[216px] flex-none rounded-full border border-[#4a362a] bg-[#3d2b20] bg-cover bg-center"
+                    style={{
+                      backgroundImage: `url(/team/${person.name
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")}.jpg)`,
+                    }}
+                  />
+                  <h3 className="mb-1 mt-4 font-serif text-[1.02rem] font-semibold text-white">
+                    {person.name}
+                  </h3>
+                  <p className="m-0 max-w-[240px] font-sans text-[0.92rem] text-[#cbb8a8]">
+                    {person.bio}
+                  </p>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       </main>
