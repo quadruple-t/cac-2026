@@ -90,7 +90,7 @@ export default function Home() {
             </span>
           </a>
           <a
-            href="#"
+            href="/sign-in"
             className="flex-none rounded-lg bg-[#3d2b20] px-4 py-2.5 text-[0.92rem] font-semibold text-white no-underline transition-colors hover:bg-[#2b1e15] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#3d2b20]"
           >
             Get started
@@ -145,7 +145,7 @@ export default function Home() {
               </p>
               <div className="ac-reveal-3 flex flex-wrap items-center gap-x-[18px] gap-y-3.5">
                 <a
-                  href="#"
+                  href="/sign-up"
                   className="rounded-[10px] bg-[#3d2b20] px-[26px] py-3.5 text-[1.05rem] font-semibold text-white no-underline transition-colors hover:bg-[#2b1e15] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[#3d2b20]"
                 >
                   Get started — it&apos;s free
@@ -256,7 +256,7 @@ export default function Home() {
             </ul>
             <div className="mt-10">
               <a
-                href="#"
+                href="/sign-up"
                 className="inline-block rounded-[10px] bg-[#b0673f] px-[26px] py-3.5 text-[1.05rem] font-bold text-[#241811] no-underline transition-[filter] hover:brightness-110 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-white"
               >
                 Get started
@@ -294,7 +294,7 @@ export default function Home() {
               <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[0.95rem]">
                 <li>
                   <a
-                    href="#"
+                    href="/dashboard"
                     className="text-[#cdbcae] no-underline hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                   >
                     Open Aid Compass
