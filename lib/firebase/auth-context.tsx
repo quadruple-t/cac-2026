@@ -2,7 +2,7 @@
 
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { createContext, useEffect, useState, type ReactNode } from "react";
-import { getFirebaseAuth } from "./client";
+import { getAppCheck, getFirebaseAuth } from "./client";
 
 type AuthContextValue = {
   user: User | null;
@@ -19,6 +19,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Initialize before any Auth/Firestore/AI Logic calls so the App Check
+    // token is attached from the very first request those SDKs make.
+    getAppCheck();
     return onAuthStateChanged(getFirebaseAuth(), (nextUser) => {
       setUser(nextUser);
       setLoading(false);
