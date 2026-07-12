@@ -385,17 +385,18 @@ Return ONLY the JSON, no other text.`;
               </div>
             ) : (
               <div className="text-center">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#10b981] flex items-center justify-center">
+                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#dc2626] flex items-center justify-center">
                   <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
                   </svg>
                 </div>
                 <h4 className="font-serif text-[1.5rem] font-medium text-[#1f1610] mb-4">
-                  You're All Set!
+                  I'M NOT ALL SET
                 </h4>
                 <p className="text-[#6b5a4e] mb-8">
-                  You've completed all the recommended steps. Good luck with your FEMA application!
+                  If the result is unknown or does not pass, you may need to take additional action or contact FEMA for clarification.
                 </p>
                 <button
                   onClick={handleReset}
