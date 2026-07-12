@@ -11,10 +11,14 @@ export default function ChecklistPage() {
 
   const handleFormSubmit = (situation: UserSituation) => {
     setUserSituation(situation);
+    // Save to localStorage for use in Aid Dashboard
+    localStorage.setItem('userSituation', JSON.stringify(situation));
   };
 
   const handleReset = () => {
     setUserSituation(null);
+    // Clear from localStorage
+    localStorage.removeItem('userSituation');
   };
 
   return (

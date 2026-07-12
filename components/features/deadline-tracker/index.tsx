@@ -1,16 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { AidProgram, ApplicationStatus } from '@/lib/aid-programs';
 
-interface Deadline {
-  id: string;
-  program: string;
-  deadline: string;
-  urgency: 'critical' | 'high' | 'medium' | 'low';
-  status: 'not_started' | 'applied' | 'approved' | 'received';
+interface DeadlineTrackerProps {
+  programs: AidProgram[];
+  applicationStatuses: Record<string, ApplicationStatus>;
+  onStatusChange: (programId: string, status: ApplicationStatus) => void;
 }
 
-export default function DeadlineTracker() {
+export default function DeadlineTracker({ programs, applicationStatuses, onStatusChange }: DeadlineTrackerProps) {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
@@ -21,75 +20,67 @@ export default function DeadlineTracker() {
     }
   };
 
-  const deadlines: Deadline[] = [
-    {
-      id: '1',
-      program: 'FEMA Individual Assistance',
-      deadline: '60 days from disaster declaration',
-      urgency: 'critical',
-      status: 'not_started',
-    },
-    {
-      id: '2',
-      program: 'SBA Disaster Home Loan',
-      deadline: 'Apply within 60 days',
-      urgency: 'high',
-      status: 'not_started',
-    },
-    {
-      id: '3',
-      program: 'NC Disaster Recovery Program',
-      deadline: 'Ongoing - apply as soon as possible',
-      urgency: 'medium',
-      status: 'not_started',
-    },
-  ];
-
   const urgencyColors = {
-    critical: 'bg-red-100 text-red-800 border-red-200',
-    high: 'bg-orange-100 text-orange-800 border-orange-200',
-    medium: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    low: 'bg-gray-100 text-gray-800 border-gray-200',
+    high: 'bg-[#dc2626] text-white',
+    medium: 'bg-[#f59e0b] text-white',
+    low: 'bg-[#10b981] text-white'
+  };
+
+  const statusColors = {
+    not_applied: 'bg-[#faf6f1] border-[#e4d9cf] text-[#2a201a]',
+    applied: 'bg-[#faf6f1] border-[#b0673f] text-[#895031]',
+    approved: 'bg-[#faf6f1] border-[#10b981] text-[#10b981]',
+    received: 'bg-[#faf6f1] border-[#10b981] text-[#10b981]'
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8">
+      {/* Header */}
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">
+        <p className="mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
           Deadline Tracker
+        </p>
+        <h2 className="font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
+          Track Your Application Deadlines
         </h2>
-        <p className="text-gray-600">
-          Track your application deadlines and never miss an opportunity
+        <p className="text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
+          Never miss a deadline. Track your application status and get reminders for your eligible programs.
         </p>
       </div>
 
       {/* Deadline Cards */}
       <div className="space-y-4">
-        {deadlines.map((deadline) => (
+        {programs.map((program) => (
           <div
-            key={deadline.id}
-            className="bg-white rounded-lg shadow-lg p-6 border border-gray-200"
+            key={program.id}
+            className="bg-[#faf6f1] rounded-[14px] shadow-lg p-6 border border-[#e4d9cf]"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                  {deadline.program}
+                <h3 className="font-serif text-[1.15rem] font-medium text-[#1f1610] mb-1">
+                  {program.name}
                 </h3>
-                <p className="text-sm text-gray-600">{deadline.deadline}</p>
+                <p className="text-[#6b5a4e] text-[0.92rem]">{program.agency}</p>
               </div>
               <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${urgencyColors[deadline.urgency]}`}
+                className={`text-[0.7rem] px-2.5 py-1 rounded-full font-medium uppercase tracking-[0.04em] ${urgencyColors[program.deadlineUrgency]}`}
               >
-                {deadline.urgency}
+                {program.deadlineUrgency} Priority
               </span>
+            </div>
+
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-[#b0673f] mr-2">⏰</span>
+              <span className="text-sm text-[#6b5a4e]">{program.deadline}</span>
             </div>
 
             <div className="flex items-center gap-2">
               <select
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
-                defaultValue={deadline.status}
+                className="flex-1 px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+                value={applicationStatuses[program.id] || 'not_applied'}
+                onChange={(e) => onStatusChange(program.id, e.target.value as ApplicationStatus)}
               >
-                <option value="not_started">Not Started</option>
+                <option value="not_applied">Not Applied</option>
                 <option value="applied">Applied</option>
                 <option value="approved">Approved</option>
                 <option value="received">Received Funds</option>
@@ -100,33 +91,33 @@ export default function DeadlineTracker() {
       </div>
 
       {/* Email Subscription */}
-      <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+      <div className="bg-[#faf6f1] rounded-[14px] p-6 border border-[#e4d9cf]">
+        <h3 className="font-serif text-[1.15rem] font-medium text-[#1f1610] mb-2">
           Get Deadline Reminders
         </h3>
-        <p className="text-sm text-gray-600 mb-4">
-          We'll send you email reminders as your deadlines approach
+        <p className="text-[#6b5a4e] text-[1.05rem] mb-4">
+          We'll send you email reminders as your deadlines approach so you never miss an opportunity.
         </p>
 
         {!subscribed ? (
-          <form onSubmit={handleSubscribe} className="flex gap-2">
+          <form onSubmit={handleSubscribe} className="flex gap-3">
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="flex-1 px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
             />
             <button
               type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700 transition-colors"
+              className="bg-[#b0673f] text-white px-6 py-3 rounded-[10px] font-semibold text-[1.05rem] hover:bg-[#895031] transition-colors"
             >
               Subscribe
             </button>
           </form>
         ) : (
-          <div className="text-green-700 font-medium">
+          <div className="text-[#10b981] font-medium text-[1.05rem]">
             ✓ Subscribed! We'll send reminders to {email}
           </div>
         )}
