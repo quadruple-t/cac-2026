@@ -1,3 +1,7 @@
+'use client';
+
+import Navigation from '@/components/navigation';
+
 const CONTOUR_PATHS = [
   "M -40 90 C 220 40 460 150 720 95 S 1180 40 1480 110",
   "M -40 165 C 260 120 500 210 760 160 S 1200 120 1480 175",
@@ -70,33 +74,7 @@ const trustPoints = [
 export default function Home() {
   return (
     <div className="min-h-full bg-[#f2ece5] flex flex-col flex-1">
-      <header className="sticky top-0 z-20 border-b border-[#e4d9cf] bg-[#f2ece5]/85 backdrop-blur-sm">
-        <nav
-          aria-label="Primary"
-          className="mx-auto flex max-w-[1080px] items-center justify-between gap-4 px-[22px] py-3.5"
-        >
-          <a
-            href="#top"
-            className="flex items-center gap-2.5 text-[#2a201a] no-underline"
-          >
-            <span
-              aria-hidden="true"
-              className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-full border-[1.5px] border-[#3d2b20]"
-            >
-              <CompassMark needleColor="#3d2b20" />
-            </span>
-            <span className="text-[1.06rem] font-bold tracking-[-0.01em]">
-              Aid Compass
-            </span>
-          </a>
-          <a
-            href="/sign-in"
-            className="flex-none rounded-lg bg-[#3d2b20] px-4 py-2.5 text-[0.92rem] font-semibold text-white no-underline transition-colors hover:bg-[#2b1e15] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#3d2b20]"
-          >
-            Get started
-          </a>
-        </nav>
-      </header>
+      <Navigation />
 
       <main id="top" className="flex-1">
         {/* HERO */}
