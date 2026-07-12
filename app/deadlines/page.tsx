@@ -1,11 +1,55 @@
-import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/firebase/session";
-import Navigation from "@/components/navigation";
+'use client';
 
-export default async function DeadlinesPage() {
-  const user = await getCurrentUser();
-  if (!user) {
-    redirect("/sign-in");
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/lib/firebase/use-auth';
+import { useRouter } from 'next/navigation';
+import Navigation from '@/components/navigation';
+import DeadlineTracker from '@/components/features/deadline-tracker';
+import { getEligiblePrograms, rankProgramsByUrgency, UserSituation, AidProgram, ApplicationStatus } from '@/lib/aid-programs';
+
+export default function DeadlinesPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [programs, setPrograms] = useState<AidProgram[]>([]);
+  const [applicationStatuses, setApplicationStatuses] = useState<Record<string, ApplicationStatus>>({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/sign-in');
+      return;
+    }
+
+    // Check for saved user situation
+    const savedSituation = localStorage.getItem('userSituation');
+    if (savedSituation) {
+      try {
+        const parsedSituation = JSON.parse(savedSituation);
+        const eligible = getEligiblePrograms(parsedSituation);
+        const ranked = rankProgramsByUrgency(eligible);
+        setPrograms(ranked);
+      } catch (error) {
+        console.error('Error parsing saved situation:', error);
+      }
+    }
+    setIsLoading(false);
+  }, [user, loading, router]);
+
+  const handleStatusChange = (programId: string, status: ApplicationStatus) => {
+    setApplicationStatuses(prev => ({ ...prev, [programId]: status }));
+  };
+
+  if (loading || isLoading) {
+    return (
+      <div className="min-h-full bg-[#f2ece5] flex flex-col flex-1">
+        <Navigation />
+        <main className="flex-1">
+          <div className="text-center py-12">
+            <p className="text-[#6b5a4e]">Loading...</p>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -14,17 +58,11 @@ export default async function DeadlinesPage() {
 
       <main className="flex-1">
         <section className="mx-auto max-w-[1400px] px-[22px] py-[66px]">
-          <div className="mb-[34px] text-center">
-            <p className="mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-              Deadline Tracker
-            </p>
-            <h1 className="font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-              Coming Soon
-            </h1>
-            <p className="text-[#6b5a4e] text-[1.05rem] leading-relaxed max-w-2xl mx-auto">
-              This page is under construction.
-            </p>
-          </div>
+          <DeadlineTracker
+            programs={programs}
+            applicationStatuses={applicationStatuses}
+            onStatusChange={handleStatusChange}
+          />
         </section>
       </main>
     </div>
