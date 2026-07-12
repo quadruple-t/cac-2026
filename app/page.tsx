@@ -278,17 +278,17 @@ export default function Home() {
                 <li key={person.name} className="flex flex-col items-center text-center">
                   <span
                     aria-hidden="true"
-                    className="h-36 w-36 flex-none rounded-full border border-[#4a362a] bg-[#3d2b20] bg-cover bg-center"
+                    className="h-[216px] w-[216px] flex-none rounded-full border border-[#4a362a] bg-[#3d2b20] bg-cover bg-center"
                     style={{
                       backgroundImage: `url(/team/${person.name
                         .toLowerCase()
                         .replace(/\s+/g, "-")}.jpg)`,
                     }}
                   />
-                  <h3 className="mb-1 mt-4 text-[1.02rem] font-semibold text-white">
+                  <h3 className="mb-1 mt-4 font-serif text-[1.02rem] font-semibold text-white">
                     {person.name}
                   </h3>
-                  <p className="m-0 max-w-[240px] text-[0.92rem] text-[#cbb8a8]">
+                  <p className="m-0 max-w-[240px] font-sans text-[0.92rem] text-[#cbb8a8]">
                     {person.bio}
                   </p>
                 </li>
