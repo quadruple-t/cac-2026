@@ -57,19 +57,19 @@ export default function FemaExplainer() {
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
       <div className="text-center mb-8">
-        <p className="mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
+        <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
           FEMA Letter Explainer
         </p>
-        <h2 className="font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
+        <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
           Understand Your FEMA Letter
-        </h2>
-        <p className="text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
+        </h1>
+        <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
           Paste your FEMA letter to understand what it means in plain English and what to do next.
         </p>
       </div>
 
       {/* Input Section */}
-      <div className="bg-[#faf6f1] rounded-[14px] shadow-lg p-6 border border-[#e4d9cf]">
+      <div className="ac-reveal-3 bg-[#faf6f1] rounded-[14px] p-6 border border-[#e4d9cf]">
         <form onSubmit={handleAnalyze}>
           <label htmlFor="letter" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
             Paste your FEMA letter here
@@ -97,7 +97,7 @@ export default function FemaExplainer() {
 
       {/* Analysis Section */}
       {analysis && (
-        <div className="bg-[#faf6f1] rounded-[14px] shadow-lg p-6 border border-[#e4d9cf]">
+        <div className="ac-reveal bg-[#faf6f1] rounded-[14px] p-6 border border-[#e4d9cf]">
           <h3 className="font-serif text-[1.15rem] font-medium text-[#1f1610] mb-4">
             Analysis Results
           </h3>

@@ -53,23 +53,23 @@ export default function ConversationalPage() {
       <Navigation />
 
       <main className="flex-1">
-        <section className="mx-auto max-w-[1400px] px-[22px] py-[66px]">
+        <section className="mx-auto max-w-[1080px] px-[22px] py-[66px]">
           {!userSituation ? (
             <ConversationalIntake onComplete={handleIntakeComplete} />
           ) : (
             <div>
               <div className="text-center mb-8">
-                <p className="mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
+                <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
                   Your Results
                 </p>
-                <h2 className="font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
+                <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
                   Programs You Qualify For
-                </h2>
-                <p className="text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
+                </h1>
+                <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
                   Based on your situation in {userSituation.county}, you're eligible for {eligiblePrograms.length} aid programs.
                 </p>
               </div>
-              
+
               <AidDashboard programs={eligiblePrograms} userSituation={userSituation} />
               
               <div className="text-center mt-8">
