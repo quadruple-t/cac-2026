@@ -8,9 +8,8 @@ import { useAuth } from '@/lib/firebase/use-auth';
 
 const navItems = [
   { name: 'Home', href: '/' },
-  { name: 'Document Generator', href: '/checklist' },
   { name: 'Conversational Intake', href: '/conversational' },
-  { name: 'Aid Dashboard', href: '/dashboard' },
+  { name: 'Aid Center', href: '/dashboard' },
   { name: 'Deadline Tracker', href: '/deadlines' },
   { name: 'FEMA Explainer', href: '/fema' },
 ];
