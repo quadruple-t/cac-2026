@@ -47,18 +47,18 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <h2 className="font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-3">
+    <div className="max-w-4xl mx-auto">
+      <h2 className="font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
         Tell Us About Your Situation
       </h2>
-      <p className="text-[#6b5a4e] mb-12 text-[1.05rem] leading-relaxed">
+      <p className="text-[#6b5a4e] mb-[34px] text-[1.05rem] leading-relaxed">
         We'll use this information to create a personalized document checklist for the aid programs you qualify for.
       </p>
 
-      <form onSubmit={handleSubmit} className="space-y-10">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* County */}
         <div>
-          <label htmlFor="county" className="block text-[0.82rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-3">
+          <label htmlFor="county" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
             What county are you in? <span className="text-[#b0673f]">*</span>
           </label>
           <input
@@ -68,14 +68,14 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
             value={formData.county}
             onChange={handleChange}
             required
-            className="w-full px-5 py-3 border border-[#e4d9cf] rounded-[10px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+            className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
             placeholder="e.g., Buncombe County"
           />
         </div>
 
         {/* Damage Type */}
         <div>
-          <label htmlFor="damageType" className="block text-[0.82rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-3">
+          <label htmlFor="damageType" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
             What type of property was damaged? <span className="text-[#b0673f]">*</span>
           </label>
           <select
@@ -84,7 +84,7 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
             value={formData.damageType || ''}
             onChange={handleChange}
             required
-            className="w-full px-5 py-3 border border-[#e4d9cf] rounded-[10px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+            className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
           >
             <option value="">Select an option</option>
             <option value="home">Home</option>
@@ -96,7 +96,7 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
 
         {/* Ownership Status */}
         <div>
-          <label htmlFor="ownershipStatus" className="block text-[0.82rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-3">
+          <label htmlFor="ownershipStatus" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
             Do you own or rent? <span className="text-[#b0673f]">*</span>
           </label>
           <select
@@ -105,7 +105,7 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
             value={formData.ownershipStatus || ''}
             onChange={handleChange}
             required
-            className="w-full px-5 py-3 border border-[#e4d9cf] rounded-[10px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+            className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
           >
             <option value="">Select an option</option>
             <option value="owner">Owner</option>
@@ -132,7 +132,7 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
 
         {/* Income Range */}
         <div>
-          <label htmlFor="incomeRange" className="block text-[0.82rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-3">
+          <label htmlFor="incomeRange" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
             What is your household income range? <span className="text-[#b0673f]">*</span>
           </label>
           <select
@@ -141,7 +141,7 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
             value={formData.incomeRange || ''}
             onChange={handleChange}
             required
-            className="w-full px-5 py-3 border border-[#e4d9cf] rounded-[10px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+            className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
           >
             <option value="">Select an option</option>
             <option value="low">Under $50,000</option>
@@ -153,7 +153,7 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
 
         {/* Farmer */}
         <div>
-          <label htmlFor="isFarmer" className="block text-[0.82rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-3">
+          <label htmlFor="isFarmer" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
             Are you a farmer or do you own agricultural land? <span className="text-[#b0673f]">*</span>
           </label>
           <div className="flex space-x-6">
@@ -200,7 +200,7 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
 
         {/* Damage Severity */}
         <div>
-          <label htmlFor="damageSeverity" className="block text-[0.82rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-3">
+          <label htmlFor="damageSeverity" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
             How would you describe the damage severity? <span className="text-[#b0673f]">*</span>
           </label>
           <select
@@ -209,7 +209,7 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
             value={formData.damageSeverity || ''}
             onChange={handleChange}
             required
-            className="w-full px-5 py-3 border border-[#e4d9cf] rounded-[10px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+            className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
           >
             <option value="">Select an option</option>
             <option value="minor">Minor (some damage, still livable/operational)</option>
@@ -223,7 +223,7 @@ export default function SituationIntake({ onSubmit }: SituationIntakeProps) {
         <button
           type="submit"
           disabled={!isValidForm()}
-          className="w-full bg-[#3d2b20] text-white py-4 px-6 rounded-[10px] font-semibold text-[1.05rem] hover:bg-[#2b1e15] focus:ring-2 focus:ring-[#b0673f] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mt-4"
+          className="w-full bg-[#3d2b20] text-white py-3.5 px-6 rounded-[10px] font-semibold text-[1.05rem] hover:bg-[#2b1e15] focus:ring-2 focus:ring-[#b0673f] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           Generate My Document Checklist
         </button>

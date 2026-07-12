@@ -5,7 +5,6 @@ import Navigation from '@/components/navigation';
 import SituationIntake from '@/components/features/situation-intake';
 import DocumentChecklist from '@/components/features/document-checklist';
 import { UserSituation, generateDocumentChecklist } from '@/lib/document-requirements';
-import Link from 'next/link';
 
 export default function ChecklistPage() {
   const [userSituation, setUserSituation] = useState<UserSituation | null>(null);
@@ -19,29 +18,35 @@ export default function ChecklistPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f2ece5] py-40 px-4">
+    <div className="min-h-full bg-[#f2ece5] flex flex-col flex-1">
       <Navigation />
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-20">
-          <h1 className="font-serif text-[clamp(2.5rem,7vw,4rem)] font-medium leading-[1.08] tracking-[-0.015em] text-[#1f1610] mb-4">
-            Document Checklist Generator
-          </h1>
-          <p className="text-[#6b5a4e] text-[clamp(1.1rem,2.8vw,1.3rem)] leading-relaxed max-w-2xl">
-            Get your personalized document checklist for disaster aid applications
-          </p>
-        </div>
 
-        {/* Main Content */}
-        {!userSituation ? (
-          <SituationIntake onSubmit={handleFormSubmit} />
-        ) : (
-          <DocumentChecklist
-            documents={generateDocumentChecklist(userSituation)}
-            onReset={handleReset}
-          />
-        )}
-      </div>
+      <main className="flex-1">
+        <section className="mx-auto max-w-[1400px] px-[22px] py-[66px]">
+          {/* Header */}
+          <div className="mb-[34px] text-center">
+            <p className="mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
+              Document Checklist
+            </p>
+            <h1 className="font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
+              Generate Your Personalized Document Checklist
+            </h1>
+            <p className="text-[#6b5a4e] text-[1.05rem] leading-relaxed max-w-2xl mx-auto">
+              Answer a few questions about your situation and we'll create a customized checklist of documents you need for disaster aid applications.
+            </p>
+          </div>
+
+          {/* Main Content */}
+          {!userSituation ? (
+            <SituationIntake onSubmit={handleFormSubmit} />
+          ) : (
+            <DocumentChecklist
+              documents={generateDocumentChecklist(userSituation)}
+              onReset={handleReset}
+            />
+          )}
+        </section>
+      </main>
     </div>
   );
 }
