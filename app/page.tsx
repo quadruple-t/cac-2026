@@ -110,7 +110,7 @@ export default function Home() {
                   Get started — it&apos;s free
                 </a>
                 <span className="text-[0.9rem] text-[#6b5a4e]">
-                  Free · No account to start · Independent, not a government
+                  Free · make an account to start · Independent, not a government
                   site
                 </span>
               </div>
