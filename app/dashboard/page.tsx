@@ -1,5 +1,20 @@
 'use client';
 
+/**
+ * Aid Dashboard page ("Disaster Aid Center").
+ *
+ * This is the main authenticated hub of Aid Compass. It has two jobs:
+ *   1. Collect a "situation" from the user (county, damage type, ownership,
+ *      income, etc.) via a short intake form.
+ *   2. Once a situation exists, show the user two tabs built from that same
+ *      situation: the list of aid programs they're eligible for, and a
+ *      personalized document checklist for applying to those programs.
+ *
+ * The user's situation is persisted to localStorage (not a database) so it
+ * can be shared across this page, the Deadline Tracker, and the standalone
+ * Document Checklist page without re-asking the same questions.
+ */
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/firebase/use-auth';
 import { useRouter } from 'next/navigation';
@@ -11,14 +26,35 @@ import { getEligiblePrograms, rankProgramsByUrgency, UserSituation, AidProgram }
 import { generateDocumentChecklist } from '@/lib/document-requirements';
 
 export default function DashboardPage() {
+  // Firebase auth state. `loading` is true until Firebase has resolved
+  // whether a user is signed in; `user` is null when signed out.
   const { user, loading } = useAuth();
   const router = useRouter();
+
+  // The user's answers from the intake form (county, damage type, etc.).
+  // Null until they've submitted the form at least once (this session or a
+  // previous one, via localStorage).
   const [userSituation, setUserSituation] = useState<UserSituation | null>(null);
+
+  // Aid programs the current situation qualifies for, pre-sorted so the
+  // most time-sensitive deadlines surface first. Derived from
+  // `userSituation` any time it changes (see handlers below).
   const [eligiblePrograms, setEligiblePrograms] = useState<AidProgram[]>([]);
+
+  // Local "is this page ready to render" flag, separate from Firebase's own
+  // `loading`. Covers the synchronous localStorage read below so we don't
+  // flash the intake form for a split second before swapping to the
+  // dashboard/checklist view.
   const [isLoading, setIsLoading] = useState(true);
+
+  // Which of the two result tabs is currently visible once a situation
+  // exists: the matched aid programs, or the generated document checklist.
   const [activeTab, setActiveTab] = useState<'programs' | 'documents'>('programs');
 
   useEffect(() => {
+    // Route guard: bounce anonymous visitors to sign-in once Firebase has
+    // finished checking auth state. (Also enforced server-side by the
+    // proxy/middleware, but this handles the client-rendered case too.)
     if (!loading && !user) {
       router.push('/sign-in');
       return;
@@ -76,6 +112,9 @@ export default function DashboardPage() {
     }
   };
 
+  // While Firebase auth is still resolving, or while we're checking
+  // localStorage for a saved situation, show a minimal loading state rather
+  // than the intake form (which would otherwise flash briefly).
   if (loading || isLoading) {
     return (
       <div className="min-h-full bg-[#f2ece5] flex flex-col flex-1">
@@ -95,7 +134,7 @@ export default function DashboardPage() {
 
       <main className="flex-1">
         <section className="mx-auto max-w-[1080px] px-[22px] py-[66px]">
-          {/* Header */}
+          {/* Header — always visible, regardless of which step the user is on. */}
           <div className="mb-[34px] text-center">
             <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
               Disaster Aid Center
@@ -108,12 +147,15 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          {/* Main Content */}
+          {/* Main Content:
+              - No situation yet -> show the intake form.
+              - Situation exists -> show the tabbed programs/documents view. */}
           {!userSituation ? (
             <AidIntakeForm onSubmit={handleFormSubmit} />
           ) : (
             <div>
-              {/* Tab Navigation */}
+              {/* Tab Navigation — switches between the two views built from
+                  the same `userSituation`/`eligiblePrograms` data. */}
               <div className="flex justify-center mb-8">
                 <div className="inline-flex bg-white border border-[#e4d9cf] rounded-[14px] p-1">
                   <button
@@ -139,7 +181,10 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Tab Content */}
+              {/* Tab Content.
+                  Note: `generateDocumentChecklist` is recomputed here (and
+                  again in the tab label above) rather than cached in state,
+                  since it's a pure/cheap derivation from `userSituation`. */}
               {activeTab === 'programs' ? (
                 <AidDashboard programs={eligiblePrograms} userSituation={userSituation} />
               ) : (
