@@ -46,35 +46,35 @@ export default function DocumentChecklist({ documents, onReset }: DocumentCheckl
   const progressPercent = Math.round((completedCount / totalCount) * 100);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
+    <div className="max-w-4xl mx-auto p-8 space-y-10">
       {/* Header */}
-      <div className="bg-[#faf6f1] rounded-lg shadow-lg p-6 border border-[#e4d9cf]">
-        <div className="flex justify-between items-start mb-4">
+      <div className="bg-[#faf6f1] rounded-[14px] shadow-lg p-8 border border-[#e4d9cf]">
+        <div className="flex justify-between items-start mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-[#1f1610] mb-2">
+            <h2 className="font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-3">
               Your Document Checklist
             </h2>
-            <p className="text-[#55483d]">
+            <p className="text-[#6b5a4e] text-[1.05rem] leading-relaxed">
               Based on your situation, you'll need {totalCount} documents for your aid applications.
             </p>
           </div>
           <button
             onClick={onReset}
-            className="text-sm text-[#895031] hover:text-[#6b5a4e] font-medium"
+            className="text-[0.92rem] text-[#895031] hover:text-[#6b5a4e] font-medium transition-colors"
           >
             Start Over
           </button>
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-4">
-          <div className="flex justify-between text-sm text-[#55483d] mb-2">
-            <span>Progress</span>
+        <div className="mb-2">
+          <div className="flex justify-between text-[0.92rem] text-[#6b5a4e] mb-3">
+            <span className="font-medium">Progress</span>
             <span>{completedCount} of {totalCount} completed ({progressPercent}%)</span>
           </div>
-          <div className="w-full bg-[#e4d9cf] rounded-full h-3">
+          <div className="w-full bg-[#e4d9cf] rounded-full h-2">
             <div
-              className="bg-[#b0673f] h-3 rounded-full transition-all duration-300"
+              className="bg-[#b0673f] h-2 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -86,11 +86,11 @@ export default function DocumentChecklist({ documents, onReset }: DocumentCheckl
         if (docs.length === 0) return null;
 
         return (
-          <div key={category} className="bg-[#faf6f1] rounded-lg shadow-lg p-6 border border-[#e4d9cf]">
-            <h3 className="text-lg font-semibold text-[#1f1610] mb-4 border-b border-[#e4d9cf] pb-2">
+          <div key={category} className="bg-[#faf6f1] rounded-[14px] shadow-lg p-8 border border-[#e4d9cf]">
+            <h3 className="font-serif text-[1.4rem] font-medium text-[#1f1610] mb-6 border-b border-[#e4d9cf] pb-4">
               {categoryLabels[category] || category}
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-5">
               {docs.map(doc => (
                 <DocumentCard
                   key={doc.id}
@@ -106,11 +106,11 @@ export default function DocumentChecklist({ documents, onReset }: DocumentCheckl
 
       {/* Completion Message */}
       {progressPercent === 100 && (
-        <div className="bg-[#faf6f1] border border-[#b0673f] rounded-lg p-6 text-center">
-          <h3 className="text-xl font-semibold text-[#1f1610] mb-2">
+        <div className="bg-[#faf6f1] border-2 border-[#b0673f] rounded-[14px] p-8 text-center">
+          <h3 className="font-serif text-[1.6rem] font-medium text-[#1f1610] mb-3">
             🎉 You're All Set!
           </h3>
-          <p className="text-[#55483d]">
+          <p className="text-[#6b5a4e] text-[1.05rem] leading-relaxed">
             You've gathered all the documents you need. You're ready to apply for your aid programs.
           </p>
         </div>
@@ -127,38 +127,41 @@ interface DocumentCardProps {
 
 function DocumentCard({ document, status, onStatusChange }: DocumentCardProps) {
   return (
-    <div className="border border-[#e4d9cf] rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
-      <div className="flex items-start justify-between mb-3">
+    <div className="border border-[#e4d9cf] rounded-[12px] p-6 hover:shadow-lg transition-shadow bg-white">
+      <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <h4 className="font-medium text-[#1f1610]">{document.name}</h4>
+          <div className="flex items-center gap-3 mb-2">
+            <h4 className="font-serif text-[1.15rem] font-medium text-[#1f1610]">{document.name}</h4>
             <span
-              className={`text-xs px-2 py-1 rounded-full border ${priorityColors[document.priority]}`}
+              className={`text-[0.82rem] px-3 py-1 rounded-full border font-medium uppercase tracking-[0.04em] ${priorityColors[document.priority]}`}
             >
               {document.priority}
             </span>
           </div>
-          <p className="text-sm text-[#55483d]">{document.description}</p>
+          <p className="text-[#6b5a4e] text-[1.05rem] leading-relaxed">{document.description}</p>
         </div>
       </div>
 
       {/* Tips */}
       {document.tips && document.tips.length > 0 && (
-        <div className="bg-[#faf6f1] rounded-md p-3 mb-3 border border-[#e4d9cf]">
-          <p className="text-xs font-medium text-[#895031] mb-1">💡 Tips:</p>
-          <ul className="text-xs text-[#6b5a4e] space-y-1">
+        <div className="bg-[#faf6f1] rounded-[10px] p-5 mb-5 border border-[#e4d9cf]">
+          <p className="text-[0.82rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-3">💡 Tips:</p>
+          <ul className="text-[0.98rem] text-[#6b5a4e] space-y-2">
             {document.tips.map((tip, index) => (
-              <li key={index}>• {tip}</li>
+              <li key={index} className="flex items-start gap-2">
+                <span className="text-[#b0673f] mt-0.5">•</span>
+                <span>{tip}</span>
+              </li>
             ))}
           </ul>
         </div>
       )}
 
       {/* Status Toggle */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <button
           onClick={() => onStatusChange('not_started')}
-          className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${
+          className={`px-4 py-2 text-[0.92rem] rounded-[8px] border transition-colors font-medium ${
             status === 'not_started'
               ? 'bg-[#faf6f1] border-[#e4d9cf] text-[#2a201a]'
               : 'bg-white border-[#e4d9cf] text-[#6b5a4e] hover:bg-[#faf6f1]'
@@ -168,7 +171,7 @@ function DocumentCard({ document, status, onStatusChange }: DocumentCardProps) {
         </button>
         <button
           onClick={() => onStatusChange('in_progress')}
-          className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${
+          className={`px-4 py-2 text-[0.92rem] rounded-[8px] border transition-colors font-medium ${
             status === 'in_progress'
               ? 'bg-[#faf6f1] border-[#b0673f] text-[#895031]'
               : 'bg-white border-[#e4d9cf] text-[#6b5a4e] hover:bg-[#faf6f1]'
@@ -178,7 +181,7 @@ function DocumentCard({ document, status, onStatusChange }: DocumentCardProps) {
         </button>
         <button
           onClick={() => onStatusChange('completed')}
-          className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${
+          className={`px-4 py-2 text-[0.92rem] rounded-[8px] border transition-colors font-medium ${
             status === 'completed'
               ? 'bg-[#faf6f1] border-[#b0673f] text-[#895031]'
               : 'bg-white border-[#e4d9cf] text-[#6b5a4e] hover:bg-[#faf6f1]'

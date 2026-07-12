@@ -27,7 +27,7 @@ export default function Navigation() {
     <header className="sticky top-0 z-20 border-b border-[#e4d9cf] bg-[#f2ece5]/85 backdrop-blur-sm">
       <nav
         aria-label="Primary"
-        className="mx-auto flex max-w-[1080px] items-center justify-between gap-4 px-[22px] py-3.5"
+        className="mx-auto flex max-w-[1080px] items-center justify-between gap-4 px-[22px] py-2"
       >
         <Link
           href="/"
@@ -44,7 +44,7 @@ export default function Navigation() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-5">
           {navItems.map((item) => (
             <Link
               key={item.href}

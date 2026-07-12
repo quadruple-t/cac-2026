@@ -19,15 +19,15 @@ export default function ChecklistPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f2ece5] py-12 px-4">
+    <div className="min-h-screen bg-[#f2ece5] py-40 px-4">
       <Navigation />
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-[#1f1610]">
+        <div className="mb-20">
+          <h1 className="font-serif text-[clamp(2.5rem,7vw,4rem)] font-medium leading-[1.08] tracking-[-0.015em] text-[#1f1610] mb-4">
             Document Checklist Generator
           </h1>
-          <p className="text-xl text-[#55483d] mt-2">
+          <p className="text-[#6b5a4e] text-[clamp(1.1rem,2.8vw,1.3rem)] leading-relaxed max-w-2xl">
             Get your personalized document checklist for disaster aid applications
           </p>
         </div>
