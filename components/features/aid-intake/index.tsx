@@ -122,14 +122,14 @@ export default function AidIntakeForm({ onSubmit, initialData, onCancel, submitL
         Tell Us About Your Situation
       </h2>
       <p className="text-[#6b5a4e] mb-6 text-[1.05rem] leading-relaxed">
-        We'll use this information to match you with the right aid programs.
+        We&apos;ll use this information to match you with the right aid programs.
       </p>
 
       {/* Disclaimer */}
       <div className="mb-8 rounded-[14px] border border-[#e4d9cf] bg-[#faf6f1] px-5 py-4 flex gap-3">
         <span className="text-[#b0673f] text-lg leading-none" aria-hidden="true">i</span>
         <p className="text-[#6b5a4e] text-[0.95rem] leading-relaxed">
-          Every question below is optional. Answer only what you're comfortable sharing to stay secure —
+          Every question below is optional. Answer only what you&apos;re comfortable sharing to stay secure —
           the more information you provide, the more accurate your results will be.
         </p>
       </div>

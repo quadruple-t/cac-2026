@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { AidProgram, ApplicationStatus } from '@/lib/aid-programs';
-import { ClockIcon, CompleteIcon } from '@/components/feature-icons';
+import { ClockIcon, CompleteIcon, GlobeIcon, MailIcon, PhoneIcon } from '@/components/feature-icons';
 
 interface DeadlineTrackerProps {
   programs: AidProgram[];
@@ -13,7 +13,15 @@ interface DeadlineTrackerProps {
 export default function DeadlineTracker({ programs, applicationStatuses, onStatusChange }: DeadlineTrackerProps) {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
-  const [completedPlanSteps, setCompletedPlanSteps] = useState<Record<string, number>>({});
+  const [completedPlanSteps, setCompletedPlanSteps] = useState<Record<string, number>>(() => {
+    if (typeof window === 'undefined') return {};
+
+    try {
+      return JSON.parse(localStorage.getItem('deadlinePlanSteps') || '{}') as Record<string, number>;
+    } catch {
+      return {};
+    }
+  });
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +39,11 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
 
   const advancePlan = (programId: string) => {
     const nextStep = Math.min(completedStepsFor(programId) + 1, 3);
-    setCompletedPlanSteps((steps) => ({ ...steps, [programId]: nextStep }));
+    setCompletedPlanSteps((steps) => {
+      const updated = { ...steps, [programId]: nextStep };
+      localStorage.setItem('deadlinePlanSteps', JSON.stringify(updated));
+      return updated;
+    });
 
     if (nextStep === 2) {
       onStatusChange(programId, 'applied');
@@ -92,6 +104,26 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
                     <span className="text-sm text-[#6b5a4e]">{completedSteps} of 3 steps complete</span>
                   </figcaption>
 
+                  {program.contactInfo && (
+                    <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2 border-b border-[#eee5dd] pb-4 text-sm text-[#6b5a4e]">
+                      {program.contactInfo.phone && (
+                        <a href={`tel:${program.contactInfo.phone}`} className="inline-flex items-center gap-1.5 hover:text-[#895031]">
+                          <PhoneIcon className="text-[#b0673f]" /> {program.contactInfo.phone}
+                        </a>
+                      )}
+                      {program.contactInfo.email && (
+                        <a href={`mailto:${program.contactInfo.email}`} className="inline-flex items-center gap-1.5 hover:text-[#895031]">
+                          <MailIcon className="text-[#b0673f]" /> Email
+                        </a>
+                      )}
+                      {program.contactInfo.website && (
+                        <a href={program.contactInfo.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-[#895031]">
+                          <GlobeIcon className="text-[#b0673f]" /> Website
+                        </a>
+                      )}
+                    </div>
+                  )}
+
                   <ol className="grid gap-3 sm:grid-cols-3" aria-label={`${program.name} application timeline`}>
                     {steps.map((step, index) => {
                       const stepNumber = index + 1;
@@ -123,6 +155,14 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
                     >
                       {actionLabels[completedSteps]}
                     </button>
+                  ) : applicationStatuses[program.id] === 'approved' ? (
+                    <button
+                      type="button"
+                      onClick={() => onStatusChange(program.id, 'received')}
+                      className="mt-5 rounded-lg border border-[#895031] px-3.5 py-2 text-sm font-semibold text-[#895031] transition-colors hover:bg-[#f8e8dc]"
+                    >
+                      Record funds received
+                    </button>
                   ) : (
                     <p className="mt-5 flex items-center gap-1.5 text-sm font-medium text-[#168260]">
                       <CompleteIcon /> Plan complete
@@ -146,7 +186,7 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
           Get Deadline Reminders
         </h3>
         <p className="text-[#6b5a4e] text-[1.05rem] mb-4">
-          We'll send you email reminders as your deadlines approach so you never miss an opportunity.
+          We&apos;ll send you email reminders as your deadlines approach so you never miss an opportunity.
         </p>
 
         {!subscribed ? (
@@ -169,7 +209,7 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
         ) : (
           <div className="flex items-center gap-1.5 text-[#10b981] font-medium text-[1.05rem]">
             <CompleteIcon />
-            Subscribed! We'll send reminders to {email}
+            Subscribed! We&apos;ll send reminders to {email}
           </div>
         )}
       </div>

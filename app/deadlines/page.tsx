@@ -51,13 +51,27 @@ export default function DeadlinesPage() {
     setApplicationStatuses(prev => ({ ...prev, [programId]: status }));
   };
 
-  if (loading || isLoading) {
+  if (loading || (isLoading && user)) {
     return (
       <div className="min-h-full bg-[#f2ece5] flex flex-col flex-1">
         <Navigation />
         <main className="flex-1">
           <div className="text-center py-12">
             <p className="text-[#6b5a4e]">Loading...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-full bg-[#f2ece5] flex flex-col flex-1">
+        <Navigation />
+        <main className="flex-1">
+          <div className="mx-auto max-w-[640px] px-[22px] py-16 text-center">
+            <h1 className="font-serif text-2xl font-medium text-[#1f1610]">Sign in to view your plan</h1>
+            <p className="mt-2 text-[#6b5a4e]">Your deadlines and progress are available after you sign in.</p>
           </div>
         </main>
       </div>

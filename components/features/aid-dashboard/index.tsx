@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { AidProgram, ApplicationStatus } from '@/lib/aid-programs';
-import { getDocumentById, groupDocumentsByCategory } from '@/lib/document-requirements';
+import { groupDocumentsByCategory } from '@/lib/document-requirements';
 import { CompassStatus } from '@/components/compass-status';
 import { AmountIcon, ClockIcon, DocumentIcon } from '@/components/feature-icons';
 
@@ -63,7 +63,7 @@ export default function AidDashboard({ programs, userSituation, applicationStatu
           Programs You Qualify For
         </h2>
         <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-          Based on your situation in {userSituation?.county || 'your area'}, you're eligible for {programs.length} aid programs.
+          Based on your situation in {userSituation?.county || 'your area'}, you&apos;re eligible for {programs.length} aid programs.
         </p>
       </div>
 
