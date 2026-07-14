@@ -152,9 +152,10 @@ export default function DashboardPage() {
       <Navigation />
 
       <main className="flex-1">
-        <section className="mx-auto max-w-[1080px] px-[22px] py-[66px]">
+        <section className="relative mx-auto max-w-[1080px] overflow-hidden px-[22px] py-[56px]">
+          <div aria-hidden="true" className="pointer-events-none absolute -right-40 top-0 h-80 w-80 rounded-full bg-[#d9b69d]/20 blur-3xl" />
           {/* Header — always visible, regardless of which step the user is on. */}
-          <div className="mb-[34px] text-center">
+          <div className="relative mb-[34px] text-center">
             <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
               Disaster Aid Center
             </p>
@@ -164,6 +165,9 @@ export default function DashboardPage() {
             <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] leading-relaxed max-w-2xl mx-auto">
               Answer a few questions about your situation to discover eligible aid programs.
             </p>
+            <div className="mx-auto mt-5 flex w-fit items-center gap-2 rounded-full border border-[#d8b9a4] bg-[#fffaf5]/80 px-3 py-1.5 text-xs font-semibold text-[#895031] shadow-sm">
+              <span className="h-2 w-2 rounded-full bg-[#b0673f]" /> Personalized for your situation
+            </div>
           </div>
 
           {/* Main Content:

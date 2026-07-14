@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Newsreader, Public_Sans } from "next/font/google";
 import { AuthProvider } from "@/lib/firebase/auth-context";
+import QuickIntakeLauncher from "@/components/quick-intake-launcher";
 import "./globals.css";
 
 const newsreader = Newsreader({
@@ -32,7 +33,10 @@ export default function RootLayout({
       className={`${newsreader.variable} ${publicSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+          <QuickIntakeLauncher />
+        </AuthProvider>
       </body>
     </html>
   );

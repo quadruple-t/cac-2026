@@ -16,11 +16,8 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
   const [completedPlanSteps, setCompletedPlanSteps] = useState<Record<string, number>>(() => {
     if (typeof window === 'undefined') return {};
 
-    try {
-      return JSON.parse(localStorage.getItem('deadlinePlanSteps') || '{}') as Record<string, number>;
-    } catch {
-      return {};
-    }
+    const savedSteps = localStorage.getItem('deadlinePlanSteps');
+    return savedSteps ? JSON.parse(savedSteps) : {};
   });
 
   const handleSubscribe = (e: React.FormEvent) => {
@@ -39,11 +36,9 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
 
   const advancePlan = (programId: string) => {
     const nextStep = Math.min(completedStepsFor(programId) + 1, 3);
-    setCompletedPlanSteps((steps) => {
-      const updated = { ...steps, [programId]: nextStep };
-      localStorage.setItem('deadlinePlanSteps', JSON.stringify(updated));
-      return updated;
-    });
+    const updated = { ...completedPlanSteps, [programId]: nextStep };
+    setCompletedPlanSteps(updated);
+    localStorage.setItem('deadlinePlanSteps', JSON.stringify(updated));
 
     if (nextStep === 2) {
       onStatusChange(programId, 'applied');

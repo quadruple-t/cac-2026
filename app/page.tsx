@@ -51,7 +51,7 @@ export default function Home() {
 
       <main id="top" className="flex-1">
         {/* HERO */}
-        <section aria-labelledby="hero-h" className="relative overflow-hidden">
+        <section aria-labelledby="hero-h" className="relative overflow-hidden bg-[radial-gradient(circle_at_80%_20%,rgba(176,103,63,0.16),transparent_32%),linear-gradient(135deg,#f2ece5_0%,#f7efe8_55%,#eadbce_100%)]">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 z-0 opacity-[0.55]"
@@ -76,7 +76,7 @@ export default function Home() {
               </g>
             </svg>
           </div>
-          <div className="relative z-10 mx-auto max-w-[1080px] px-[22px] pb-[72px] pt-16">
+          <div className="relative z-10 mx-auto grid max-w-[1080px] items-center gap-12 px-[22px] pb-[78px] pt-16 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div className="max-w-[660px]">
               <p className="ac-reveal mb-[18px] text-[0.82rem] font-semibold uppercase tracking-[0.08em] text-[#6b5a4e]">
                 <span className="text-[#895031]">Hurricane Helene recovery</span>{" "}
@@ -97,7 +97,7 @@ export default function Home() {
               <div className="ac-reveal-3 flex flex-wrap items-center gap-x-[18px] gap-y-3.5">
                 <a
                   href="/sign-up"
-                  className="rounded-[10px] bg-[#3d2b20] px-[26px] py-3.5 text-[1.05rem] font-semibold text-white no-underline transition-colors hover:bg-[#2b1e15] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[#3d2b20]"
+                  className="ac-sheen ac-cta rounded-[10px] px-[26px] py-3.5 text-[1.05rem] font-semibold text-white no-underline shadow-[0_10px_24px_rgba(61,43,32,0.2)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(61,43,32,0.25)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[#3d2b20]"
                 >
                   Get started — it&apos;s free
                 </a>
@@ -106,6 +106,30 @@ export default function Home() {
                   site
                 </span>
               </div>
+            </div>
+            <div className="ac-map-card relative hidden rounded-[24px] border border-[#d8b9a4] bg-[#fffaf5]/80 p-5 shadow-[0_24px_60px_rgba(61,43,32,0.16)] backdrop-blur-sm lg:block">
+              <span className="absolute -bottom-3 -left-5 rounded-full border border-[#d8b9a4] bg-[#fffaf5] px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#895031] shadow-md">Clearer steps ahead</span>
+              <div className="absolute -right-3 -top-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#b0673f] text-white shadow-lg">
+                <CompassMark needleColor="#ffffff" />
+              </div>
+              <div className="mb-8 flex items-center justify-between">
+                <span className="text-[0.7rem] font-bold uppercase tracking-[0.14em] text-[#895031]">Your recovery map</span>
+                <span className="rounded-full bg-[#eadbce] px-2.5 py-1 text-[0.7rem] font-semibold text-[#895031]">Step 1 of 3</span>
+              </div>
+              <svg viewBox="0 0 300 150" className="h-auto w-full" aria-label="A path from your situation to matched aid programs">
+                <path d="M18 116 C70 98 66 44 120 57 S182 128 224 78 S256 38 282 24" fill="none" stroke="#d9b69d" strokeWidth="3" strokeDasharray="6 8" />
+                <circle cx="18" cy="116" r="9" fill="#3d2b20" />
+                <circle cx="120" cy="57" r="9" fill="#b0673f" />
+                <circle cx="224" cy="78" r="9" fill="#b0673f" />
+                <circle cx="282" cy="24" r="11" fill="#3d2b20" />
+                <path d="m278 24 4-8 4 8-4 8z" fill="#fffaf5" />
+              </svg>
+              <div className="mt-1 grid grid-cols-3 gap-2 text-[0.72rem] text-[#6b5a4e]">
+                <span>Your story</span><span className="text-center">Matched aid</span><span className="text-right">Next step</span>
+              </div>
+              <p className="mt-6 border-t border-[#eadbce] pt-4 text-sm leading-relaxed text-[#55483d]">
+                One clear path through programs, documents, and deadlines.
+              </p>
             </div>
           </div>
         </section>
@@ -129,7 +153,7 @@ export default function Home() {
               {problemPoints.map((point) => (
                 <li
                   key={point.title}
-                  className="min-w-[240px] flex-1 basis-[240px] border-t-2 border-[#3d2b20] pt-[18px]"
+                  className="ac-lift min-w-[240px] flex-1 basis-[240px] rounded-[14px] border border-[#e4d9cf] border-t-2 border-t-[#3d2b20] bg-[#fdf9f5] px-5 pb-5 pt-[18px]"
                 >
                   <h3 className="mb-1.5 text-[1.05rem] font-semibold text-[#2a201a]">
                     {point.title}
@@ -162,11 +186,11 @@ export default function Home() {
             {steps.map((step, i) => (
               <li
                 key={step.title}
-                className="min-w-[260px] flex-1 basis-[260px] rounded-[14px] border border-[#e4d9cf] bg-[#faf6f1] px-6 py-[26px]"
+                className="ac-lift min-w-[260px] flex-1 basis-[260px] rounded-[18px] border border-[#e4d9cf] bg-[#faf6f1] px-6 py-[26px]"
               >
                 <span
                   aria-hidden="true"
-                  className="mb-4 flex h-[38px] w-[38px] items-center justify-center rounded-full bg-[#b0673f] text-[1.05rem] font-bold text-white"
+                  className="mb-4 flex h-[42px] w-[42px] items-center justify-center rounded-full bg-[linear-gradient(145deg,#c6805c,#895031)] text-[1.05rem] font-bold text-white shadow-[0_8px_16px_rgba(176,103,63,0.25)]"
                 >
                   {i + 1}
                 </span>

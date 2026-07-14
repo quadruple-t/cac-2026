@@ -27,7 +27,7 @@ export default function Navigation() {
   }
 
   return (
-    <header className="sticky top-0 z-20 border-b border-[#e4d9cf] bg-[#f2ece5]/85 backdrop-blur-sm">
+    <header className="sticky top-0 z-20 border-b border-[#e4d9cf] bg-[#f2ece5]/85 shadow-[0_4px_20px_rgba(61,43,32,0.04)] backdrop-blur-sm">
       <nav
         aria-label="Primary"
         className="mx-auto flex max-w-[1080px] items-center justify-between gap-4 px-[22px] py-2"
@@ -54,7 +54,7 @@ export default function Navigation() {
               href={item.href}
               className={`text-sm font-medium no-underline transition-colors ${
                 pathname === item.href
-                  ? 'text-[#895031]'
+                  ? 'rounded-full bg-[#eadbce] px-3 py-1.5 text-[#895031]'
                   : 'text-[#6b5a4e] hover:text-[#2a201a]'
               }`}
             >
