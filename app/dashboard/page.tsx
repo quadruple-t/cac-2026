@@ -51,6 +51,10 @@ export default function DashboardPage() {
   // exists: the matched aid programs, or the generated document checklist.
   const [activeTab, setActiveTab] = useState<'programs' | 'documents'>('programs');
 
+  // True while the user has re-opened the intake form to edit an existing
+  // situation (as opposed to `!userSituation`, which is the first-time path).
+  const [isEditing, setIsEditing] = useState(false);
+
   useEffect(() => {
     // Route guard: bounce anonymous visitors to sign-in once Firebase has
     // finished checking auth state. (Also enforced server-side by the
@@ -94,11 +98,15 @@ export default function DashboardPage() {
         const eligible = getEligiblePrograms(situation);
         const ranked = rankProgramsByUrgency(eligible);
         setEligiblePrograms(ranked);
+        setIsEditing(false);
       } else {
-        console.error('Failed to save user situation');
+        const errorData = await res.json();
+        console.error('Failed to save user situation:', errorData);
+        alert(`Failed to save: ${errorData.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error saving user situation:', error);
+      alert('Error saving user situation. Check console for details.');
     }
   };
 
@@ -148,10 +156,15 @@ export default function DashboardPage() {
           </div>
 
           {/* Main Content:
-              - No situation yet -> show the intake form.
+              - No situation yet, or the user chose to edit -> show the intake form.
               - Situation exists -> show the tabbed programs/documents view. */}
-          {!userSituation ? (
-            <AidIntakeForm onSubmit={handleFormSubmit} />
+          {!userSituation || isEditing ? (
+            <AidIntakeForm
+              onSubmit={handleFormSubmit}
+              initialData={userSituation ?? undefined}
+              onCancel={userSituation ? () => setIsEditing(false) : undefined}
+              submitLabel={userSituation ? 'Update My Results' : undefined}
+            />
           ) : (
             <div>
               {/* Tab Navigation — switches between the two views built from
@@ -194,12 +207,18 @@ export default function DashboardPage() {
                 />
               )}
 
-              <div className="text-center mt-8">
+              <div className="text-center mt-8 flex items-center justify-center gap-6">
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="text-[#895031] hover:text-[#6b5a4e] font-medium text-sm"
+                >
+                  ← Edit Answers
+                </button>
                 <button
                   onClick={handleReset}
                   className="text-[#895031] hover:text-[#6b5a4e] font-medium text-sm"
                 >
-                  ← Start Over
+                  Start Over
                 </button>
               </div>
             </div>

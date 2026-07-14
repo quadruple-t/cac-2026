@@ -37,6 +37,12 @@ export interface ProgramApplication {
 
 export interface UserSituation {
   county?: string;
+  city?: string;
+  zipCode?: string;
+  address?: string;
+  /** Whether the disaster happened at the address above. `false` means `disasterLocation` holds the actual site. */
+  disasterAtThisAddress?: boolean;
+  disasterLocation?: string;
   damageType?: 'home' | 'business' | 'both' | 'other';
   ownershipStatus?: 'owner' | 'renter' | 'both';
   hasInsurance?: boolean;
@@ -44,9 +50,154 @@ export interface UserSituation {
   isFarmer?: boolean;
   hasAppliedToFEMA?: boolean;
   damageSeverity?: 'minor' | 'moderate' | 'severe' | 'destroyed';
+  /** Broader classification than `ownershipStatus`/`isFarmer` — collected for context, not yet used by eligibility matching. */
+  applicantCategory?: 'individual' | 'household' | 'business' | 'nonprofit' | 'farmer' | 'property_owner';
+  housingStatus?: 'homeowner' | 'renter' | 'landlord' | 'unhoused';
+  ageRange?: '18-24' | '25-44' | '45-64' | '65+' | 'prefer_not_to_say';
+  householdSize?: number;
+  hasDisabilityOrMedicalNeed?: boolean;
+  vulnerablePopulations?: ('veteran' | 'senior' | 'child' | 'pregnant')[];
+
+  // --- Damage and Needs Assessment (section 3) ---
+  // These are collected for context and are not yet used by eligibility matching.
+
+  /** The category picked first in the section; its detail questions show immediately. */
+  primaryNeed?: string;
+  /** Additional categories the user checked; their detail questions are revealed on demand via the checklist. */
+  supplementaryNeeds?: string[];
+
+  // General Impact
+  damageDate?: string;
+  wasDirectlyCausedByDisaster?: 'yes' | 'partially' | 'no' | 'unsure';
+  isNeedUnresolved?: 'yes' | 'partially' | 'fully';
+  needUrgency?: 'immediate' | '24h' | '1week' | '1month' | 'long_term';
+
+  // Home Damage / Home Access and Property Damage (homeowners)
+  homeDamaged?: boolean;
+  homeType?: 'single_family' | 'manufactured' | 'townhouse' | 'condo' | 'duplex' | 'farmhouse' | 'other';
+  homeDamagedParts?: string[];
+  homeDamageCause?: 'flooding' | 'wind' | 'fallen_tree' | 'landslide' | 'fire' | 'storm_surge' | 'sewer_backup' | 'power_surge' | 'debris_impact' | 'other';
+  homeLivability?: 'yes' | 'yes_repairs_needed' | 'no_unsafe' | 'no_destroyed' | 'unsure';
+  homeInspectionStatus?: 'fema' | 'insurance_adjuster' | 'contractor_engineer' | 'no' | 'scheduled';
+  homeRepairsCompleted?: 'no' | 'some' | 'most' | 'all';
+  paidForRepairsSelf?: boolean;
+  hasRepairProof?: 'yes' | 'some' | 'no';
+  homeAccessDamage?: string[];
+  emergencyVehicleAccess?: 'yes' | 'no' | 'difficult' | 'unsure';
+  wellSepticDamage?: string[];
+  homeHelpNeeded?: string[];
+
+  // Rental Housing Damage (renters)
+  rentalDamaged?: boolean;
+  rentalHabitable?: 'yes' | 'partially' | 'no' | 'unsure';
+  rentalDamagedItems?: string[];
+  landlordRepairStatus?: 'yes' | 'some' | 'no' | 'scheduled' | 'cannot_contact';
+  hadToLeaveRental?: boolean;
+  temporaryHousingPayment?: 'yes' | 'no' | 'family_friends' | 'shelter' | 'unhoused';
+  hadRentersInsurance?: 'yes' | 'no' | 'unsure';
+  rentalIssues?: string[];
+
+  // Personal Property Loss
+  personalPropertyDamaged?: string[];
+  propertyNecessity?: 'yes' | 'no' | 'some';
+  hasPropertyProof?: 'yes' | 'some' | 'no';
+
+  // Vehicle and Transportation Damage
+  vehicleDamaged?: boolean;
+  vehicleUseTypes?: string[];
+  vehicleUsable?: 'yes' | 'partially' | 'no' | 'destroyed';
+  hasTransportationNow?: 'yes' | 'limited' | 'no';
+  transportationNeeds?: string[];
+
+  // Food, Utilities, and Essential Services
+  lostFoodFromDisaster?: boolean;
+  utilityAccess?: string[];
+  behindOnBills?: string[];
+  needsUtilityHelp?: boolean;
+
+  // Childcare Impact
+  childcareImpacted?: boolean;
+  childcareProblems?: string[];
+  numberOfChildrenNeedingCare?: number;
+  childAgeRanges?: string[];
+  childHasSpecialNeed?: 'yes' | 'no' | 'prefer_not_to_say';
+  childcareSuppliesLost?: string[];
+  payingExtraChildcare?: boolean;
+  childcareNeededFor?: string[];
+
+  // Medical and Dental Impact
+  medicalImpact?: boolean;
+  medicalAssistanceNeeded?: string[];
+  medicalEquipmentDamaged?: boolean;
+  dependsOnElectricMedicalEquipment?: boolean;
+  deathInHousehold?: boolean;
+  funeralAssistanceNeeded?: string[];
+
+  // Employment Impact
+  employmentImpact?: string[];
+  wagesStatus?: 'full' | 'partial' | 'none' | 'unsure';
+  employmentAssistanceNeeded?: string[];
+
+  // Business Damage (business owners)
+  businessAffected?: boolean;
+  businessImpactTypes?: string[];
+  businessOperatingStatus?: 'fully' | 'partially' | 'temporarily_closed' | 'permanently_closed';
+  businessDamageKind?: 'physical' | 'economic' | 'both';
+  businessClosureDuration?: 'lt_1_week' | '1_4_weeks' | '1_3_months' | 'gt_3_months' | 'still_closed';
+  businessAssistanceNeeded?: string[];
+  employeesLostWages?: 'yes' | 'no' | 'unsure';
+  childcareAffectedBusiness?: 'yes' | 'no' | 'unsure';
+  businessInsuranceTypes?: string[];
+  filedInsuranceClaim?: 'yes' | 'no' | 'pending';
+  hasBusinessFinancialRecords?: 'yes' | 'some' | 'no';
+
+  // Agricultural Damage (farmers)
+  agriculturalOperationTypes?: string[];
+  agriculturalDamagedItems?: string[];
+  disasterPreventedFarmActivities?: boolean;
+  incomeLossType?: 'current' | 'future' | 'both';
+  hasCropInsurance?: 'yes' | 'no' | 'unsure';
+  reportedLossTo?: string[];
+  agriculturalAssistanceNeeded?: string[];
+
+  // Nonprofit Damage (nonprofits)
+  nonprofitAffected?: boolean;
+  nonprofitDamageTypes?: string[];
+  increasedServiceDemand?: boolean;
+  nonprofitAssistanceNeeded?: string[];
+
+  /** A specific program the user already has in mind, from `aidPrograms`' `id`s, or 'unsure'. */
+  applyingForProgramId?: string;
+
+  // --- Section 4: Insurance, Prior Assistance, and Recovery Status ---
+
+  // A. Insurance Coverage
+  hadInsuranceAtDisaster?: 'yes' | 'no' | 'unsure';
+  insuranceTypesHeld?: string[];
+  insuranceCoveredItems?: string[];
+
+  // B. Insurance Claim Status
+  filedInsuranceClaimForDisaster?: 'yes' | 'no' | 'started_not_finished' | 'unsure_how' | 'do_not_plan';
+  insuranceClaimStatus?: 'not_submitted' | 'submitted_waiting' | 'inspection_scheduled' | 'inspection_completed' | 'more_docs_requested' | 'partially_approved' | 'fully_approved' | 'denied' | 'closed' | 'unsure';
+  receivedSettlementLetter?: 'yes' | 'no' | 'not_yet' | 'unsure';
+  insuranceCoveredAllLosses?: 'yes' | 'no' | 'only_some' | 'pending' | 'unsure';
+  insurancePaymentAmount?: 'nothing' | 'lt_1000' | '1000_5000' | '5001_25000' | '25001_100000' | 'gt_100000' | 'pending' | 'prefer_not_to_say';
+  unpaidNeedsAfterInsurance?: string[];
+  claimPartiallyOrFullyDenied?: 'yes' | 'no' | 'pending';
+  claimDenialReason?: 'not_covered' | 'flood_related' | 'pre_existing' | 'deductible_too_high' | 'missing_documentation' | 'policy_expired' | 'coverage_limit_reached' | 'disputed_cause' | 'other' | 'unsure';
+  wantsHelpWithInsuranceAppeal?: 'yes' | 'no' | 'maybe_later';
+
+  // Documentation and Prior Assistance (moved here from section 3)
+  evidenceOfDamage?: string[];
+  assistanceAlreadyReceived?: string[];
+  unresolvedNeeds?: string[];
+
+  // Most Urgent Need (moved here from section 3)
+  mostUrgentNeedDescription?: string;
+  priorityNeeds?: string[];
 }
 
-const aidPrograms: AidProgram[] = [
+export const aidPrograms: AidProgram[] = [
   {
     id: 'fema-ia',
     name: 'FEMA Individual Assistance',
