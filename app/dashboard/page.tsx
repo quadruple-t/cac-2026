@@ -43,13 +43,6 @@ export default function DashboardPage() {
   // flash the intake form for a split second before swapping to the
   // dashboard/checklist view.
   const [isLoading, setIsLoading] = useState(true);
-<<<<<<< HEAD
-=======
-
-  // Which of the two result tabs is currently visible once a situation
-  // exists: the matched aid programs, or the generated document checklist.
-  const [activeTab, setActiveTab] = useState<'programs' | 'documents'>('programs');
->>>>>>> d7e08cee755b294127ca92608c7235a6f9ac7827
 
   useEffect(() => {
     // Route guard: bounce anonymous visitors to sign-in once Firebase has
@@ -144,49 +137,7 @@ export default function DashboardPage() {
             <QuickIntakeForm onSubmit={handleFormSubmit} />
           ) : (
             <div>
-<<<<<<< HEAD
               <AidDashboard programs={eligiblePrograms} userSituation={userSituation} />
-=======
-              {/* Tab Navigation — switches between the two views built from
-                  the same `userSituation`/`eligiblePrograms` data. */}
-              <div className="flex justify-center mb-8">
-                <div className="inline-flex bg-white border border-[#e4d9cf] rounded-[14px] p-1">
-                  <button
-                    onClick={() => setActiveTab('programs')}
-                    className={`px-6 py-3 rounded-[10px] font-medium text-[1.05rem] transition-colors ${
-                      activeTab === 'programs'
-                        ? 'bg-[#b0673f] text-white'
-                        : 'text-[#6b5a4e] hover:text-[#2a201a]'
-                    }`}
-                  >
-                    Aid Programs ({eligiblePrograms.length})
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('documents')}
-                    className={`px-6 py-3 rounded-[10px] font-medium text-[1.05rem] transition-colors ${
-                      activeTab === 'documents'
-                        ? 'bg-[#b0673f] text-white'
-                        : 'text-[#6b5a4e] hover:text-[#2a201a]'
-                    }`}
-                  >
-                    Document Checklist ({generateDocumentChecklist(userSituation).length})
-                  </button>
-                </div>
-              </div>
-
-              {/* Tab Content.
-                  Note: `generateDocumentChecklist` is recomputed here (and
-                  again in the tab label above) rather than cached in state,
-                  since it's a pure/cheap derivation from `userSituation`. */}
-              {activeTab === 'programs' ? (
-                <AidDashboard programs={eligiblePrograms} userSituation={userSituation} />
-              ) : (
-                <DocumentChecklist
-                  documents={generateDocumentChecklist(userSituation)}
-                  onReset={handleReset}
-                />
-              )}
->>>>>>> d7e08cee755b294127ca92608c7235a6f9ac7827
 
               <div className="text-center mt-8">
                 <button
