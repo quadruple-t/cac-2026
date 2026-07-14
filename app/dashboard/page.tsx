@@ -20,11 +20,7 @@ import { useAuth } from '@/lib/firebase/use-auth';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/navigation';
 import AidDashboard from '@/components/features/aid-dashboard';
-<<<<<<< HEAD
-=======
 import AidIntakeForm from '@/components/features/aid-intake';
-import DocumentChecklist from '@/components/features/document-checklist';
->>>>>>> ebb19d9ee3c2b7539060e71f77b78533289048ff
 import { getEligiblePrograms, rankProgramsByUrgency, UserSituation, AidProgram } from '@/lib/aid-programs';
 
 export default function DashboardPage() {
@@ -49,17 +45,9 @@ export default function DashboardPage() {
   // dashboard/checklist view.
   const [isLoading, setIsLoading] = useState(true);
 
-<<<<<<< HEAD
-=======
-  // Which of the two result tabs is currently visible once a situation
-  // exists: the matched aid programs, or the generated document checklist.
-  const [activeTab, setActiveTab] = useState<'programs' | 'documents'>('programs');
-
   // True while the user has re-opened the intake form to edit an existing
   // situation (as opposed to `!userSituation`, which is the first-time path).
   const [isEditing, setIsEditing] = useState(false);
-
->>>>>>> ebb19d9ee3c2b7539060e71f77b78533289048ff
   useEffect(() => {
     // Route guard: bounce anonymous visitors to sign-in once Firebase has
     // finished checking auth state. (Also enforced server-side by the
@@ -195,4 +183,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
