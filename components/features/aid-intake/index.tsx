@@ -20,7 +20,8 @@ interface SectionMeta {
   number: number;
   title: string;
   description: string;
-  fields: (keyof UserSituation)[];
+  /** Which fields currently count toward "X of Y answered" — adapts as earlier answers hide/reveal questions. */
+  getFields: (formData: Partial<UserSituation>) => (keyof UserSituation)[];
 }
 
 const SECTIONS: SectionMeta[] = [
@@ -29,142 +30,69 @@ const SECTIONS: SectionMeta[] = [
     number: 1,
     title: 'Location',
     description: 'Where the damage happened.',
-    fields: ['county', 'city', 'zipCode', 'address', 'disasterAtThisAddress'],
+    getFields: getLocationFields,
   },
   {
     id: 'applicantType',
     number: 2,
     title: 'Applicant Type',
     description: 'Who is applying for assistance.',
-    fields: [
-      'applicantCategory',
-      'housingStatus',
-      'ageRange',
-      'householdSize',
-      'hasDisabilityOrMedicalNeed',
-      'vulnerablePopulations',
-      'ownershipStatus',
-      'isFarmer',
-      'incomeRange',
-    ],
+    getFields: getApplicantTypeFields,
   },
   {
     id: 'damageNeeds',
     number: 3,
     title: 'Damage and Needs Assessment',
     description: 'What was affected, and what kind of help you need.',
-    fields: [
-      'primaryNeed',
-      'supplementaryNeeds',
-      'damageDate',
-      'wasDirectlyCausedByDisaster',
-      'isNeedUnresolved',
-      'needUrgency',
-      'damageType',
-      'hasInsurance',
-      'homeDamaged',
-      'homeType',
-      'homeDamagedParts',
-      'homeDamageCause',
-      'homeLivability',
-      'homeInspectionStatus',
-      'homeRepairsCompleted',
-      'paidForRepairsSelf',
-      'hasRepairProof',
-      'homeAccessDamage',
-      'emergencyVehicleAccess',
-      'wellSepticDamage',
-      'homeHelpNeeded',
-      'rentalDamaged',
-      'rentalHabitable',
-      'rentalDamagedItems',
-      'landlordRepairStatus',
-      'hadToLeaveRental',
-      'temporaryHousingPayment',
-      'hadRentersInsurance',
-      'rentalIssues',
-      'personalPropertyDamaged',
-      'propertyNecessity',
-      'hasPropertyProof',
-      'vehicleDamaged',
-      'vehicleUseTypes',
-      'vehicleUsable',
-      'hasTransportationNow',
-      'transportationNeeds',
-      'lostFoodFromDisaster',
-      'utilityAccess',
-      'behindOnBills',
-      'needsUtilityHelp',
-      'childcareImpacted',
-      'childcareProblems',
-      'numberOfChildrenNeedingCare',
-      'childAgeRanges',
-      'childHasSpecialNeed',
-      'childcareSuppliesLost',
-      'payingExtraChildcare',
-      'childcareNeededFor',
-      'medicalImpact',
-      'medicalAssistanceNeeded',
-      'medicalEquipmentDamaged',
-      'dependsOnElectricMedicalEquipment',
-      'deathInHousehold',
-      'funeralAssistanceNeeded',
-      'employmentImpact',
-      'wagesStatus',
-      'employmentAssistanceNeeded',
-      'businessAffected',
-      'businessImpactTypes',
-      'businessOperatingStatus',
-      'businessDamageKind',
-      'businessClosureDuration',
-      'businessAssistanceNeeded',
-      'employeesLostWages',
-      'childcareAffectedBusiness',
-      'businessInsuranceTypes',
-      'filedInsuranceClaim',
-      'hasBusinessFinancialRecords',
-      'agriculturalOperationTypes',
-      'agriculturalDamagedItems',
-      'disasterPreventedFarmActivities',
-      'incomeLossType',
-      'hasCropInsurance',
-      'reportedLossTo',
-      'agriculturalAssistanceNeeded',
-      'nonprofitAffected',
-      'nonprofitDamageTypes',
-      'increasedServiceDemand',
-      'nonprofitAssistanceNeeded',
-    ],
+    getFields: getDamageNeedsFields,
   },
   {
     id: 'insuranceRecovery',
     number: 4,
     title: 'Insurance, Prior Assistance, and Recovery Status',
     description: 'Your coverage, claims, and what still needs help.',
-    fields: [
-      'applyingForProgramId',
-      'damageSeverity',
-      'hasAppliedToFEMA',
-      'hadInsuranceAtDisaster',
-      'insuranceTypesHeld',
-      'insuranceCoveredItems',
-      'filedInsuranceClaimForDisaster',
-      'insuranceClaimStatus',
-      'receivedSettlementLetter',
-      'insuranceCoveredAllLosses',
-      'insurancePaymentAmount',
-      'unpaidNeedsAfterInsurance',
-      'claimPartiallyOrFullyDenied',
-      'claimDenialReason',
-      'wantsHelpWithInsuranceAppeal',
-      'evidenceOfDamage',
-      'assistanceAlreadyReceived',
-      'unresolvedNeeds',
-      'mostUrgentNeedDescription',
-      'priorityNeeds',
-    ],
+    getFields: getInsuranceRecoveryFields,
   },
 ];
+
+// Each section's true field list depends on earlier answers (e.g. business
+// applicants skip the personal/household questions), so "X of Y answered"
+// is computed from these instead of a fixed array.
+
+function getLocationFields(formData: Partial<UserSituation>): (keyof UserSituation)[] {
+  const fields: (keyof UserSituation)[] = ['county', 'city', 'zipCode', 'address', 'disasterAtThisAddress'];
+  if (formData.disasterAtThisAddress === false) fields.push('disasterLocation');
+  return fields;
+}
+
+function getApplicantTypeFields(formData: Partial<UserSituation>): (keyof UserSituation)[] {
+  const fields: (keyof UserSituation)[] = ['applicantCategory', 'ownershipStatus', 'isFarmer', 'incomeRange'];
+  const isEntityApplicant = formData.applicantCategory === 'business' || formData.applicantCategory === 'nonprofit';
+  if (!isEntityApplicant) {
+    fields.push('housingStatus', 'ageRange', 'hasDisabilityOrMedicalNeed', 'vulnerablePopulations');
+    if (formData.applicantCategory !== 'individual') {
+      fields.push('householdSize');
+    }
+  }
+  return fields;
+}
+
+function getDamageNeedsFields(formData: Partial<UserSituation>): (keyof UserSituation)[] {
+  const fields: (keyof UserSituation)[] = ['primaryNeed', 'supplementaryNeeds'];
+  const primaryNeed = formData.primaryNeed as NeedCategory | undefined;
+  const supplementaryNeeds = (formData.supplementaryNeeds as NeedCategory[] | undefined) ?? [];
+  if (primaryNeed) {
+    fields.push(...GENERAL_IMPACT_FIELDS, ...CATEGORY_FIELDS[primaryNeed]);
+  }
+  for (const cat of supplementaryNeeds) {
+    if (cat !== primaryNeed && CATEGORY_FIELDS[cat]) fields.push(...CATEGORY_FIELDS[cat]);
+  }
+  return fields;
+}
+
+function getInsuranceRecoveryFields(): (keyof UserSituation)[] {
+  return INSURANCE_GROUPS.flatMap(group => group.fields);
+}
 
 export default function AidIntakeForm({ onSubmit, initialData, onCancel, submitLabel }: AidIntakeFormProps) {
   const [formData, setFormData] = useState<Partial<UserSituation>>(initialData ?? {});
@@ -178,8 +106,10 @@ export default function AidIntakeForm({ onSubmit, initialData, onCancel, submitL
     setOpenSection(prev => (prev === id ? null : id));
   };
 
-  const answeredCount = (section: SectionMeta) =>
-    section.fields.filter(field => formData[field] !== undefined && formData[field] !== '').length;
+  const answeredCount = (section: SectionMeta) => {
+    const fields = section.getFields(formData);
+    return { answered: fields.filter(field => isFieldAnswered(formData[field])).length, total: fields.length };
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -207,7 +137,7 @@ export default function AidIntakeForm({ onSubmit, initialData, onCancel, submitL
       <form onSubmit={handleSubmit} className="space-y-4">
         {SECTIONS.map(section => {
           const isOpen = openSection === section.id;
-          const answered = answeredCount(section);
+          const { answered, total } = answeredCount(section);
 
           return (
             <div
@@ -234,7 +164,7 @@ export default function AidIntakeForm({ onSubmit, initialData, onCancel, submitL
                 <div className="flex items-center gap-3 flex-none">
                   {answered > 0 && (
                     <span className="text-[0.75rem] font-medium text-[#895031] bg-[#f2ece5] rounded-full px-2.5 py-1">
-                      {answered} of {section.fields.length} answered
+                      {answered} of {total} answered
                     </span>
                   )}
                   <span
@@ -761,12 +691,19 @@ const CATEGORY_FIELDS: Record<NeedCategory, (keyof UserSituation)[]> = {
   nonprofit: ['nonprofitAffected', 'nonprofitDamageTypes', 'increasedServiceDemand', 'nonprofitAssistanceNeeded'],
 };
 
+function isFieldAnswered(value: unknown): boolean {
+  if (value === undefined || value === '') return false;
+  return !Array.isArray(value) || value.length > 0;
+}
+
+/** True if at least one of the fields has a value. */
 function areFieldsAnswered(formData: Partial<UserSituation>, fields: (keyof UserSituation)[]): boolean {
-  return fields.some(field => {
-    const value = formData[field];
-    if (value === undefined || value === '') return false;
-    return !Array.isArray(value) || value.length > 0;
-  });
+  return fields.some(field => isFieldAnswered(formData[field]));
+}
+
+/** True only once every field has a value — used where "done" should mean the whole group is complete. */
+function allFieldsAnswered(formData: Partial<UserSituation>, fields: (keyof UserSituation)[]): boolean {
+  return fields.length > 0 && fields.every(field => isFieldAnswered(formData[field]));
 }
 
 /** Green once done, orange while actively being viewed (and not yet done), outline otherwise. */
@@ -1788,7 +1725,7 @@ function DamageNeedsFields({ formData, setField }: FieldsProps) {
         </p>
 
         {(() => {
-          const generalDone = areFieldsAnswered(formData, GENERAL_IMPACT_FIELDS);
+          const generalDone = allFieldsAnswered(formData, GENERAL_IMPACT_FIELDS);
           const generalActive = activeView === 'general';
           return (
             <button
@@ -1828,7 +1765,7 @@ function DamageNeedsFields({ formData, setField }: FieldsProps) {
         {/* Primary and Secondary Needs stem from General Impact. */}
         <div className="border-l-2 border-[#e4d9cf] pl-4 ml-1 space-y-1.5">
           {primaryNeed && (() => {
-            const primaryDone = areFieldsAnswered(formData, CATEGORY_FIELDS[primaryNeed]);
+            const primaryDone = allFieldsAnswered(formData, CATEGORY_FIELDS[primaryNeed]);
             const primaryActive = activeView === primaryNeed;
             return (
               <button
@@ -1855,7 +1792,7 @@ function DamageNeedsFields({ formData, setField }: FieldsProps) {
           {supplementaryNeeds.map(cat => {
             const meta = NEED_CATEGORIES.find(c => c.value === cat);
             if (!meta) return null;
-            const done = areFieldsAnswered(formData, CATEGORY_FIELDS[cat]);
+            const done = allFieldsAnswered(formData, CATEGORY_FIELDS[cat]);
             const isActive = activeView === cat;
             const wasOpened = openedSupplementary.includes(cat);
             return (
