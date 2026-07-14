@@ -68,6 +68,17 @@
   animation: ac-float 5s ease-in-out infinite;
 }
 
+.ac-sheen {
+  background-image: linear-gradient(110deg, #3d2b20 0%, #895031 45%, #3d2b20 75%);
+  background-size: 220% 100%;
+  animation: ac-sheen 7s ease-in-out infinite;
+}
+
+@keyframes ac-sheen {
+  0%, 55%, 100% { background-position: 0% 50%; }
+  75% { background-position: 100% 50%; }
+}
+
 @keyframes ac-float {
   0%, 100% { transform: translateY(0) rotate(1deg); }
   50% { transform: translateY(-8px) rotate(-1deg); }
@@ -91,7 +102,8 @@
     transition: none;
   }
   .ac-lift,
-  .ac-map-card {
+  .ac-map-card,
+  .ac-sheen {
     animation: none !important;
     transition: none !important;
   }

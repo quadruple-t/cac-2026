@@ -21,7 +21,7 @@ export default function QuickIntakeLauncher() {
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label="Open quick intake"
-        className="fixed bottom-5 right-5 z-30 rounded-full bg-[#3d2b20] px-4 py-3 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-[#2b1e15] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3d2b20]"
+        className="ac-sheen fixed bottom-5 right-5 z-30 rounded-full px-4 py-3 text-sm font-semibold text-white shadow-lg transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3d2b20]"
       >
         Quick intake
       </button>
@@ -78,7 +78,7 @@ export default function QuickIntakeLauncher() {
       <button
         type="button"
         onClick={() => setIsChatOpen(true)}
-        className="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-[#3d2b20] px-4 py-2.5 text-sm font-semibold text-white no-underline transition-colors hover:bg-[#2b1e15] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3d2b20]"
+        className="ac-sheen mt-4 inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold text-white no-underline transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3d2b20]"
       >
         Start conversational intake →
       </button>

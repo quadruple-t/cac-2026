@@ -97,7 +97,7 @@ export default function Home() {
               <div className="ac-reveal-3 flex flex-wrap items-center gap-x-[18px] gap-y-3.5">
                 <a
                   href="/sign-up"
-                  className="rounded-[10px] bg-[#3d2b20] px-[26px] py-3.5 text-[1.05rem] font-semibold text-white no-underline shadow-[0_10px_24px_rgba(61,43,32,0.2)] transition-all hover:-translate-y-0.5 hover:bg-[#2b1e15] hover:shadow-[0_14px_28px_rgba(61,43,32,0.25)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[#3d2b20]"
+                  className="ac-sheen rounded-[10px] px-[26px] py-3.5 text-[1.05rem] font-semibold text-white no-underline shadow-[0_10px_24px_rgba(61,43,32,0.2)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(61,43,32,0.25)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[#3d2b20]"
                 >
                   Get started — it&apos;s free
                 </a>
@@ -108,6 +108,7 @@ export default function Home() {
               </div>
             </div>
             <div className="ac-map-card relative hidden rounded-[24px] border border-[#d8b9a4] bg-[#fffaf5]/80 p-5 shadow-[0_24px_60px_rgba(61,43,32,0.16)] backdrop-blur-sm lg:block">
+              <span className="absolute -bottom-3 -left-5 rounded-full border border-[#d8b9a4] bg-[#fffaf5] px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#895031] shadow-md">Clearer steps ahead</span>
               <div className="absolute -right-3 -top-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#b0673f] text-white shadow-lg">
                 <CompassMark needleColor="#ffffff" />
               </div>
