@@ -17,14 +17,14 @@ export interface AidProgram {
 }
 
 export interface UserSituation {
-  county: string;
-  damageType: 'home' | 'business' | 'both' | 'other';
-  ownershipStatus: 'owner' | 'renter' | 'both';
-  hasInsurance: boolean;
-  incomeRange: 'low' | 'medium' | 'high' | 'prefer_not_to_say';
-  isFarmer: boolean;
-  hasAppliedToFEMA: boolean;
-  damageSeverity: 'minor' | 'moderate' | 'severe' | 'destroyed';
+  county?: string;
+  damageType?: 'home' | 'business' | 'both' | 'other';
+  ownershipStatus?: 'owner' | 'renter' | 'both';
+  hasInsurance?: boolean;
+  incomeRange?: 'low' | 'medium' | 'high' | 'prefer_not_to_say';
+  isFarmer?: boolean;
+  hasAppliedToFEMA?: boolean;
+  damageSeverity?: 'minor' | 'moderate' | 'severe' | 'destroyed';
 }
 
 // Aid programs database
