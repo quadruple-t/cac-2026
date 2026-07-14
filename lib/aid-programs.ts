@@ -24,6 +24,11 @@ export interface AidProgram {
     hasInsurance?: boolean;
     hasAppliedToFEMA?: boolean;
   };
+  /** Why this program was recommended, with a link back to the source evidence. Only set for sheet-sourced programs. */
+  matchReason?: {
+    sentence: string;
+    sourceUrl: string;
+  };
 }
 
 export type ApplicationStatus = 'not_applied' | 'applied' | 'approved' | 'received';

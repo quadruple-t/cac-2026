@@ -31,12 +31,6 @@ export default function AidDashboard({ programs, userSituation, applicationStatu
     }
   };
 
-  const urgencyTones = {
-    high: 'attention',
-    medium: 'progress',
-    low: 'success'
-  } as const;
-
   const statusTones = {
     not_applied: 'neutral',
     applied: 'progress',
@@ -74,7 +68,6 @@ export default function AidDashboard({ programs, userSituation, applicationStatu
             program={program}
             isExpanded={expandedProgram === program.id}
             onToggle={() => toggleExpand(program.id)}
-            urgencyTone={urgencyTones[program.deadlineUrgency]}
             status={localStatuses[program.id] || 'not_applied'}
             onStatusChange={(status) => handleStatusChange(program.id, status)}
             statusTone={statusTones[localStatuses[program.id] || 'not_applied']}
@@ -98,14 +91,13 @@ interface ProgramCardProps {
   program: AidProgram;
   isExpanded: boolean;
   onToggle: () => void;
-  urgencyTone: 'attention' | 'progress' | 'success';
   status: ApplicationStatus;
   onStatusChange: (status: ApplicationStatus) => void;
   statusTone: 'neutral' | 'progress' | 'success';
   statusLabel: string;
 }
 
-function ProgramCard({ program, isExpanded, onToggle, urgencyTone, status, onStatusChange, statusTone, statusLabel }: ProgramCardProps) {
+function ProgramCard({ program, isExpanded, onToggle, status, onStatusChange, statusTone, statusLabel }: ProgramCardProps) {
   return (
     <div className="bg-[#faf6f1] rounded-[14px] border border-[#e4d9cf] overflow-hidden">
       {/* Card Header */}
@@ -118,7 +110,6 @@ function ProgramCard({ program, isExpanded, onToggle, urgencyTone, status, onSta
             <p className="text-[#6b5a4e] text-[0.92rem]">{program.agency}</p>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <CompassStatus tone={urgencyTone} label={`${program.deadlineUrgency} priority`} />
             <CompassStatus tone={statusTone} label={statusLabel} />
           </div>
         </div>
@@ -126,6 +117,17 @@ function ProgramCard({ program, isExpanded, onToggle, urgencyTone, status, onSta
         <p className="text-[#6b5a4e] text-[1.05rem] leading-relaxed mb-4">
           {program.description}
         </p>
+
+        {program.matchReason && (
+          <a
+            href={program.matchReason.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block mb-4 text-[0.9rem] italic text-[#895031] hover:text-[#b0673f] leading-relaxed underline decoration-[#e4d9cf] underline-offset-2"
+          >
+            {program.matchReason.sentence}
+          </a>
+        )}
 
         {/* Key Details */}
         <div className="space-y-2 mb-4">
