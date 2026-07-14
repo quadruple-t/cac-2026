@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(break)",
+      "Bash(curl -s -o /dev/null -w \"landing: %{http_code}\\\\n\" http://localhost:3000/)"
+    ]
+  }
+}

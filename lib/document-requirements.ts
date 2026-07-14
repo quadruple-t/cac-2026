@@ -7,6 +7,113 @@ export interface DocumentRequirement {
   priority: 'critical' | 'high' | 'medium' | 'low';
 }
 
+<<<<<<< HEAD
+=======
+export interface AidProgram {
+  id: string;
+  name: string;
+  agency: string;
+  documentRequirements: string[]; // Document IDs
+}
+
+export interface UserSituation {
+  county?: string;
+  damageType?: 'home' | 'business' | 'both' | 'other';
+  ownershipStatus?: 'owner' | 'renter' | 'both';
+  hasInsurance?: boolean;
+  incomeRange?: 'low' | 'medium' | 'high' | 'prefer_not_to_say';
+  isFarmer?: boolean;
+  hasAppliedToFEMA?: boolean;
+  damageSeverity?: 'minor' | 'moderate' | 'severe' | 'destroyed';
+}
+
+// Aid programs database
+export const aidPrograms: AidProgram[] = [
+  {
+    id: 'fema-ia',
+    name: 'FEMA Individual Assistance',
+    agency: 'FEMA',
+    documentRequirements: [
+      'gov-id',
+      'ssn-document',
+      'proof-of-occupancy',
+      'damage-photos',
+      'insurance-info',
+      'bank-account',
+    ],
+  },
+  {
+    id: 'sba-home-loan',
+    name: 'SBA Disaster Home Loan',
+    agency: 'Small Business Administration',
+    documentRequirements: [
+      'gov-id',
+      'ssn-document',
+      'proof-of-ownership',
+      'damage-photos',
+      'insurance-info',
+      'bank-account',
+      'tax-returns',
+      'mortgage-info',
+    ],
+  },
+  {
+    id: 'sba-business-loan',
+    name: 'SBA Disaster Business Loan',
+    agency: 'Small Business Administration',
+    documentRequirements: [
+      'gov-id',
+      'ssn-document',
+      'ein-document',
+      'business-license',
+      'damage-photos',
+      'insurance-info',
+      'bank-account',
+      'tax-returns',
+      'financial-statements',
+      'payroll-records',
+    ],
+  },
+  {
+    id: 'nc-disaster-recovery',
+    name: 'NC Disaster Recovery Program',
+    agency: 'North Carolina Emergency Management',
+    documentRequirements: [
+      'gov-id',
+      'proof-of-occupancy',
+      'damage-photos',
+      'insurance-info',
+      'income-verification',
+    ],
+  },
+  {
+    id: 'usda-emergency-loan',
+    name: 'USDA Emergency Farm Loan',
+    agency: 'US Department of Agriculture',
+    documentRequirements: [
+      'gov-id',
+      'ssn-document',
+      'proof-of-ownership',
+      'farm-records',
+      'damage-photos',
+      'insurance-info',
+      'bank-account',
+      'tax-returns',
+    ],
+  },
+  {
+    id: 'nc-211',
+    name: 'NC 211 Local Resources',
+    agency: 'United Way of North Carolina',
+    documentRequirements: [
+      'gov-id',
+      'proof-of-occupancy',
+      'income-verification',
+    ],
+  },
+];
+
+>>>>>>> ebb19d9ee3c2b7539060e71f77b78533289048ff
 // All document definitions
 export const documentDefinitions: DocumentRequirement[] = [
   {
