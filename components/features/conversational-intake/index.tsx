@@ -1,8 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import type { ChatSession } from 'firebase/ai';
 import { UserSituation } from '@/lib/aid-programs';
-import { getGeminiModel } from '@/lib/firebase/ai';
+import type { UserSituation as DocumentRequirementsUserSituation } from '@/lib/document-requirements';
+import { getGeminiModel, getSituationExtractionModel } from '@/lib/firebase/ai';
+import { CompassStatus } from '@/components/compass-status';
+import SituationIntake from '@/components/features/situation-intake';
 
 interface ConversationalIntakeProps {
   onComplete: (situation: UserSituation) => void;
@@ -13,130 +17,186 @@ interface Message {
   content: string;
 }
 
+const GREETING =
+  "Hi! I'm here to help you find disaster aid programs. Feel free to ask me any questions about available aid, eligibility, or the application process. I'll also ask you a few questions about your situation to find the programs that match your needs.";
+
+const SYSTEM_INSTRUCTION = `You are a helpful assistant for disaster aid applications on Aid Compass. Your job is to:
+
+1. Answer the user's questions about disaster aid programs, eligibility, and the application process, in a warm, concise, conversational tone.
+2. Naturally ask about the following pieces of the user's situation, one or two at a time, only for whatever they haven't already told you:
+   - county: the county they're located in
+   - damageType: home, business, both, or other
+   - ownershipStatus: owner, renter, or both
+   - damageSeverity: minor, moderate, severe, or destroyed
+   - hasInsurance: yes/no
+   - isFarmer: yes/no (owns agricultural land)
+   - incomeRange: low (under $50k), medium ($50k-$100k), high (over $100k), or prefer not to say
+   - hasAppliedToFEMA: yes/no
+3. Do not output JSON yourself, and do not use markdown code fences. Just respond in plain, natural language. A separate process extracts structured data from this conversation, so you never need to summarize it as data.
+4. Once you believe you have enough information to be useful, tell the user you have what you need and that you're finding their matching programs.`;
+
+const DAMAGE_TYPES = ['home', 'business', 'both', 'other'] as const;
+const OWNERSHIP_STATUSES = ['owner', 'renter', 'both'] as const;
+const DAMAGE_SEVERITIES = ['minor', 'moderate', 'severe', 'destroyed'] as const;
+const INCOME_RANGES = ['low', 'medium', 'high', 'prefer_not_to_say'] as const;
+
+const REQUIRED_FIELDS = [
+  'county',
+  'damageType',
+  'ownershipStatus',
+  'damageSeverity',
+  'hasInsurance',
+  'isFarmer',
+  'incomeRange',
+  'hasAppliedToFEMA',
+] as const;
+
+const ERROR_THRESHOLD = 3;
+
+function validateSituation(raw: Record<string, unknown>): Partial<UserSituation> {
+  const out: Partial<UserSituation> = {};
+
+  if (typeof raw.county === 'string' && raw.county.trim().length > 0) {
+    out.county = raw.county.trim();
+  }
+  if (typeof raw.damageType === 'string' && (DAMAGE_TYPES as readonly string[]).includes(raw.damageType)) {
+    out.damageType = raw.damageType as UserSituation['damageType'];
+  }
+  if (
+    typeof raw.ownershipStatus === 'string' &&
+    (OWNERSHIP_STATUSES as readonly string[]).includes(raw.ownershipStatus)
+  ) {
+    out.ownershipStatus = raw.ownershipStatus as UserSituation['ownershipStatus'];
+  }
+  if (
+    typeof raw.damageSeverity === 'string' &&
+    (DAMAGE_SEVERITIES as readonly string[]).includes(raw.damageSeverity)
+  ) {
+    out.damageSeverity = raw.damageSeverity as UserSituation['damageSeverity'];
+  }
+  if (typeof raw.incomeRange === 'string' && (INCOME_RANGES as readonly string[]).includes(raw.incomeRange)) {
+    out.incomeRange = raw.incomeRange as UserSituation['incomeRange'];
+  }
+  if (typeof raw.hasInsurance === 'boolean') out.hasInsurance = raw.hasInsurance;
+  if (typeof raw.isFarmer === 'boolean') out.isFarmer = raw.isFarmer;
+  if (typeof raw.hasAppliedToFEMA === 'boolean') out.hasAppliedToFEMA = raw.hasAppliedToFEMA;
+
+  return out;
+}
+
+async function runExtraction(messages: Message[]): Promise<Partial<UserSituation>> {
+  const transcript = messages
+    .map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
+    .join('\n');
+
+  const prompt = `Given the following conversation transcript between a disaster aid assistant and a user, extract any of the situation fields that can be confidently determined from what the user has said. Omit any field not yet clearly stated by the user; do not guess.
+
+Transcript:
+${transcript}`;
+
+  const result = await getSituationExtractionModel().generateContent(prompt);
+  const parsed = JSON.parse(result.response.text());
+  return validateSituation(parsed);
+}
+
 export default function ConversationalIntake({ onComplete }: ConversationalIntakeProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    { 
-      role: 'assistant', 
-      content: "Hi! I'm here to help you find disaster aid programs. Feel free to ask me any questions about available aid, eligibility, or the application process. I'll also ask you a few questions about your situation to find the programs that match your needs." 
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([{ role: 'assistant', content: GREETING }]);
   const [userSituation, setUserSituation] = useState<Partial<UserSituation>>({});
   const [isTyping, setIsTyping] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [errorCount, setErrorCount] = useState(0);
+  const [useManualFallback, setUseManualFallback] = useState(false);
 
-  // Use Firebase AI to handle conversation
-  const handleConversation = async (userMessage: string): Promise<string> => {
-    try {
-      const model = getGeminiModel();
-      
-      const currentSituation = JSON.stringify(userSituation, null, 2);
-      
-      const prompt = `You are a helpful assistant for disaster aid applications. Your role is to:
+  const chatSessionRef = useRef<ChatSession | null>(null);
 
-1. Answer user questions about disaster aid programs, eligibility, and the application process
-2. Proactively gather information about the user's situation when needed
-3. Determine when you have enough information to show eligible programs
-
-Current information gathered about the user:
-${currentSituation || "None yet"}
-
-Required information to determine eligibility:
-- county: The county where the user is located
-- damageType: Type of property damaged (home, business, both, other)
-- ownershipStatus: Whether they own, rent, or both
-- damageSeverity: How severe the damage is (minor, moderate, severe, destroyed)
-- hasInsurance: Whether they have insurance coverage
-- isFarmer: Whether they are a farmer or own agricultural land
-- incomeRange: Their household income range (low, medium, high, prefer_not_to_say)
-- hasAppliedToFEMA: Whether they have already applied for FEMA assistance
-
-User message: "${userMessage}"
-
-Respond naturally and conversationally. If the user asks a question, answer it helpfully. If you need more information to determine eligibility, ask for it naturally in the flow of conversation. If you have all required information, say "I have all the information I need. Let me find the programs you qualify for." and then return a JSON object with the complete user situation.
-
-Keep your response conversational and friendly. If returning JSON, format it as:
-\`\`\`json
-{"county": "...", "damageType": "...", ...}
-\`\`\``;
-
-      const result = await model.generateContent(prompt);
-      const responseText = result.response.text();
-      
-      // Check if response contains JSON
-      const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
-      if (jsonMatch) {
-        try {
-          const parsed = JSON.parse(jsonMatch[1]);
-          return JSON.stringify({ hasCompleteInfo: true, situation: parsed, message: responseText.replace(jsonMatch[0], '').trim() });
-        } catch (e) {
-          console.error('Failed to parse JSON from AI response:', e);
-        }
-      }
-      
-      return responseText;
-    } catch (error) {
-      console.error('AI conversation error:', error);
-      return "I'm having trouble understanding. Could you rephrase that?";
-    }
-  };
+  const gatheredCount = REQUIRED_FIELDS.filter(
+    (key) => userSituation[key] !== undefined
+  ).length;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim() || isTyping) return;
 
-    // Add user message
-    setMessages(prev => [...prev, { role: 'user', content: inputValue }]);
-    
     const userMessage = inputValue;
+    const messagesWithUser = [...messages, { role: 'user' as const, content: userMessage }];
+    setMessages(messagesWithUser);
     setInputValue('');
     setIsTyping(true);
 
-    // Use AI to handle conversation
     try {
-      const response = await handleConversation(userMessage);
-      
-      // Check if AI returned complete information
-      try {
-        const parsed = JSON.parse(response);
-        if (parsed.hasCompleteInfo) {
-          // Update situation with complete info
-          setUserSituation(parsed.situation);
-          
-          // Add the conversational part of the response
-          setMessages(prev => [...prev, { role: 'assistant', content: parsed.message }]);
-          
-          // Complete after showing the message
-          setTimeout(() => {
-            onComplete(parsed.situation as UserSituation);
-          }, 2000);
-        }
-      } catch (e) {
-        // Regular conversational response
-        setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+      if (!chatSessionRef.current) {
+        chatSessionRef.current = getGeminiModel().startChat({
+          systemInstruction: SYSTEM_INSTRUCTION,
+        });
       }
+
+      const result = await chatSessionRef.current.sendMessage(userMessage);
+      const replyText = result.response.text();
+      const messagesWithReply = [...messagesWithUser, { role: 'assistant' as const, content: replyText }];
+      setMessages(messagesWithReply);
+
+      try {
+        const validated = await runExtraction(messagesWithReply);
+        if (Object.keys(validated).length > 0) {
+          setUserSituation((prev) => ({ ...prev, ...validated }));
+        }
+      } catch (extractionError) {
+        console.error('Failed to extract situation from conversation:', extractionError);
+      }
+
+      setErrorCount(0);
     } catch (error) {
       console.error('Error in conversation:', error);
-      setMessages(prev => [...prev, { role: 'assistant', content: "I'm sorry, I'm having trouble right now. Please try again." }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: "I'm sorry, I'm having trouble right now. Please try again." },
+      ]);
+      setErrorCount((prev) => prev + 1);
     }
 
     setIsTyping(false);
   };
 
   const handleRestart = () => {
-    setMessages([{ 
-      role: 'assistant', 
-      content: "Hi! I'm here to help you find disaster aid programs. Feel free to ask me any questions about available aid, eligibility, or the application process. I'll also ask you a few questions about your situation to find the programs that match your needs." 
-    }]);
+    setMessages([{ role: 'assistant', content: GREETING }]);
     setUserSituation({});
     setInputValue('');
+    setErrorCount(0);
+    setUseManualFallback(false);
+    chatSessionRef.current = null;
   };
 
   const handleShowResults = () => {
-    // Allow user to manually trigger results even if not all info is gathered
-    if (Object.keys(userSituation).length > 0) {
+    if (gatheredCount > 0) {
       onComplete(userSituation as UserSituation);
     }
   };
+
+  // lib/document-requirements.ts's UserSituation is a separately-declared type,
+  // structurally identical to aid-programs.ts's for these 8 fields (see
+  // CLAUDE.md "two parallel domain models" note).
+  const handleManualSubmit = (situation: DocumentRequirementsUserSituation) => {
+    onComplete(situation as unknown as UserSituation);
+  };
+
+  if (useManualFallback) {
+    return (
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-[34px] text-center">
+          <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
+            Conversational Intake
+          </p>
+          <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
+            Let's Find Your Aid Programs
+          </h1>
+          <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
+            No problem — fill out the quick form below instead.
+          </p>
+        </div>
+        <SituationIntake onSubmit={handleManualSubmit} />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -172,7 +232,7 @@ Keep your response conversational and friendly. If returning JSON, format it as:
               </div>
             </div>
           ))}
-          
+
           {isTyping && (
             <div className="flex justify-start">
               <div className="bg-white border border-[#e4d9cf] p-4 rounded-[14px]">
@@ -205,7 +265,7 @@ Keep your response conversational and friendly. If returning JSON, format it as:
               Send
             </button>
           </form>
-          
+
           <div className="flex justify-between items-center mt-3">
             <button
               onClick={handleRestart}
@@ -213,29 +273,46 @@ Keep your response conversational and friendly. If returning JSON, format it as:
             >
               Start Over
             </button>
-            
-            {Object.keys(userSituation).length > 0 && (
+
+            {gatheredCount > 0 && (
               <button
                 onClick={handleShowResults}
                 className="text-[#b0673f] hover:text-[#895031] font-medium text-sm"
               >
-                Show Results ({Object.keys(userSituation).length}/8 fields)
+                Show Results ({gatheredCount}/{REQUIRED_FIELDS.length} fields)
               </button>
             )}
           </div>
+
+          {errorCount >= ERROR_THRESHOLD && (
+            <div className="mt-4 bg-white rounded-[14px] p-4 border border-[#e4d9cf] flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-3">
+                <CompassStatus tone="attention" label="Having trouble" />
+                <p className="text-sm text-[#6b5a4e]">
+                  The assistant is having trouble right now. You can keep trying, or switch to the quick form instead.
+                </p>
+              </div>
+              <button
+                onClick={() => setUseManualFallback(true)}
+                className="text-[#b0673f] hover:text-[#895031] font-medium text-sm whitespace-nowrap"
+              >
+                Use the form instead
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Info gathered indicator */}
-      {Object.keys(userSituation).length > 0 && (
+      {gatheredCount > 0 && (
         <div className="mt-6 bg-[#faf6f1] rounded-[14px] p-4 border border-[#e4d9cf]">
           <p className="text-sm text-[#895031] font-semibold uppercase tracking-[0.08em] mb-2">
             Information Gathered
           </p>
           <div className="flex flex-wrap gap-2">
-            {Object.entries(userSituation).map(([key, value]) => (
+            {REQUIRED_FIELDS.filter((key) => userSituation[key] !== undefined).map((key) => (
               <span key={key} className="text-xs bg-white border border-[#e4d9cf] px-2 py-1 rounded-full text-[#6b5a4e]">
-                {key}: {String(value)}
+                {key}: {String(userSituation[key])}
               </span>
             ))}
           </div>
