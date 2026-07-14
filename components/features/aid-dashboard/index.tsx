@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { AidProgram, ApplicationStatus } from '@/lib/aid-programs';
+import { getDocumentById, groupDocumentsByCategory } from '@/lib/document-requirements';
 import { CompassStatus } from '@/components/compass-status';
 import { AmountIcon, ClockIcon, DocumentIcon } from '@/components/feature-icons';
 
@@ -174,14 +175,41 @@ function ProgramCard({ program, isExpanded, onToggle, urgencyTone, status, onSta
           <h4 className="text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-3">
             Required Documents
           </h4>
-          <ul className="space-y-2 mb-6">
-            {program.requiredDocuments.map((doc, index) => (
-              <li key={index} className="flex items-start gap-2 text-[#6b5a4e] text-[0.98rem]">
-                <span className="text-[#b0673f] mt-0.5">•</span>
-                <span>{doc}</span>
-              </li>
-            ))}
-          </ul>
+          
+          {(() => {
+            const groupedDocs = groupDocumentsByCategory(program.requiredDocuments);
+            const categoryLabels: Record<string, string> = {
+              identification: 'Identification',
+              proof_of_ownership: 'Proof of Ownership/Occupancy',
+              financial: 'Financial Documents',
+              damage: 'Damage Documentation',
+              insurance: 'Insurance Information',
+              other: 'Other Documents',
+            };
+            
+            return Object.entries(groupedDocs).map(([category, docs]) => {
+              if (docs.length === 0) return null;
+              
+              return (
+                <div key={category} className="mb-4">
+                  <h5 className="font-semibold text-[#1f1610] text-sm mb-2">
+                    {categoryLabels[category] || category}
+                  </h5>
+                  <ul className="space-y-2">
+                    {docs.map(doc => (
+                      <li key={doc.id} className="flex items-start gap-2">
+                        <span className="text-[#b0673f] mt-0.5 text-sm">•</span>
+                        <div>
+                          <p className="text-[#1f1610] text-[0.98rem] font-medium">{doc.name}</p>
+                          <p className="text-[#6b5a4e] text-[0.9rem]">{doc.description}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            });
+          })()}
 
           <a
             href={program.applicationUrl}
