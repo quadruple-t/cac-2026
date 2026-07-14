@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AidProgram, ApplicationStatus } from '@/lib/aid-programs';
 import { ClockIcon, CompleteIcon, GlobeIcon, MailIcon, PhoneIcon } from '@/components/feature-icons';
 
@@ -12,7 +12,9 @@ interface DeadlineTrackerProps {
 
 export default function DeadlineTracker({ programs, applicationStatuses, onStatusChange }: DeadlineTrackerProps) {
   const [email, setEmail] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
+  const [alertProgramIds, setAlertProgramIds] = useState<Set<string>>(new Set());
+  const [savingAlertId, setSavingAlertId] = useState<string | null>(null);
+  const [alertMessage, setAlertMessage] = useState('');
   const [completedPlanSteps, setCompletedPlanSteps] = useState<Record<string, number>>(() => {
     if (typeof window === 'undefined') return {};
 
@@ -23,10 +25,55 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
     }
   });
 
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) {
-      setSubscribed(true);
+  useEffect(() => {
+    const loadAlerts = async () => {
+      try {
+        const response = await fetch('/api/deadline-alerts');
+        if (!response.ok) return;
+        const { alerts } = await response.json();
+        const enabledProgramIds = (alerts || [])
+          .filter((alert: { enabled: boolean }) => alert.enabled)
+          .map((alert: { programId: string }) => alert.programId);
+        setAlertProgramIds(new Set(enabledProgramIds));
+      } catch (error) {
+        console.error('Error loading deadline alerts:', error);
+      }
+    };
+
+    loadAlerts();
+  }, []);
+
+  const handleAlertToggle = async (programId: string) => {
+    setSavingAlertId(programId);
+    setAlertMessage('');
+
+    try {
+      const isEnabled = alertProgramIds.has(programId);
+      const response = await fetch(isEnabled ? `/api/deadline-alerts?programId=${encodeURIComponent(programId)}` : '/api/deadline-alerts', {
+        method: isEnabled ? 'DELETE' : 'POST',
+        headers: isEnabled ? undefined : { 'Content-Type': 'application/json' },
+        body: isEnabled ? undefined : JSON.stringify({ programId, email }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Request failed');
+      }
+
+      setAlertProgramIds((current) => {
+        const next = new Set(current);
+        if (isEnabled) {
+          next.delete(programId);
+        } else {
+          next.add(programId);
+        }
+        return next;
+      });
+      setAlertMessage(isEnabled ? 'Reminder turned off.' : 'Reminder saved. We’ll email you before this deadline.');
+    } catch (error) {
+      console.error('Error updating deadline alert:', error);
+      setAlertMessage('We could not update that reminder. Please try again.');
+    } finally {
+      setSavingAlertId(null);
     }
   };
 
@@ -147,11 +194,25 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
                     })}
                   </ol>
 
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleAlertToggle(program.id)}
+                      disabled={savingAlertId === program.id}
+                      className="rounded-lg border border-[#895031] px-3.5 py-2 text-sm font-semibold text-[#895031] transition-colors hover:bg-[#f8e8dc] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {savingAlertId === program.id
+                        ? 'Saving reminder…'
+                        : alertProgramIds.has(program.id)
+                          ? 'Turn email reminder off'
+                          : 'Email me before this deadline'}
+                    </button>
+
                   {completedSteps < steps.length ? (
                     <button
                       type="button"
                       onClick={() => advancePlan(program.id)}
-                      className="mt-5 rounded-lg bg-[#3d2b20] px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b1e15]"
+                      className="rounded-lg bg-[#3d2b20] px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2b1e15]"
                     >
                       {actionLabels[completedSteps]}
                     </button>
@@ -159,15 +220,16 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
                     <button
                       type="button"
                       onClick={() => onStatusChange(program.id, 'received')}
-                      className="mt-5 rounded-lg border border-[#895031] px-3.5 py-2 text-sm font-semibold text-[#895031] transition-colors hover:bg-[#f8e8dc]"
+                      className="rounded-lg border border-[#895031] px-3.5 py-2 text-sm font-semibold text-[#895031] transition-colors hover:bg-[#f8e8dc]"
                     >
                       Record funds received
                     </button>
                   ) : (
-                    <p className="mt-5 flex items-center gap-1.5 text-sm font-medium text-[#168260]">
+                    <p className="flex items-center gap-1.5 text-sm font-medium text-[#168260]">
                       <CompleteIcon /> Plan complete
                     </p>
                   )}
+                  </div>
                 </figure>
               );
             })}
@@ -189,27 +251,20 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
           We&apos;ll send you email reminders as your deadlines approach so you never miss an opportunity.
         </p>
 
-        {!subscribed ? (
-          <form onSubmit={handleSubscribe} className="flex gap-3">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-              className="flex-1 px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
-            />
-            <button
-              type="submit"
-              className="bg-[#b0673f] text-white px-6 py-3 rounded-[10px] font-semibold text-[1.05rem] hover:bg-[#895031] transition-colors"
-            >
-              Subscribe
-            </button>
-          </form>
-        ) : (
-          <div className="flex items-center gap-1.5 text-[#10b981] font-medium text-[1.05rem]">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Use my account email, or enter another"
+            className="flex-1 px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+          />
+        </div>
+        <p className="mt-3 text-sm text-[#6b5a4e]">Click the reminder button on any deadline card above. If you leave this blank, we’ll use your sign-in email.</p>
+        {alertMessage && (
+          <div className="mt-4 flex items-center gap-1.5 text-[#168260] font-medium text-[1.05rem]">
             <CompleteIcon />
-            Subscribed! We&apos;ll send reminders to {email}
+            {alertMessage}
           </div>
         )}
       </div>
