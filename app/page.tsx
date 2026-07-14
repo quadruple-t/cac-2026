@@ -99,7 +99,7 @@ export default function Home() {
                   href="/sign-up"
                   className="ac-sheen rounded-[10px] px-[26px] py-3.5 text-[1.05rem] font-semibold text-white no-underline bg-[#b0673f] shadow-[0_10px_24px_rgba(176,103,63,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#895031] hover:shadow-[0_14px_28px_rgba(176,103,63,0.4)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[#b0673f]"
                 >
-                  Get started, it's free
+                  Get started, it&apos;s free
                 </a>
                 <span className="text-[0.9rem] text-[#6b5a4e]">
                   Free, make an account to start, Independent, not a government

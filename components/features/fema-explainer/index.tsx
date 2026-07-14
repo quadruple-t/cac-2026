@@ -128,7 +128,7 @@ Return ONLY the JSON, no other text.`;
           Understand Your FEMA Letter
         </h1>
         <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-          We'll help you understand your FEMA letter in plain English and show you what to do next.
+          We&apos;ll help you understand your FEMA letter in plain English and show you what to do next.
         </p>
       </div>
 

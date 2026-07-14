@@ -95,3 +95,21 @@ export function getSituationExtractionModel(): GenerativeModel {
   }
   return cachedExtractionModel;
 }
+
+let cachedCorrectionModel: GenerativeModel | null = null;
+
+// Stateless, JSON-mode model that turns a free-text correction (e.g. "I don't
+// have insurance anymore") into a partial UserSituation patch. Not schema-
+// constrained like getSituationExtractionModel() above, because it needs to
+// be able to touch any of the ~150 UserSituation fields rather than just the
+// 8 core eligibility ones — callers are responsible for whitelisting/
+// validating the parsed keys (see lib/situation-memory.ts).
+export function getCorrectionExtractionModel(): GenerativeModel {
+  if (!cachedCorrectionModel) {
+    cachedCorrectionModel = getGenerativeModel(getFirebaseAI(), {
+      model: "gemini-3.1-flash-lite",
+      generationConfig: { responseMimeType: "application/json" },
+    });
+  }
+  return cachedCorrectionModel;
+}
