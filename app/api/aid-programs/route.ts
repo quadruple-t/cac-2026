@@ -44,6 +44,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ programs: ranked });
   } catch (error) {
     console.error('Error ranking aid programs:', error);
-    return NextResponse.json({ error: 'Failed to load aid programs' }, { status: 500 });
+    // Surface the actual cause (missing env var, Sheets API error, etc.) —
+    // these messages don't contain secrets, just config/HTTP status details,
+    // and this route already requires auth. Without this, a broken local
+    // setup (e.g. a teammate missing AID_PROGRAMS_SPREADSHEET_ID in their own
+    // .env.local, which is gitignored per-developer) is only diagnosable from
+    // server logs they may not have access to.
+    const message = error instanceof Error ? error.message : 'Failed to load aid programs';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
