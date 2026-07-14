@@ -46,18 +46,21 @@ export default function Navigation() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-4">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`text-sm font-medium no-underline transition-colors ${
+              className={`group relative flex items-center text-sm font-medium no-underline transition-all ${
                 pathname === item.href
-                  ? 'rounded-full bg-[#eadbce] px-3 py-1.5 text-[#895031]'
-                  : 'text-[#6b5a4e] hover:text-[#2a201a]'
+                  ? 'rounded-full bg-[#eadbce] px-4 py-2 text-[#895031] shadow-sm'
+                  : 'text-[#6b5a4e] hover:text-[#2a201a] hover:bg-[#f7efe8] rounded-full px-4 py-2'
               }`}
             >
               {item.name}
+              {pathname === item.href && (
+                <span className="absolute -bottom-1 left-1/2 h-0.5 w-6 -translate-x-1/2 bg-[#b0673f] rounded-full" />
+              )}
             </Link>
           ))}
 

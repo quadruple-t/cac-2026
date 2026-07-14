@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import type { ChatSession } from 'firebase/ai';
 import { UserSituation } from '@/lib/aid-programs';
 import { getGeminiModel, getSituationExtractionModel } from '@/lib/firebase/ai';
@@ -106,8 +106,49 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
   const [inputValue, setInputValue] = useState('');
   const [errorCount, setErrorCount] = useState(0);
   const [useManualFallback, setUseManualFallback] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
 
   const chatSessionRef = useRef<ChatSession | null>(null);
+
+  // Load chat history from Firestore on mount
+  useEffect(() => {
+    const loadChatHistory = async () => {
+      try {
+        const res = await fetch('/api/chat-history');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.messages && data.messages.length > 0) {
+            setMessages(data.messages);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading chat history:', error);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+
+    loadChatHistory();
+  }, []);
+
+  // Save messages to Firestore whenever they change
+  useEffect(() => {
+    if (!isLoadingHistory) {
+      const saveChatHistory = async () => {
+        try {
+          await fetch('/api/chat-history', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages }),
+          });
+        } catch (error) {
+          console.error('Error saving chat history:', error);
+        }
+      };
+
+      saveChatHistory();
+    }
+  }, [messages, isLoadingHistory]);
 
   const gatheredCount = REQUIRED_FIELDS.filter(
     (key) => userSituation[key] !== undefined
@@ -164,6 +205,8 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
     setErrorCount(0);
     setUseManualFallback(false);
     chatSessionRef.current = null;
+    // Clear saved chat history on restart
+    fetch('/api/chat-history', { method: 'DELETE' }).catch(console.error);
   };
 
   const handleShowResults = () => {

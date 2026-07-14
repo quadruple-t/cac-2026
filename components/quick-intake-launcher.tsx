@@ -23,7 +23,7 @@ export default function QuickIntakeLauncher() {
         aria-label="Open quick intake"
         className="ac-sheen fixed bottom-5 right-5 z-30 rounded-full px-4 py-3 text-sm font-semibold text-white bg-[#b0673f] shadow-lg transition-transform hover:-translate-y-0.5 hover:bg-[#895031] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b0673f]"
       >
-        Quick intake
+        Chat with us
       </button>
     );
   }
@@ -35,7 +35,7 @@ export default function QuickIntakeLauncher() {
         className="fixed bottom-5 right-5 z-30 w-[min(390px,calc(100vw-2rem))] rounded-[14px] border border-[#e4d9cf] bg-[#faf6f1] p-3 text-[#2a201a] shadow-xl"
       >
         <div className="mb-2 flex items-center justify-between px-1">
-          <p className="text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">Quick intake</p>
+          <p className="text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">Chat with us</p>
           <button
             type="button"
             onClick={() => setIsOpen(false)}
@@ -47,7 +47,7 @@ export default function QuickIntakeLauncher() {
         </div>
         <ConversationalIntake compact onComplete={() => router.push('/conversational')} />
         <Link href="/conversational" className="mt-2 block text-center text-xs font-semibold text-[#895031] no-underline hover:text-[#6b5a4e]">
-          Open full intake tab →
+          Enlarge chat →
         </Link>
       </aside>
     );
@@ -80,7 +80,7 @@ export default function QuickIntakeLauncher() {
         onClick={() => setIsChatOpen(true)}
         className="ac-sheen mt-4 inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold text-white bg-[#b0673f] no-underline transition-transform hover:-translate-y-0.5 hover:bg-[#895031] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b0673f]"
       >
-        Start conversational intake →
+        Chat with us →
       </button>
     </aside>
   );
