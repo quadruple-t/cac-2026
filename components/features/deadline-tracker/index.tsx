@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { AidProgram, ApplicationStatus } from '@/lib/aid-programs';
 import { CompassStatus } from '@/components/compass-status';
-import { ClockIcon, CompleteIcon } from '@/components/feature-icons';
+import { ClockIcon, CompleteIcon, PhoneIcon, MailIcon, GlobeIcon } from '@/components/feature-icons';
 
 interface DeadlineTrackerProps {
   programs: AidProgram[];
@@ -72,7 +72,7 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
                 <div className="space-y-1 text-sm">
                   {program.contactInfo.phone && (
                     <div className="flex items-center gap-2 text-[#6b5a4e]">
-                      <span>📞</span>
+                      <PhoneIcon className="text-[#b0673f]" />
                       <a href={`tel:${program.contactInfo.phone}`} className="hover:text-[#b0673f] transition-colors">
                         {program.contactInfo.phone}
                       </a>
@@ -80,7 +80,7 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
                   )}
                   {program.contactInfo.email && (
                     <div className="flex items-center gap-2 text-[#6b5a4e]">
-                      <span>✉️</span>
+                      <MailIcon className="text-[#b0673f]" />
                       <a href={`mailto:${program.contactInfo.email}`} className="hover:text-[#b0673f] transition-colors">
                         {program.contactInfo.email}
                       </a>
@@ -88,10 +88,10 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
                   )}
                   {program.contactInfo.website && (
                     <div className="flex items-center gap-2 text-[#6b5a4e]">
-                      <span>🌐</span>
-                      <a 
-                        href={program.contactInfo.website} 
-                        target="_blank" 
+                      <GlobeIcon className="text-[#b0673f]" />
+                      <a
+                        href={program.contactInfo.website}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="hover:text-[#b0673f] transition-colors"
                       >
