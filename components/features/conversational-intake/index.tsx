@@ -110,7 +110,7 @@ Keep your response conversational and friendly. If returning JSON, format it as:
             onComplete(parsed.situation as UserSituation);
           }, 2000);
         }
-      } catch (e) {
+      } catch {
         // Regular conversational response
         setMessages(prev => [...prev, { role: 'assistant', content: response }]);
       }
@@ -145,10 +145,10 @@ Keep your response conversational and friendly. If returning JSON, format it as:
           Conversational Intake
         </p>
         <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-          Let's Find Your Aid Programs
+          Let&apos;s Find Your Aid Programs
         </h1>
         <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-          Ask me anything about disaster aid, or just start telling me about your situation. I'll guide you through finding the right programs.
+          Ask me anything about disaster aid, or just start telling me about your situation. I&apos;ll guide you through finding the right programs.
         </p>
       </div>
 

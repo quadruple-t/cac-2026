@@ -18,7 +18,6 @@ type Step = 'upload' | 'analyzing' | 'results' | 'walkthrough';
 export default function FemaExplainer() {
   const [letterText, setLetterText] = useState('');
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<Step>('upload');
   const [walkthroughStep, setWalkthroughStep] = useState(0);
@@ -34,7 +33,6 @@ export default function FemaExplainer() {
     e.preventDefault();
     if (!letterText.trim()) return;
 
-    setIsAnalyzing(true);
     setError(null);
     setAnalysis(null);
     setCurrentStep('analyzing');
@@ -89,7 +87,6 @@ Return ONLY the JSON, no other text.`;
       setError(`Failed to analyze the letter: ${errorMessage}. Please try again or make sure you have pasted the full letter text.`);
       setCurrentStep('upload');
     } finally {
-      setIsAnalyzing(false);
     }
   };
 
@@ -131,7 +128,7 @@ Return ONLY the JSON, no other text.`;
           Understand Your FEMA Letter
         </h1>
         <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-          We'll help you understand your FEMA letter in plain English and guide you through what to do next.
+          We&apos;ll help you understand your FEMA letter in plain English and guide you through what to do next.
         </p>
       </div>
 
@@ -140,7 +137,6 @@ Return ONLY the JSON, no other text.`;
         {steps.map((step, index) => {
           const isActive = step.id === currentStep;
           const isCompleted = getStepIndex() > index;
-          const isCurrent = step.id === currentStep;
           
           return (
             <div key={step.id} className="flex items-center">
@@ -392,10 +388,10 @@ Return ONLY the JSON, no other text.`;
                   </svg>
                 </div>
                 <h4 className="font-serif text-[1.5rem] font-medium text-[#1f1610] mb-4">
-                  You're All Set!
+                  You&apos;re All Set!
                 </h4>
                 <p className="text-[#6b5a4e] mb-8">
-                  You've gone through every step in your action plan. If anything changes with your case, come back and re-run the analysis on the new letter.
+                  You&apos;ve gone through every step in your action plan. If anything changes with your case, come back and re-run the analysis on the new letter.
                 </p>
                 <button
                   onClick={handleReset}

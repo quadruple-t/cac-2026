@@ -21,9 +21,7 @@ import { useRouter } from 'next/navigation';
 import Navigation from '@/components/navigation';
 import AidDashboard from '@/components/features/aid-dashboard';
 import AidIntakeForm from '@/components/features/aid-intake';
-import DocumentChecklist from '@/components/features/document-checklist';
 import { getEligiblePrograms, rankProgramsByUrgency, UserSituation, AidProgram } from '@/lib/aid-programs';
-import { generateDocumentChecklist } from '@/lib/document-requirements';
 
 export default function DashboardPage() {
   // Firebase auth state. `loading` is true until Firebase has resolved
@@ -47,14 +45,9 @@ export default function DashboardPage() {
   // dashboard/checklist view.
   const [isLoading, setIsLoading] = useState(true);
 
-  // Which of the two result tabs is currently visible once a situation
-  // exists: the matched aid programs, or the generated document checklist.
-  const [activeTab, setActiveTab] = useState<'programs' | 'documents'>('programs');
-
   // True while the user has re-opened the intake form to edit an existing
   // situation (as opposed to `!userSituation`, which is the first-time path).
   const [isEditing, setIsEditing] = useState(false);
-
   useEffect(() => {
     // Route guard: bounce anonymous visitors to sign-in once Firebase has
     // finished checking auth state. (Also enforced server-side by the
@@ -151,7 +144,7 @@ export default function DashboardPage() {
               Your Personalized Aid Resources
             </h1>
             <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] leading-relaxed max-w-2xl mx-auto">
-              Answer a few questions about your situation to discover eligible aid programs and get a personalized document checklist for your applications.
+              Answer a few questions about your situation to discover eligible aid programs.
             </p>
           </div>
 
@@ -167,45 +160,7 @@ export default function DashboardPage() {
             />
           ) : (
             <div>
-              {/* Tab Navigation — switches between the two views built from
-                  the same `userSituation`/`eligiblePrograms` data. */}
-              <div className="flex justify-center mb-8">
-                <div className="inline-flex bg-white border border-[#e4d9cf] rounded-[14px] p-1">
-                  <button
-                    onClick={() => setActiveTab('programs')}
-                    className={`px-6 py-3 rounded-[10px] font-medium text-[1.05rem] transition-colors ${
-                      activeTab === 'programs'
-                        ? 'bg-[#b0673f] text-white'
-                        : 'text-[#6b5a4e] hover:text-[#2a201a]'
-                    }`}
-                  >
-                    Aid Programs ({eligiblePrograms.length})
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('documents')}
-                    className={`px-6 py-3 rounded-[10px] font-medium text-[1.05rem] transition-colors ${
-                      activeTab === 'documents'
-                        ? 'bg-[#b0673f] text-white'
-                        : 'text-[#6b5a4e] hover:text-[#2a201a]'
-                    }`}
-                  >
-                    Document Checklist ({generateDocumentChecklist(userSituation).length})
-                  </button>
-                </div>
-              </div>
-
-              {/* Tab Content.
-                  Note: `generateDocumentChecklist` is recomputed here (and
-                  again in the tab label above) rather than cached in state,
-                  since it's a pure/cheap derivation from `userSituation`. */}
-              {activeTab === 'programs' ? (
-                <AidDashboard programs={eligiblePrograms} userSituation={userSituation} />
-              ) : (
-                <DocumentChecklist
-                  documents={generateDocumentChecklist(userSituation)}
-                  onReset={handleReset}
-                />
-              )}
+              <AidDashboard programs={eligiblePrograms} userSituation={userSituation} />
 
               <div className="text-center mt-8 flex items-center justify-center gap-6">
                 <button
@@ -228,4 +183,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
