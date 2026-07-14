@@ -97,7 +97,7 @@ export default function Home() {
               <div className="ac-reveal-3 flex flex-wrap items-center gap-x-[18px] gap-y-3.5">
                 <a
                   href="/sign-up"
-                  className="ac-sheen rounded-[10px] px-[26px] py-3.5 text-[1.05rem] font-semibold text-white no-underline shadow-[0_10px_24px_rgba(61,43,32,0.2)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(61,43,32,0.25)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[#3d2b20]"
+                  className="ac-sheen ac-cta rounded-[10px] px-[26px] py-3.5 text-[1.05rem] font-semibold text-white no-underline shadow-[0_10px_24px_rgba(61,43,32,0.2)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(61,43,32,0.25)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[#3d2b20]"
                 >
                   Get started — it&apos;s free
                 </a>

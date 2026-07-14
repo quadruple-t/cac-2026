@@ -74,6 +74,10 @@
   animation: ac-sheen 7s ease-in-out infinite;
 }
 
+.ac-cta {
+  background-image: linear-gradient(110deg, #a95f3c 0%, #d08a62 48%, #895031 100%);
+}
+
 @keyframes ac-sheen {
   0%, 55%, 100% { background-position: 0% 50%; }
   75% { background-position: 100% 50%; }
