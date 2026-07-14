@@ -17,7 +17,7 @@ const CONTOUR_PATHS = [
 const problemPoints = [
   {
     title: "Dozens of programs",
-    body: "Federal, state, county, and nonprofit aid — each with its own rules about who qualifies.",
+    body: "Federal, state, county, and nonprofit aid. Each has its own rules about who qualifies.",
   },
   {
     title: "Repeat forms",
@@ -36,11 +36,11 @@ const steps = [
   },
   {
     title: "See what you qualify for",
-    body: "We match your answers against current programs and rank them by what fits you best — and what closes soonest.",
+    body: "We match your answers against current programs and rank them by what fits you best and what closes soonest.",
   },
   {
     title: "Apply and keep track",
-    body: "Each match lists the documents required, the deadline, and a link straight to the official application. You apply on their site — we just get you there.",
+    body: "Each match lists the documents required, the deadline, and a link straight to the official application. You apply on their site. We just get you there.",
   },
 ];
 
@@ -91,18 +91,18 @@ export default function Home() {
               <p className="ac-reveal-2 mb-[30px] max-w-[560px] text-[clamp(1.05rem,2.6vw,1.22rem)] text-[#55483d]">
                 Answer a few plain questions about what the storm damaged.
                 Aid Compass gives you a ranked list of programs you&apos;re
-                eligible for — with deadlines, the documents you&apos;ll
+                eligible for. It shows deadlines, the documents you&apos;ll
                 need, and a direct link to each application.
               </p>
               <div className="ac-reveal-3 flex flex-wrap items-center gap-x-[18px] gap-y-3.5">
                 <a
                   href="/sign-up"
-                  className="ac-sheen ac-cta rounded-[10px] px-[26px] py-3.5 text-[1.05rem] font-semibold text-white no-underline shadow-[0_10px_24px_rgba(61,43,32,0.2)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(61,43,32,0.25)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[#3d2b20]"
+                  className="ac-sheen rounded-[10px] px-[26px] py-3.5 text-[1.05rem] font-semibold text-white no-underline bg-[#b0673f] shadow-[0_10px_24px_rgba(176,103,63,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#895031] hover:shadow-[0_14px_28px_rgba(176,103,63,0.4)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[#b0673f]"
                 >
-                  Get started — it&apos;s free
+                  Get started, it&apos;s free
                 </a>
                 <span className="text-[0.9rem] text-[#6b5a4e]">
-                  Free · make an account to start · Independent, not a government
+                  Free, make an account to start, Independent, not a government
                   site
                 </span>
               </div>

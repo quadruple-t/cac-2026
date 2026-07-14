@@ -122,13 +122,13 @@ Return ONLY the JSON, no other text.`;
       {/* Header */}
       <div className="text-center mb-8">
         <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-          FEMA Letter Explainer
+          FEMA Letter Help
         </p>
         <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
           Understand Your FEMA Letter
         </h1>
         <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-          We&apos;ll help you understand your FEMA letter in plain English and guide you through what to do next.
+          We&apos;ll help you understand your FEMA letter in plain English and show you what to do next.
         </p>
       </div>
 

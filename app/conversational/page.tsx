@@ -63,10 +63,10 @@ export default function ConversationalPage() {
                   Your Results
                 </p>
                 <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-                  Programs You Qualify For
+                  Aid Programs for You
                 </h1>
                 <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-                  Based on your situation in {userSituation.county}, you&apos;re eligible for {eligiblePrograms.length} aid programs.
+                  Based on what you told us about your situation in {userSituation.county}, you can apply for {eligiblePrograms.length} aid programs.
                 </p>
               </div>
 
