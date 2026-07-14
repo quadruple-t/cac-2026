@@ -9,6 +9,7 @@ import AidIntakeForm from '@/components/features/aid-intake';
 
 interface ConversationalIntakeProps {
   onComplete: (situation: UserSituation) => void;
+  compact?: boolean;
 }
 
 interface Message {
@@ -98,7 +99,7 @@ ${transcript}`;
   return validateSituation(parsed);
 }
 
-export default function ConversationalIntake({ onComplete }: ConversationalIntakeProps) {
+export default function ConversationalIntake({ onComplete, compact = false }: ConversationalIntakeProps) {
   const [messages, setMessages] = useState<Message[]>([{ role: 'assistant', content: GREETING }]);
   const [userSituation, setUserSituation] = useState<Partial<UserSituation>>({});
   const [isTyping, setIsTyping] = useState(false);
@@ -195,8 +196,8 @@ export default function ConversationalIntake({ onComplete }: ConversationalIntak
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="mb-[34px] text-center">
+    <div className={compact ? '' : 'max-w-3xl mx-auto'}>
+      {!compact && <div className="mb-[34px] text-center">
         <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
           Conversational Intake
         </p>
@@ -206,32 +207,32 @@ export default function ConversationalIntake({ onComplete }: ConversationalIntak
         <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
           Ask me anything about disaster aid, or just start telling me about your situation. I&apos;ll guide you through finding the right programs.
         </p>
-      </div>
+      </div>}
 
       {/* Chat Interface */}
-      <div className="ac-reveal-3 bg-[#faf6f1] rounded-[14px] border border-[#e4d9cf] overflow-hidden">
+      <div className={`bg-[#faf6f1] rounded-[14px] border border-[#e4d9cf] overflow-hidden ${compact ? '' : 'ac-reveal-3'}`}>
         {/* Messages */}
-        <div className="h-[400px] overflow-y-auto p-6 space-y-4">
+        <div className={`${compact ? 'h-[220px] p-3 space-y-3' : 'h-[400px] p-6 space-y-4'} overflow-y-auto`}>
           {messages.map((message, index) => (
             <div
               key={index}
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] p-4 rounded-[14px] ${
+                className={`${compact ? 'max-w-[88%] p-2.5' : 'max-w-[80%] p-4'} rounded-[14px] ${
                   message.role === 'user'
                     ? 'bg-[#b0673f] text-white'
                     : 'bg-white border border-[#e4d9cf] text-[#1f1610]'
                 }`}
               >
-                <p className="text-[1.05rem] leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                <p className={`${compact ? 'text-sm' : 'text-[1.05rem]'} leading-relaxed whitespace-pre-wrap`}>{message.content}</p>
               </div>
             </div>
           ))}
 
           {isTyping && (
             <div className="flex justify-start">
-              <div className="bg-white border border-[#e4d9cf] p-4 rounded-[14px]">
+              <div className="bg-white border border-[#e4d9cf] p-3 rounded-[14px]">
                 <div className="flex space-x-2">
                   <div className="w-2 h-2 bg-[#b0673f] rounded-full animate-bounce" />
                   <div className="w-2 h-2 bg-[#b0673f] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
@@ -243,20 +244,20 @@ export default function ConversationalIntake({ onComplete }: ConversationalIntak
         </div>
 
         {/* Input */}
-        <div className="border-t border-[#e4d9cf] p-4">
+        <div className={`${compact ? 'p-3' : 'p-4'} border-t border-[#e4d9cf]`}>
           <form onSubmit={handleSubmit} className="flex gap-3">
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Ask a question or tell me about your situation..."
+              placeholder={compact ? 'Tell me what happened...' : 'Ask a question or tell me about your situation...'}
               disabled={isTyping}
-              className="flex-1 px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow disabled:opacity-50"
+              className={`${compact ? 'px-3 py-2 text-sm' : 'px-4 py-3 text-[1.05rem]'} flex-1 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white transition-shadow disabled:opacity-50`}
             />
             <button
               type="submit"
               disabled={!inputValue.trim() || isTyping}
-              className="bg-[#3d2b20] text-white px-6 py-3 rounded-[10px] font-semibold text-[1.05rem] hover:bg-[#2b1e15] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`${compact ? 'px-3 py-2 text-sm' : 'px-6 py-3 text-[1.05rem]'} bg-[#3d2b20] text-white rounded-[10px] font-semibold hover:bg-[#2b1e15] transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               Send
             </button>

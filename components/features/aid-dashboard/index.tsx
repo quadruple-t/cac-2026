@@ -65,6 +65,9 @@ export default function AidDashboard({ programs, userSituation, applicationStatu
         <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
           Based on your situation in {userSituation?.county || 'your area'}, you&apos;re eligible for {programs.length} aid programs.
         </p>
+        <div className="mx-auto mt-5 flex w-fit items-center gap-2 rounded-full border border-[#d8b9a4] bg-[#fffaf5] px-3 py-1.5 text-xs font-semibold text-[#895031]">
+          <span className="text-base leading-none">✦</span> Ranked by fit and urgency
+        </div>
       </div>
 
       {/* Programs Grid */}
@@ -108,7 +111,7 @@ interface ProgramCardProps {
 
 function ProgramCard({ program, isExpanded, onToggle, urgencyTone, status, onStatusChange, statusTone, statusLabel }: ProgramCardProps) {
   return (
-    <div className="bg-[#faf6f1] rounded-[14px] border border-[#e4d9cf] overflow-hidden">
+    <div className="ac-lift bg-[#faf6f1] rounded-[18px] border border-[#e4d9cf] overflow-hidden">
       {/* Card Header */}
       <div className="p-6">
         <div className="flex items-start justify-between mb-3">
@@ -163,7 +166,7 @@ function ProgramCard({ program, isExpanded, onToggle, urgencyTone, status, onSta
 
         <button
           onClick={onToggle}
-          className="w-full bg-[#3d2b20] text-white py-3 px-6 rounded-[10px] font-semibold text-[1.05rem] hover:bg-[#2b1e15] transition-colors"
+          className="ac-sheen w-full text-white py-3 px-6 rounded-[10px] font-semibold text-[1.05rem] hover:-translate-y-0.5 transition-all"
         >
           {isExpanded ? 'Show Less' : 'View Details'}
         </button>

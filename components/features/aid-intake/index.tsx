@@ -111,6 +111,11 @@ export default function AidIntakeForm({ onSubmit, initialData, onCancel, submitL
     return { answered: fields.filter(field => isFieldAnswered(formData[field])).length, total: fields.length };
   };
 
+  const progress = SECTIONS.reduce((summary, section) => {
+    const count = answeredCount(section);
+    return { answered: summary.answered + count.answered, total: summary.total + count.total };
+  }, { answered: 0, total: 0 });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData as UserSituation);
@@ -124,6 +129,17 @@ export default function AidIntakeForm({ onSubmit, initialData, onCancel, submitL
       <p className="text-[#6b5a4e] mb-6 text-[1.05rem] leading-relaxed">
         We&apos;ll use this information to match you with the right aid programs.
       </p>
+
+      <div className="mb-8 rounded-[18px] border border-[#d8b9a4] bg-[linear-gradient(135deg,#fffaf5,#f3e4d8)] p-5 shadow-[0_12px_28px_rgba(61,43,32,0.08)]">
+        <div className="mb-3 flex items-center justify-between text-sm">
+          <span className="font-semibold text-[#3d2b20]">Your matching profile</span>
+          <span className="font-medium text-[#895031]">{progress.answered}/{progress.total} answered</span>
+        </div>
+        <div className="h-2 overflow-hidden rounded-full bg-[#eadbce]">
+          <div className="h-full rounded-full bg-[linear-gradient(90deg,#b0673f,#d08a62)] transition-all" style={{ width: `${progress.total ? (progress.answered / progress.total) * 100 : 0}%` }} />
+        </div>
+        <p className="mt-3 text-sm text-[#6b5a4e]">Every answer helps us narrow the search. Skip anything you&apos;d rather not share.</p>
+      </div>
 
       {/* Disclaimer */}
       <div className="mb-8 rounded-[14px] border border-[#e4d9cf] bg-[#faf6f1] px-5 py-4 flex gap-3">
@@ -142,7 +158,7 @@ export default function AidIntakeForm({ onSubmit, initialData, onCancel, submitL
           return (
             <div
               key={section.id}
-              className="rounded-[14px] border border-[#e4d9cf] bg-white overflow-hidden"
+              className={`ac-lift rounded-[14px] border bg-white overflow-hidden ${isOpen ? 'border-[#c99a7d] shadow-[0_12px_28px_rgba(61,43,32,0.08)]' : 'border-[#e4d9cf]'}`}
             >
               <button
                 type="button"
@@ -151,7 +167,7 @@ export default function AidIntakeForm({ onSubmit, initialData, onCancel, submitL
                 className="w-full flex items-center justify-between px-6 py-5 text-left"
               >
                 <div className="flex items-center gap-4">
-                  <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[#3d2b20] text-white text-[0.9rem] font-semibold">
+                  <span className={`flex h-9 w-9 flex-none items-center justify-center rounded-full text-white text-[0.9rem] font-semibold shadow-sm ${isOpen ? 'bg-[#b0673f]' : 'bg-[#3d2b20]'}`}>
                     {section.number}
                   </span>
                   <div>
@@ -198,7 +214,7 @@ export default function AidIntakeForm({ onSubmit, initialData, onCancel, submitL
 
         <button
           type="submit"
-          className="w-full bg-[#3d2b20] text-white py-3.5 px-6 rounded-[10px] font-semibold text-[1.05rem] hover:bg-[#2b1e15] focus:ring-2 focus:ring-[#b0673f] focus:ring-offset-2 transition-colors"
+          className="ac-sheen ac-cta w-full text-white py-3.5 px-6 rounded-[10px] font-semibold text-[1.05rem] hover:-translate-y-0.5 focus:ring-2 focus:ring-[#b0673f] focus:ring-offset-2 transition-all"
         >
           {submitLabel ?? 'Find My Eligible Programs'}
         </button>

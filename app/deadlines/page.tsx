@@ -31,8 +31,6 @@ export default function DeadlinesPage() {
           }
         }
 
-        // The conversational intake still stores its answers locally, so keep
-        // that as a fallback until it is migrated to the shared API.
         const savedSituation = localStorage.getItem('userSituation');
         if (savedSituation) {
           setPrograms(rankProgramsByUrgency(getEligiblePrograms(JSON.parse(savedSituation))));
