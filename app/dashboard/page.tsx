@@ -21,7 +21,8 @@ import { useRouter } from 'next/navigation';
 import Navigation from '@/components/navigation';
 import AidDashboard from '@/components/features/aid-dashboard';
 import AidIntakeForm from '@/components/features/aid-intake';
-import { getEligiblePrograms, rankProgramsByUrgency, UserSituation, AidProgram } from '@/lib/aid-programs';
+import { UserSituation, AidProgram } from '@/lib/aid-programs';
+import { rankedProgramToAidProgram } from '@/lib/sheets/aid-programs-adapter';
 
 export default function DashboardPage() {
   // Firebase auth state. `loading` is true until Firebase has resolved
@@ -48,6 +49,27 @@ export default function DashboardPage() {
   // True while the user has re-opened the intake form to edit an existing
   // situation (as opposed to `!userSituation`, which is the first-time path).
   const [isEditing, setIsEditing] = useState(false);
+
+  // Ranks the live Google Sheet program database against a situation via
+  // the server (the Sheets API credentials can't live in the browser).
+  const loadRankedPrograms = async (situation: UserSituation) => {
+    try {
+      const res = await fetch('/api/aid-programs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(situation),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setEligiblePrograms(data.programs.map(rankedProgramToAidProgram));
+      } else {
+        console.error('Failed to load aid programs:', await res.json());
+      }
+    } catch (error) {
+      console.error('Error loading aid programs:', error);
+    }
+  };
+
   useEffect(() => {
     // Route guard: bounce anonymous visitors to sign-in once Firebase has
     // finished checking auth state. (Also enforced server-side by the
@@ -65,9 +87,7 @@ export default function DashboardPage() {
           const data = await res.json();
           if (data.situation) {
             setUserSituation(data.situation);
-            const eligible = getEligiblePrograms(data.situation);
-            const ranked = rankProgramsByUrgency(eligible);
-            setEligiblePrograms(ranked);
+            await loadRankedPrograms(data.situation);
           }
         }
       } catch (error) {
@@ -88,9 +108,7 @@ export default function DashboardPage() {
       });
       if (res.ok) {
         setUserSituation(situation);
-        const eligible = getEligiblePrograms(situation);
-        const ranked = rankProgramsByUrgency(eligible);
-        setEligiblePrograms(ranked);
+        await loadRankedPrograms(situation);
         setIsEditing(false);
       } else {
         const errorData = await res.json();
