@@ -9,10 +9,9 @@ import { CompassMark } from '@/components/compass-mark';
 
 const navItems = [
   { name: 'Home', href: '/' },
-  { name: 'Conversational Intake', href: '/conversational' },
-  { name: 'Aid Center', href: '/dashboard' },
-  { name: 'Deadline Tracker', href: '/deadlines' },
-  { name: 'FEMA Explainer', href: '/fema' },
+  { name: 'Chat with Us', href: '/conversational' },
+  { name: 'My Aid Programs', href: '/dashboard' },
+  { name: 'FEMA Letter Help', href: '/fema' },
   { name: 'About', href: '/about' },
 ];
 

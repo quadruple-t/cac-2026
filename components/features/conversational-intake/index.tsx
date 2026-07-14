@@ -199,10 +199,10 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
     <div className={compact ? '' : 'max-w-3xl mx-auto'}>
       {!compact && <div className="mb-[34px] text-center">
         <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-          Conversational Intake
+          Chat with Us
         </p>
         <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-          Let&apos;s Find Your Aid Programs
+          Let's Find Your Aid Programs
         </h1>
         <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
           Ask me anything about disaster aid, or just start telling me about your situation. I&apos;ll guide you through finding the right programs.
