@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import type { ChatSession } from 'firebase/ai';
 import { UserSituation } from '@/lib/aid-programs';
 import { getGeminiModel, getSituationExtractionModel } from '@/lib/firebase/ai';
@@ -106,8 +106,49 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
   const [inputValue, setInputValue] = useState('');
   const [errorCount, setErrorCount] = useState(0);
   const [useManualFallback, setUseManualFallback] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
 
   const chatSessionRef = useRef<ChatSession | null>(null);
+
+  // Load chat history from Firestore on mount
+  useEffect(() => {
+    const loadChatHistory = async () => {
+      try {
+        const res = await fetch('/api/chat-history');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.messages && data.messages.length > 0) {
+            setMessages(data.messages);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading chat history:', error);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+
+    loadChatHistory();
+  }, []);
+
+  // Save messages to Firestore whenever they change
+  useEffect(() => {
+    if (!isLoadingHistory) {
+      const saveChatHistory = async () => {
+        try {
+          await fetch('/api/chat-history', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages }),
+          });
+        } catch (error) {
+          console.error('Error saving chat history:', error);
+        }
+      };
+
+      saveChatHistory();
+    }
+  }, [messages, isLoadingHistory]);
 
   const gatheredCount = REQUIRED_FIELDS.filter(
     (key) => userSituation[key] !== undefined
@@ -164,6 +205,8 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
     setErrorCount(0);
     setUseManualFallback(false);
     chatSessionRef.current = null;
+    // Clear saved chat history on restart
+    fetch('/api/chat-history', { method: 'DELETE' }).catch(console.error);
   };
 
   const handleShowResults = () => {
@@ -199,10 +242,10 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
     <div className={compact ? '' : 'max-w-3xl mx-auto'}>
       {!compact && <div className="mb-[34px] text-center">
         <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-          Conversational Intake
+          Chat with Us
         </p>
         <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-          Let&apos;s Find Your Aid Programs
+          Let's Find Your Aid Programs
         </h1>
         <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
           Ask me anything about disaster aid, or just start telling me about your situation. I&apos;ll guide you through finding the right programs.
