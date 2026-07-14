@@ -6,7 +6,7 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { establishServerSession } from "@/lib/firebase/session-client";
@@ -20,7 +20,6 @@ export default function SignInPage() {
 }
 
 function SignInForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/dashboard";
 
@@ -40,7 +39,7 @@ function SignInForm() {
         password,
       );
       await establishServerSession(credential.user);
-      router.push(next);
+      window.location.assign(next);
     } catch {
       setError("Could not sign in with that email and password.");
     } finally {
@@ -57,7 +56,7 @@ function SignInForm() {
         new GoogleAuthProvider(),
       );
       await establishServerSession(credential.user);
-      router.push(next);
+      window.location.assign(next);
     } catch {
       setError("Could not sign in with Google.");
     } finally {
