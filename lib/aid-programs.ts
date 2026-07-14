@@ -6,7 +6,7 @@ export interface AidProgram {
   maxAmount: string;
   deadline: string;
   deadlineUrgency: 'high' | 'medium' | 'low';
-  requiredDocuments: string[];
+  requiredDocuments: string[]; // Document IDs from document-requirements.ts
   applicationUrl: string;
   contactInfo: {
     phone?: string;
@@ -212,12 +212,11 @@ export const aidPrograms: AidProgram[] = [
     deadline: '60 days after disaster declaration',
     deadlineUrgency: 'high',
     requiredDocuments: [
-      'Proof of identity (driver\'s license, passport)',
-      'Insurance information',
-      'Damage photos',
-      'Proof of residence',
-      'Bank account information for direct deposit',
-      'Detailed list of damages'
+      'gov-id',
+      'insurance-info',
+      'damage-photos',
+      'proof-of-occupancy',
+      'bank-account',
     ],
     applicationUrl: 'https://www.disasterassistance.gov/',
     contactInfo: {
@@ -241,12 +240,13 @@ export const aidPrograms: AidProgram[] = [
     deadline: '90 days after disaster declaration',
     deadlineUrgency: 'high',
     requiredDocuments: [
-      'SBA loan application',
-      'Tax returns (2 years)',
-      'Financial statements',
-      'Insurance information',
-      'Damage photos and estimates',
-      'Proof of ownership or lease'
+      'gov-id',
+      'ssn-document',
+      'tax-returns',
+      'financial-statements',
+      'insurance-info',
+      'damage-photos',
+      'proof-of-ownership',
     ],
     applicationUrl: 'https://www.sba.gov/disaster',
     contactInfo: {
@@ -270,11 +270,14 @@ export const aidPrograms: AidProgram[] = [
     deadline: 'Varies by program',
     deadlineUrgency: 'medium',
     requiredDocuments: [
-      'Farm operating plan',
-      'Tax returns (3 years)',
-      'Proof of crop/livestock loss',
-      'Insurance information',
-      'Financial statements'
+      'gov-id',
+      'ssn-document',
+      'proof-of-ownership',
+      'farm-records',
+      'damage-photos',
+      'insurance-info',
+      'bank-account',
+      'tax-returns',
     ],
     applicationUrl: 'https://www.fsa.usda.gov/services/disaster-assistance',
     contactInfo: {
@@ -299,11 +302,11 @@ export const aidPrograms: AidProgram[] = [
     deadline: 'Varies by program',
     deadlineUrgency: 'medium',
     requiredDocuments: [
-      'Proof of NC residency',
-      'Damage documentation',
-      'Insurance information',
-      'Income verification',
-      'Proof of ownership or lease'
+      'gov-id',
+      'damage-photos',
+      'insurance-info',
+      'income-verification',
+      'proof-of-ownership',
     ],
     applicationUrl: 'https://www.ncdps.gov/emergency-management',
     contactInfo: {
@@ -328,9 +331,8 @@ export const aidPrograms: AidProgram[] = [
     deadline: 'Ongoing',
     deadlineUrgency: 'low',
     requiredDocuments: [
-      'Proof of address',
-      'ID',
-      'Basic information about household'
+      'gov-id',
+      'proof-of-occupancy',
     ],
     applicationUrl: 'https://www.redcross.org/get-help.html',
     contactInfo: {
@@ -354,7 +356,9 @@ export const aidPrograms: AidProgram[] = [
     deadline: 'Ongoing',
     deadlineUrgency: 'low',
     requiredDocuments: [
-      'Basic household information'
+      'gov-id',
+      'proof-of-occupancy',
+      'income-verification',
     ],
     applicationUrl: 'https://www.nc211.org/',
     contactInfo: {
@@ -378,11 +382,11 @@ export const aidPrograms: AidProgram[] = [
     deadline: '60 days after disaster declaration',
     deadlineUrgency: 'high',
     requiredDocuments: [
-      'Proof of identity',
-      'Insurance information',
-      'Damage documentation',
-      'Proof of residence',
-      'Bank account information'
+      'gov-id',
+      'insurance-info',
+      'damage-photos',
+      'proof-of-occupancy',
+      'bank-account',
     ],
     applicationUrl: 'https://www.disasterassistance.gov/',
     contactInfo: {

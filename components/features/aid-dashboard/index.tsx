@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { AidProgram, ApplicationStatus } from '@/lib/aid-programs';
+import { groupDocumentsByCategory } from '@/lib/document-requirements';
 import { CompassStatus } from '@/components/compass-status';
 import { AmountIcon, ClockIcon, DocumentIcon } from '@/components/feature-icons';
 
@@ -56,7 +57,7 @@ export default function AidDashboard({ programs, userSituation, applicationStatu
           Programs You Qualify For
         </h2>
         <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-          Based on your situation in {userSituation?.county || 'your area'}, you're eligible for {programs.length} aid programs.
+          Based on your situation in {userSituation?.county || 'your area'}, you&apos;re eligible for {programs.length} aid programs.
         </p>
       </div>
 
@@ -176,14 +177,41 @@ function ProgramCard({ program, isExpanded, onToggle, status, onStatusChange, st
           <h4 className="text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-3">
             Required Documents
           </h4>
-          <ul className="space-y-2 mb-6">
-            {program.requiredDocuments.map((doc, index) => (
-              <li key={index} className="flex items-start gap-2 text-[#6b5a4e] text-[0.98rem]">
-                <span className="text-[#b0673f] mt-0.5">•</span>
-                <span>{doc}</span>
-              </li>
-            ))}
-          </ul>
+          
+          {(() => {
+            const groupedDocs = groupDocumentsByCategory(program.requiredDocuments);
+            const categoryLabels: Record<string, string> = {
+              identification: 'Identification',
+              proof_of_ownership: 'Proof of Ownership/Occupancy',
+              financial: 'Financial Documents',
+              damage: 'Damage Documentation',
+              insurance: 'Insurance Information',
+              other: 'Other Documents',
+            };
+            
+            return Object.entries(groupedDocs).map(([category, docs]) => {
+              if (docs.length === 0) return null;
+              
+              return (
+                <div key={category} className="mb-4">
+                  <h5 className="font-semibold text-[#1f1610] text-sm mb-2">
+                    {categoryLabels[category] || category}
+                  </h5>
+                  <ul className="space-y-2">
+                    {docs.map(doc => (
+                      <li key={doc.id} className="flex items-start gap-2">
+                        <span className="text-[#b0673f] mt-0.5 text-sm">•</span>
+                        <div>
+                          <p className="text-[#1f1610] text-[0.98rem] font-medium">{doc.name}</p>
+                          <p className="text-[#6b5a4e] text-[0.9rem]">{doc.description}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            });
+          })()}
 
           <a
             href={program.applicationUrl}

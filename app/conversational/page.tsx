@@ -66,7 +66,7 @@ export default function ConversationalPage() {
                   Programs You Qualify For
                 </h1>
                 <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-                  Based on your situation in {userSituation.county}, you're eligible for {eligiblePrograms.length} aid programs.
+                  Based on your situation in {userSituation.county}, you&apos;re eligible for {eligiblePrograms.length} aid programs.
                 </p>
               </div>
 

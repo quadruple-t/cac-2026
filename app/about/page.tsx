@@ -22,19 +22,19 @@ const trustPoints = [
 const contributors = [
   {
     name: "Taran Duba",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    bio: "Taran helped shape Aid Compass around the real questions disaster survivors face, keeping the experience clear, practical, and focused on people.",
   },
   {
     name: "Mukesh Ramanathan",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    bio: "Mukesh worked on the app’s core flows and integrations, connecting intake answers with personalized resources and next steps.",
   },
   {
     name: "Ansh Nayak",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    bio: "Ansh contributed ideas and testing that helped turn a complicated recovery process into simpler, more approachable steps.",
   },
   {
     name: "Hannah Kim",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    bio: "Hannah brought a people-first perspective to the project, helping us keep the language welcoming and easy to understand.",
   },
 ];
 
