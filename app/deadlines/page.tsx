@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/firebase/use-auth';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/navigation';
 import DeadlineTracker from '@/components/features/deadline-tracker';
-import { getEligiblePrograms, rankProgramsByUrgency, UserSituation, AidProgram, ApplicationStatus } from '@/lib/aid-programs';
+import { getEligiblePrograms, rankProgramsByUrgency, AidProgram, ApplicationStatus } from '@/lib/aid-programs';
 
 export default function DeadlinesPage() {
   const { user, loading } = useAuth();
@@ -20,19 +20,31 @@ export default function DeadlinesPage() {
       return;
     }
 
-    // Check for saved user situation
-    const savedSituation = localStorage.getItem('userSituation');
-    if (savedSituation) {
+    const loadPrograms = async () => {
       try {
-        const parsedSituation = JSON.parse(savedSituation);
-        const eligible = getEligiblePrograms(parsedSituation);
-        const ranked = rankProgramsByUrgency(eligible);
-        setPrograms(ranked);
+        const response = await fetch('/api/user-situation');
+        if (response.ok) {
+          const { situation } = await response.json();
+          if (situation) {
+            setPrograms(rankProgramsByUrgency(getEligiblePrograms(situation)));
+            return;
+          }
+        }
+
+        // The conversational intake still stores its answers locally, so keep
+        // that as a fallback until it is migrated to the shared API.
+        const savedSituation = localStorage.getItem('userSituation');
+        if (savedSituation) {
+          setPrograms(rankProgramsByUrgency(getEligiblePrograms(JSON.parse(savedSituation))));
+        }
       } catch (error) {
-        console.error('Error parsing saved situation:', error);
+        console.error('Error loading saved situation:', error);
+      } finally {
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    };
+
+    loadPrograms();
   }, [user, loading, router]);
 
   const handleStatusChange = (programId: string, status: ApplicationStatus) => {

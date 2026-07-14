@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { AidProgram, ApplicationStatus } from '@/lib/aid-programs';
-import { CompassStatus } from '@/components/compass-status';
-import { ClockIcon, CompleteIcon, PhoneIcon, MailIcon, GlobeIcon } from '@/components/feature-icons';
+import { ClockIcon, CompleteIcon } from '@/components/feature-icons';
 
 interface DeadlineTrackerProps {
   programs: AidProgram[];
@@ -22,12 +21,6 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
       setSubscribed(true);
     }
   };
-
-  const urgencyTones = {
-    high: 'attention',
-    medium: 'progress',
-    low: 'success'
-  } as const;
 
   const completedStepsFor = (programId: string) => {
     const status = applicationStatuses[programId] || 'not_applied';
@@ -59,7 +52,7 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
           Track Your Application Deadlines
         </h1>
         <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-          Never miss a deadline. Track your application status and get reminders for your eligible programs.
+          Turn your Aid Center matches into a focused sequence of deadlines and next actions.
         </p>
       </div>
 
@@ -90,7 +83,12 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
               return (
                 <figure key={program.id} className="rounded-[10px] border border-[#e4d9cf] bg-white p-4">
                   <figcaption className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                    <span className="font-medium text-[#1f1610]">{program.name}</span>
+                    <span>
+                      <span className="block font-medium text-[#1f1610]">{program.name}</span>
+                      <span className="mt-1 flex items-center gap-1.5 text-sm text-[#6b5a4e]">
+                        <ClockIcon className="text-[#b0673f]" /> Due: {program.deadline}
+                      </span>
+                    </span>
                     <span className="text-sm text-[#6b5a4e]">{completedSteps} of 3 steps complete</span>
                   </figcaption>
 
@@ -141,82 +139,6 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
           <p className="mt-2 text-[#6b5a4e]">Complete the intake in the Aid Center to create a personalized plan and timeline.</p>
         </section>
       )}
-
-      {/* Deadline Cards */}
-      <div className="ac-reveal-3 space-y-4">
-        {programs.map((program) => (
-          <div
-            key={program.id}
-            className="bg-[#faf6f1] rounded-[14px] p-6 border border-[#e4d9cf]"
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <h3 className="font-serif text-[1.15rem] font-medium text-[#1f1610] mb-1">
-                  {program.name}
-                </h3>
-                <p className="text-[#6b5a4e] text-[0.92rem]">{program.agency}</p>
-              </div>
-              <CompassStatus tone={urgencyTones[program.deadlineUrgency]} label={`${program.deadlineUrgency} priority`} />
-            </div>
-
-            <div className="flex items-center gap-2 mb-4">
-              <ClockIcon className="text-[#b0673f]" />
-              <span className="text-sm text-[#6b5a4e]">{program.deadline}</span>
-            </div>
-
-            {/* Contact Information */}
-            {program.contactInfo && (
-              <div className="bg-white border border-[#e4d9cf] rounded-[10px] p-3 mb-4">
-                <h4 className="text-xs font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2">Contact Information</h4>
-                <div className="space-y-1 text-sm">
-                  {program.contactInfo.phone && (
-                    <div className="flex items-center gap-2 text-[#6b5a4e]">
-                      <PhoneIcon className="text-[#b0673f]" />
-                      <a href={`tel:${program.contactInfo.phone}`} className="hover:text-[#b0673f] transition-colors">
-                        {program.contactInfo.phone}
-                      </a>
-                    </div>
-                  )}
-                  {program.contactInfo.email && (
-                    <div className="flex items-center gap-2 text-[#6b5a4e]">
-                      <MailIcon className="text-[#b0673f]" />
-                      <a href={`mailto:${program.contactInfo.email}`} className="hover:text-[#b0673f] transition-colors">
-                        {program.contactInfo.email}
-                      </a>
-                    </div>
-                  )}
-                  {program.contactInfo.website && (
-                    <div className="flex items-center gap-2 text-[#6b5a4e]">
-                      <GlobeIcon className="text-[#b0673f]" />
-                      <a
-                        href={program.contactInfo.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="hover:text-[#b0673f] transition-colors"
-                      >
-                        {program.contactInfo.website}
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className="flex items-center gap-2">
-              <select
-                className="flex-1 px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
-                value={applicationStatuses[program.id] || 'not_applied'}
-                onChange={(e) => onStatusChange(program.id, e.target.value as ApplicationStatus)}
-              >
-                <option value="not_applied">Not Applied</option>
-                <option value="applied">Applied</option>
-                <option value="approved">Approved</option>
-                <option value="received">Received Funds</option>
-              </select>
-            </div>
-          </div>
-        ))}
-      </div>
 
       {/* Email Subscription */}
       <div className="bg-[#faf6f1] rounded-[14px] p-6 border border-[#e4d9cf]">
