@@ -160,6 +160,7 @@ Keep your response conversational and friendly. If returning JSON, format it as:
             <div
               key={index}
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              data-testid={message.role === 'user' ? 'chat-message-user' : 'chat-message-assistant'}
             >
               <div
                 className={`max-w-[80%] p-4 rounded-[14px] ${
@@ -195,11 +196,13 @@ Keep your response conversational and friendly. If returning JSON, format it as:
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Ask a question or tell me about your situation..."
               disabled={isTyping}
+              data-testid="chat-input"
               className="flex-1 px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow disabled:opacity-50"
             />
             <button
               type="submit"
               disabled={!inputValue.trim() || isTyping}
+              data-testid="chat-send-button"
               className="bg-[#3d2b20] text-white px-6 py-3 rounded-[10px] font-semibold text-[1.05rem] hover:bg-[#2b1e15] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Send

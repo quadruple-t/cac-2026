@@ -49,6 +49,8 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
           <div
             key={program.id}
             className="bg-[#faf6f1] rounded-[14px] p-6 border border-[#e4d9cf]"
+            data-testid="deadline-card"
+            data-program-id={program.id}
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
@@ -105,6 +107,7 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
 
             <div className="flex items-center gap-2">
               <select
+                data-testid="deadline-status-select"
                 className="flex-1 px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
                 value={applicationStatuses[program.id] || 'not_applied'}
                 onChange={(e) => onStatusChange(program.id, e.target.value as ApplicationStatus)}

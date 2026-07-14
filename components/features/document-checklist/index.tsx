@@ -134,7 +134,11 @@ interface DocumentCardProps {
 
 function DocumentCard({ document, status, onStatusChange }: DocumentCardProps) {
   return (
-    <div className="border border-[#e4d9cf] rounded-[14px] p-5 hover:shadow-md transition-shadow bg-white">
+    <div
+      className="border border-[#e4d9cf] rounded-[14px] p-5 hover:shadow-md transition-shadow bg-white"
+      data-testid="document-checklist-item"
+      data-document-id={document.id}
+    >
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
@@ -171,6 +175,8 @@ function DocumentCard({ document, status, onStatusChange }: DocumentCardProps) {
       <div className="flex items-center gap-2">
         <button
           onClick={() => onStatusChange('not_started')}
+          data-testid="document-status-button"
+          data-status="not_started"
           className={`px-3 py-1.5 text-sm rounded-[8px] border transition-colors font-medium ${
             status === 'not_started'
               ? 'bg-[#faf6f1] border-[#e4d9cf] text-[#2a201a]'
@@ -181,6 +187,8 @@ function DocumentCard({ document, status, onStatusChange }: DocumentCardProps) {
         </button>
         <button
           onClick={() => onStatusChange('in_progress')}
+          data-testid="document-status-button"
+          data-status="in_progress"
           className={`px-3 py-1.5 text-sm rounded-[8px] border transition-colors font-medium ${
             status === 'in_progress'
               ? 'bg-[#faf6f1] border-[#b0673f] text-[#895031]'
@@ -191,6 +199,8 @@ function DocumentCard({ document, status, onStatusChange }: DocumentCardProps) {
         </button>
         <button
           onClick={() => onStatusChange('completed')}
+          data-testid="document-status-button"
+          data-status="completed"
           className={`px-3 py-1.5 text-sm rounded-[8px] border transition-colors font-medium ${
             status === 'completed'
               ? 'bg-[#faf6f1] border-[#b0673f] text-[#895031]'

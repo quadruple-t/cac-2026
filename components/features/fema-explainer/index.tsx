@@ -257,7 +257,7 @@ Return ONLY the JSON, no other text.`;
                 </svg>
               </div>
             </div>
-            <p className="text-2xl font-bold mb-2">{analysis.status}</p>
+            <p className="text-2xl font-bold mb-2" data-testid="fema-result-status">{analysis.status}</p>
             <p className="text-[#eaddd0]">{analysis.meaning}</p>
           </div>
 
@@ -274,7 +274,7 @@ Return ONLY the JSON, no other text.`;
                   </div>
                   <h4 className="font-semibold text-[#895031]">Assistance Amount</h4>
                 </div>
-                <p className="text-[#1f1610] font-medium text-xl">{analysis.amount}</p>
+                <p className="text-[#1f1610] font-medium text-xl" data-testid="fema-result-amount">{analysis.amount}</p>
               </div>
             )}
             {analysis.deadline && (
@@ -288,7 +288,7 @@ Return ONLY the JSON, no other text.`;
                   </div>
                   <h4 className="font-semibold text-[#895031]">Important Deadline</h4>
                 </div>
-                <p className="text-[#1f1610]">{analysis.deadline}</p>
+                <p className="text-[#1f1610]" data-testid="fema-result-deadline">{analysis.deadline}</p>
               </div>
             )}
           </div>
@@ -306,7 +306,7 @@ Return ONLY the JSON, no other text.`;
                 </div>
                 <div>
                   <h4 className="font-semibold text-[#b0673f] mb-2">Appeal Information</h4>
-                  <p className="text-[#6b5a4e]">{analysis.appealInfo}</p>
+                  <p className="text-[#6b5a4e]" data-testid="fema-result-appeal">{analysis.appealInfo}</p>
                 </div>
               </div>
             </div>
@@ -353,7 +353,7 @@ Return ONLY the JSON, no other text.`;
 
             {/* Current Step */}
             {walkthroughStep < analysis.nextSteps.length ? (
-              <div className="text-center">
+              <div className="text-center" data-testid="fema-walkthrough-step" data-step={walkthroughStep}>
                 <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#b0673f] flex items-center justify-center">
                   <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>

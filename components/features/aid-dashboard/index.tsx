@@ -107,7 +107,11 @@ interface ProgramCardProps {
 
 function ProgramCard({ program, isExpanded, onToggle, urgencyTone, status, onStatusChange, statusTone, statusLabel }: ProgramCardProps) {
   return (
-    <div className="bg-[#faf6f1] rounded-[14px] border border-[#e4d9cf] overflow-hidden">
+    <div
+      className="bg-[#faf6f1] rounded-[14px] border border-[#e4d9cf] overflow-hidden"
+      data-testid="program-card"
+      data-program-id={program.id}
+    >
       {/* Card Header */}
       <div className="p-6">
         <div className="flex items-start justify-between mb-3">
@@ -151,6 +155,7 @@ function ProgramCard({ program, isExpanded, onToggle, urgencyTone, status, onSta
           <select
             value={status}
             onChange={(e) => onStatusChange(e.target.value as ApplicationStatus)}
+            data-testid="program-status-select"
             className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
           >
             <option value="not_applied">Not Applied</option>
