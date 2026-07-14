@@ -48,37 +48,39 @@ export default function Navigation() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-4">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`group relative flex items-center text-sm font-medium no-underline transition-all ${
-                pathname === item.href
-                  ? 'rounded-full bg-[#eadbce] px-4 py-2 text-[#895031] shadow-sm'
-                  : 'text-[#6b5a4e] hover:text-[#2a201a] hover:bg-[#f7efe8] rounded-full px-4 py-2'
-              }`}
-            >
-              {item.name}
-              {pathname === item.href && (
-                <span className="absolute -bottom-1 left-1/2 h-0.5 w-6 -translate-x-1/2 bg-[#b0673f] rounded-full" />
-              )}
-            </Link>
-          ))}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-0.5">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`group relative flex items-center whitespace-nowrap text-[0.83rem] font-medium no-underline transition-all ${
+                  pathname === item.href
+                    ? 'rounded-full bg-[#eadbce] px-2.5 py-1.5 text-[#895031] shadow-sm'
+                    : 'text-[#6b5a4e] hover:text-[#2a201a] hover:bg-[#f7efe8] rounded-full px-2.5 py-1.5'
+                }`}
+              >
+                {item.name}
+                {pathname === item.href && (
+                  <span className="absolute -bottom-1 left-1/2 h-0.5 w-6 -translate-x-1/2 bg-[#b0673f] rounded-full" />
+                )}
+              </Link>
+            ))}
+          </div>
 
           {!loading &&
             (user ? (
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="rounded-lg border border-[#e4d9cf] bg-white px-3.5 py-1.5 text-sm font-semibold text-[#2a201a] no-underline transition-colors hover:bg-[#f2ece5]"
+                className="flex-none rounded-lg border border-[#e4d9cf] bg-white px-3.5 py-1.5 text-sm font-semibold text-[#2a201a] no-underline transition-colors hover:bg-[#f2ece5]"
               >
                 Sign out
               </button>
             ) : (
               <Link
                 href="/sign-in"
-                className="rounded-lg bg-[#3d2b20] px-3.5 py-1.5 text-sm font-semibold text-white no-underline transition-colors hover:bg-[#2b1e15]"
+                className="flex-none rounded-lg bg-[#3d2b20] px-3.5 py-1.5 text-sm font-semibold text-white no-underline transition-colors hover:bg-[#2b1e15]"
               >
                 Sign in
               </Link>
