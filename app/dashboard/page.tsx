@@ -138,13 +138,13 @@ export default function DashboardPage() {
           {/* Header — always visible, regardless of which step the user is on. */}
           <div className="mb-[34px] text-center">
             <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-              Disaster Aid Center
+              My Aid Programs
             </p>
             <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-              Your Personalized Aid Resources
+              Find Help for Your Situation
             </h1>
             <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] leading-relaxed max-w-2xl mx-auto">
-              Answer a few questions about your situation to discover eligible aid programs.
+              Answer a few quick questions to see which aid programs you can apply for.
             </p>
           </div>
 
