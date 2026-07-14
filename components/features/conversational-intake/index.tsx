@@ -3,10 +3,9 @@
 import { useRef, useState } from 'react';
 import type { ChatSession } from 'firebase/ai';
 import { UserSituation } from '@/lib/aid-programs';
-import type { UserSituation as DocumentRequirementsUserSituation } from '@/lib/document-requirements';
 import { getGeminiModel, getSituationExtractionModel } from '@/lib/firebase/ai';
 import { CompassStatus } from '@/components/compass-status';
-import SituationIntake from '@/components/features/situation-intake';
+import AidIntakeForm from '@/components/features/aid-intake';
 
 interface ConversationalIntakeProps {
   onComplete: (situation: UserSituation) => void;
@@ -172,13 +171,6 @@ export default function ConversationalIntake({ onComplete }: ConversationalIntak
     }
   };
 
-  // lib/document-requirements.ts's UserSituation is a separately-declared type,
-  // structurally identical to aid-programs.ts's for these 8 fields (see
-  // CLAUDE.md "two parallel domain models" note).
-  const handleManualSubmit = (situation: DocumentRequirementsUserSituation) => {
-    onComplete(situation as unknown as UserSituation);
-  };
-
   if (useManualFallback) {
     return (
       <div className="max-w-3xl mx-auto">
@@ -187,13 +179,17 @@ export default function ConversationalIntake({ onComplete }: ConversationalIntak
             Conversational Intake
           </p>
           <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-            Let's Find Your Aid Programs
+            Let&apos;s Find Your Aid Programs
           </h1>
           <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
             No problem — fill out the quick form below instead.
           </p>
         </div>
-        <SituationIntake onSubmit={handleManualSubmit} />
+        <AidIntakeForm
+          onSubmit={onComplete}
+          initialData={userSituation}
+          onCancel={() => setUseManualFallback(false)}
+        />
       </div>
     );
   }
@@ -205,10 +201,10 @@ export default function ConversationalIntake({ onComplete }: ConversationalIntak
           Conversational Intake
         </p>
         <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-          Let's Find Your Aid Programs
+          Let&apos;s Find Your Aid Programs
         </h1>
         <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-          Ask me anything about disaster aid, or just start telling me about your situation. I'll guide you through finding the right programs.
+          Ask me anything about disaster aid, or just start telling me about your situation. I&apos;ll guide you through finding the right programs.
         </p>
       </div>
 

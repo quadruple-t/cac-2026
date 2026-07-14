@@ -22,7 +22,7 @@ export function getFirebaseAI(): AI {
 
 const modelCache = new Map<string, GenerativeModel>();
 
-export function getGeminiModel(modelName = "gemini-3.5-flash"): GenerativeModel {
+export function getGeminiModel(modelName = "gemini-3.1-flash-lite"): GenerativeModel {
   let model = modelCache.get(modelName);
   if (!model) {
     model = getGenerativeModel(getFirebaseAI(), { model: modelName });
@@ -86,7 +86,7 @@ let cachedExtractionModel: GenerativeModel | null = null;
 export function getSituationExtractionModel(): GenerativeModel {
   if (!cachedExtractionModel) {
     cachedExtractionModel = getGenerativeModel(getFirebaseAI(), {
-      model: "gemini-3.5-flash",
+      model: "gemini-3.1-flash-lite",
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: SITUATION_SCHEMA,
