@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AidProgram, ApplicationStatus } from '@/lib/aid-programs';
 import { groupDocumentsByCategory } from '@/lib/document-requirements';
 import { CompassStatus } from '@/components/compass-status';
-import { AmountIcon, ClockIcon, DocumentIcon } from '@/components/feature-icons';
+import { AmountIcon, ClockIcon, DocumentIcon, PinIcon } from '@/components/feature-icons';
 
 interface AidDashboardProps {
   programs: AidProgram[];
@@ -20,6 +20,50 @@ interface AidDashboardProps {
 export default function AidDashboard({ programs, userSituation, applicationStatuses = {}, onStatusChange }: AidDashboardProps) {
   const [expandedProgram, setExpandedProgram] = useState<string | null>(null);
   const [localStatuses, setLocalStatuses] = useState<Record<string, ApplicationStatus>>(applicationStatuses);
+  const [pinnedPrograms, setPinnedPrograms] = useState<string[]>([]);
+
+  useEffect(() => {
+    const loadPinnedPrograms = async () => {
+      try {
+        const res = await fetch('/api/pinned-programs');
+        if (res.ok) {
+          const data = await res.json();
+          setPinnedPrograms(data.programIds || []);
+        } else {
+          const errorData = await res.json();
+          console.error('Failed to load pinned programs:', res.status, errorData);
+        }
+      } catch (error) {
+        console.error('Error loading pinned programs:', error);
+      }
+    };
+    loadPinnedPrograms();
+  }, []);
+
+  const togglePin = async (programId: string) => {
+    const newPinned = pinnedPrograms.includes(programId)
+      ? pinnedPrograms.filter(id => id !== programId)
+      : [...pinnedPrograms, programId];
+    
+    setPinnedPrograms(newPinned);
+    
+    try {
+      const res = await fetch('/api/pinned-programs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ programIds: newPinned }),
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error('Failed to save pinned programs:', res.status, errorData);
+        setPinnedPrograms(pinnedPrograms);
+      }
+    } catch (error) {
+      console.error('Error saving pinned programs:', error);
+      setPinnedPrograms(pinnedPrograms);
+    }
+  };
 
   const toggleExpand = (programId: string) => {
     setExpandedProgram(expandedProgram === programId ? null : programId);
@@ -83,6 +127,8 @@ export default function AidDashboard({ programs, userSituation, applicationStatu
             onStatusChange={(status) => handleStatusChange(program.id, status)}
             statusTone={statusTones[localStatuses[program.id] || 'not_applied']}
             statusLabel={statusLabels[localStatuses[program.id] || 'not_applied']}
+            isPinned={pinnedPrograms.includes(program.id)}
+            onPin={() => togglePin(program.id)}
           />
         ))}
       </div>
@@ -107,9 +153,11 @@ interface ProgramCardProps {
   onStatusChange: (status: ApplicationStatus) => void;
   statusTone: 'neutral' | 'progress' | 'success';
   statusLabel: string;
+  isPinned: boolean;
+  onPin: () => void;
 }
 
-function ProgramCard({ program, isExpanded, onToggle, urgencyTone, status, onStatusChange, statusTone, statusLabel }: ProgramCardProps) {
+function ProgramCard({ program, isExpanded, onToggle, urgencyTone, status, onStatusChange, statusTone, statusLabel, isPinned, onPin }: ProgramCardProps) {
   return (
     <div className="ac-lift bg-[#faf6f1] rounded-[18px] border border-[#e4d9cf] overflow-hidden">
       {/* Card Header */}
@@ -122,6 +170,18 @@ function ProgramCard({ program, isExpanded, onToggle, urgencyTone, status, onSta
             <p className="text-[#6b5a4e] text-[0.92rem]">{program.agency}</p>
           </div>
           <div className="flex flex-col items-end gap-2">
+            <button
+              onClick={onPin}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                isPinned 
+                  ? 'bg-[#b0673f] text-white' 
+                  : 'bg-[#f2ece5] text-[#6b5a4e] hover:bg-[#e4d9cf]'
+              }`}
+              aria-label={isPinned ? 'Unpin program' : 'Pin program'}
+            >
+              <PinIcon className="w-3.5 h-3.5" />
+              {isPinned ? 'Pinned' : 'Pin'}
+            </button>
             <CompassStatus tone={urgencyTone} label={`${program.deadlineUrgency} priority`} />
             <CompassStatus tone={statusTone} label={statusLabel} />
           </div>
@@ -166,7 +226,7 @@ function ProgramCard({ program, isExpanded, onToggle, urgencyTone, status, onSta
 
         <button
           onClick={onToggle}
-          className="ac-sheen w-full text-white py-3 px-6 rounded-[10px] font-semibold text-[1.05rem] hover:-translate-y-0.5 transition-all"
+          className="w-full bg-[#b0673f] text-white py-3 px-6 rounded-[10px] font-semibold text-[1.05rem] hover:bg-[#895031] transition-colors"
         >
           {isExpanded ? 'Show Less' : 'View Details'}
         </button>

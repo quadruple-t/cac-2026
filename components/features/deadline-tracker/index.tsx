@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AidProgram, ApplicationStatus } from '@/lib/aid-programs';
 import { ClockIcon, CompleteIcon, GlobeIcon, MailIcon, PhoneIcon } from '@/components/feature-icons';
 
@@ -13,12 +13,26 @@ interface DeadlineTrackerProps {
 export default function DeadlineTracker({ programs, applicationStatuses, onStatusChange }: DeadlineTrackerProps) {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [pinnedPrograms, setPinnedPrograms] = useState<string[]>([]);
   const [completedPlanSteps, setCompletedPlanSteps] = useState<Record<string, number>>(() => {
     if (typeof window === 'undefined') return {};
 
     const savedSteps = localStorage.getItem('deadlinePlanSteps');
     return savedSteps ? JSON.parse(savedSteps) : {};
   });
+
+  useEffect(() => {
+    const loadPinnedPrograms = async () => {
+      const res = await fetch('/api/pinned-programs');
+      if (res.ok) {
+        const data = await res.json();
+        setPinnedPrograms(data.programIds || []);
+      }
+    };
+    loadPinnedPrograms();
+  }, []);
+
+  const filteredPrograms = programs.filter(program => pinnedPrograms.includes(program.id));
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +77,7 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
         </p>
       </div>
 
-      {programs.length > 0 ? (
+      {filteredPrograms.length > 0 ? (
         <section aria-labelledby="recovery-plan-heading" className="ac-reveal-3 rounded-[14px] border border-[#e4d9cf] bg-[#faf6f1] p-6">
           <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -78,7 +92,7 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
           </div>
 
           <div className="space-y-6">
-            {programs.map((program) => {
+            {filteredPrograms.map((program) => {
               const completedSteps = completedStepsFor(program.id);
               const steps = [
                 { title: 'Prepare', detail: 'Gather required documents' },
@@ -171,7 +185,7 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
       ) : (
         <section className="rounded-[14px] border border-[#e4d9cf] bg-[#faf6f1] p-6 text-center">
           <h2 className="font-serif text-[1.35rem] font-medium text-[#1f1610]">Your recovery plan will appear here</h2>
-          <p className="mt-2 text-[#6b5a4e]">Complete the intake in the Aid Center to create a personalized plan and timeline.</p>
+          <p className="mt-2 text-[#6b5a4e]">Pin programs from My Aid Programs to create a focused deadline tracker.</p>
         </section>
       )}
 

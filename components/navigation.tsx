@@ -11,6 +11,7 @@ const navItems = [
   { name: 'Home', href: '/' },
   { name: 'Chat with Us', href: '/conversational' },
   { name: 'My Aid Programs', href: '/dashboard' },
+  { name: 'Deadline Tracker', href: '/deadlines' },
   { name: 'FEMA Letter Help', href: '/fema' },
   { name: 'About', href: '/about' },
 ];
