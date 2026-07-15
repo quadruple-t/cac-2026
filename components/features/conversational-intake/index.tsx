@@ -67,23 +67,17 @@ function validateSituation(raw: Record<string, unknown>): Partial<UserSituation>
   if (typeof raw.county === 'string' && raw.county.trim().length > 0) {
     out.county = raw.county.trim();
   }
-  if (typeof raw.damageType === 'string' && (DAMAGE_TYPES as readonly string[]).includes(raw.damageType)) {
-    out.damageType = raw.damageType as UserSituation['damageType'];
+  if (typeof raw.damageType === 'string' && DAMAGE_TYPES.includes(raw.damageType as any)) {
+    out.damageType = raw.damageType as any;
   }
-  if (
-    typeof raw.ownershipStatus === 'string' &&
-    (OWNERSHIP_STATUSES as readonly string[]).includes(raw.ownershipStatus)
-  ) {
-    out.ownershipStatus = raw.ownershipStatus as UserSituation['ownershipStatus'];
+  if (typeof raw.ownershipStatus === 'string' && OWNERSHIP_STATUSES.includes(raw.ownershipStatus as any)) {
+    out.ownershipStatus = raw.ownershipStatus as any;
   }
-  if (
-    typeof raw.damageSeverity === 'string' &&
-    (DAMAGE_SEVERITIES as readonly string[]).includes(raw.damageSeverity)
-  ) {
-    out.damageSeverity = raw.damageSeverity as UserSituation['damageSeverity'];
+  if (typeof raw.damageSeverity === 'string' && DAMAGE_SEVERITIES.includes(raw.damageSeverity as any)) {
+    out.damageSeverity = raw.damageSeverity as any;
   }
-  if (typeof raw.incomeRange === 'string' && (INCOME_RANGES as readonly string[]).includes(raw.incomeRange)) {
-    out.incomeRange = raw.incomeRange as UserSituation['incomeRange'];
+  if (typeof raw.incomeRange === 'string' && INCOME_RANGES.includes(raw.incomeRange as any)) {
+    out.incomeRange = raw.incomeRange as any;
   }
   if (typeof raw.hasInsurance === 'boolean') out.hasInsurance = raw.hasInsurance;
   if (typeof raw.isFarmer === 'boolean') out.isFarmer = raw.isFarmer;
@@ -114,49 +108,34 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
   const [inputValue, setInputValue] = useState('');
   const [errorCount, setErrorCount] = useState(0);
   const [useManualFallback, setUseManualFallback] = useState(false);
-  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
 
   const chatSessionRef = useRef<ChatSession | null>(null);
 
-  // Load chat history from Firestore on mount
   useEffect(() => {
     const loadChatHistory = async () => {
-      try {
-        const res = await fetch('/api/chat-history');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.messages && data.messages.length > 0) {
-            setMessages(data.messages);
-          }
+      const res = await fetch('/api/chat-history');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.messages && data.messages.length > 0) {
+          setMessages(data.messages);
         }
-      } catch (error) {
-        console.error('Error loading chat history:', error);
-      } finally {
-        setIsLoadingHistory(false);
       }
     };
 
     loadChatHistory();
   }, []);
 
-  // Save messages to Firestore whenever they change
   useEffect(() => {
-    if (!isLoadingHistory) {
-      const saveChatHistory = async () => {
-        try {
-          await fetch('/api/chat-history', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ messages }),
-          });
-        } catch (error) {
-          console.error('Error saving chat history:', error);
-        }
-      };
+    const saveChatHistory = async () => {
+      await fetch('/api/chat-history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages }),
+      });
+    };
 
-      saveChatHistory();
-    }
-  }, [messages, isLoadingHistory]);
+    saveChatHistory();
+  }, [messages]);
 
   const gatheredCount = REQUIRED_FIELDS.filter(
     (key) => userSituation[key] !== undefined
@@ -189,8 +168,8 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
         if (Object.keys(validated).length > 0) {
           setUserSituation((prev) => ({ ...prev, ...validated }));
         }
-      } catch (extractionError) {
-        console.error('Failed to extract situation from conversation:', extractionError);
+      } catch {
+        // Extraction failed, continue without updating situation
       }
 
       setErrorCount(0);
@@ -213,8 +192,7 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
     setErrorCount(0);
     setUseManualFallback(false);
     chatSessionRef.current = null;
-    // Clear saved chat history on restart
-    fetch('/api/chat-history', { method: 'DELETE' }).catch(console.error);
+    fetch('/api/chat-history', { method: 'DELETE' });
   };
 
   const handleShowResults = () => {

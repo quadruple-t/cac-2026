@@ -72,3 +72,12 @@ export function CompleteIcon({ className = '' }: IconProps) {
     </svg>
   );
 }
+
+export function PinIcon({ className = '' }: IconProps) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true" className={`flex-none ${className}`}>
+      <path d="M8 2v10M8 12l-2.5-2.5M8 12l2.5-2.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4.5 2h7v2l-1.5 1.5v3l1.5 1.5v2h-7v-2l1.5-1.5v-3L4.5 4V2Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+    </svg>
+  );
+}

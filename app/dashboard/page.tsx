@@ -63,7 +63,8 @@ export default function DashboardPage() {
         const data = await res.json();
         setEligiblePrograms(data.programs.map(rankedProgramToAidProgram));
       } else {
-        console.error('Failed to load aid programs:', await res.json());
+        const errorData = await res.json();
+        console.error('Failed to load aid programs:', res.status, errorData);
       }
     } catch (error) {
       console.error('Error loading aid programs:', error);

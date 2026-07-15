@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth } from '@/lib/firebase/admin';
 import { SESSION_COOKIE_NAME } from '@/lib/firebase/session';
-import { saveChatHistory, getChatHistory } from '@/lib/firestore/chat-history';
+import { saveChatHistory, getChatHistory, deleteChatHistory } from '@/lib/firestore/chat-history';
 
 export async function GET(request: NextRequest) {
   try {
@@ -52,7 +52,6 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { deleteChatHistory } = await import('@/lib/firestore/chat-history');
     await deleteChatHistory(session.uid);
     return NextResponse.json({ success: true });
   } catch (error) {
