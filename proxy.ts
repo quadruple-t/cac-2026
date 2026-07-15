@@ -21,5 +21,6 @@ export const config = {
     "/checklist/:path*",
     "/deadlines/:path*",
     "/fema/:path*",
+    "/settings/:path*",
   ],
 };

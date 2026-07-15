@@ -1,40 +1,61 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth } from '@/lib/firebase/admin';
+import { SESSION_COOKIE_NAME } from '@/lib/firebase/session';
 import { saveChatHistory, getChatHistory, deleteChatHistory } from '@/lib/firestore/chat-history';
 
 export async function GET(request: NextRequest) {
-  const auth = getAdminAuth();
-  const session = await auth.verifySessionCookie(request.cookies.get('session')?.value || '');
-  
-  if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  try {
+    const auth = getAdminAuth();
+    const session = await auth.verifySessionCookie(request.cookies.get(SESSION_COOKIE_NAME)?.value || '');
+    
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-  const messages = await getChatHistory(session.uid);
-  return NextResponse.json({ messages });
+    const messages = await getChatHistory(session.uid);
+    return NextResponse.json({ messages });
+  } catch (error) {
+    console.error('Error fetching chat history:', error);
+    return NextResponse.json({ error: 'Failed to fetch chat history' }, { status: 500 });
+  }
 }
 
 export async function POST(request: NextRequest) {
-  const auth = getAdminAuth();
-  const session = await auth.verifySessionCookie(request.cookies.get('session')?.value || '');
-  
-  if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  try {
+    const auth = getAdminAuth();
+    const session = await auth.verifySessionCookie(request.cookies.get(SESSION_COOKIE_NAME)?.value || '');
 
-  const { messages } = await request.json();
-  await saveChatHistory(session.uid, messages);
-  return NextResponse.json({ success: true });
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { messages } = await request.json();
+    
+    if (!Array.isArray(messages)) {
+      return NextResponse.json({ error: 'Invalid messages format' }, { status: 400 });
+    }
+
+    await saveChatHistory(session.uid, messages);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error saving chat history:', error);
+    return NextResponse.json({ error: 'Failed to save chat history' }, { status: 500 });
+  }
 }
 
 export async function DELETE(request: NextRequest) {
-  const auth = getAdminAuth();
-  const session = await auth.verifySessionCookie(request.cookies.get('session')?.value || '');
-  
-  if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  try {
+    const auth = getAdminAuth();
+    const session = await auth.verifySessionCookie(request.cookies.get(SESSION_COOKIE_NAME)?.value || '');
 
-  await deleteChatHistory(session.uid);
-  return NextResponse.json({ success: true });
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    await deleteChatHistory(session.uid);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting chat history:', error);
+    return NextResponse.json({ error: 'Failed to delete chat history' }, { status: 500 });
+  }
 }

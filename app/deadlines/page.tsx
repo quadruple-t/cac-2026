@@ -5,7 +5,8 @@ import { useAuth } from '@/lib/firebase/use-auth';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/navigation';
 import DeadlineTracker from '@/components/features/deadline-tracker';
-import { getEligiblePrograms, rankProgramsByUrgency, AidProgram, ApplicationStatus } from '@/lib/aid-programs';
+import { rankedProgramToAidProgram } from '@/lib/sheets/aid-programs-adapter';
+import { AidProgram, ApplicationStatus } from '@/lib/aid-programs';
 
 export default function DeadlinesPage() {
   const { user, loading } = useAuth();
@@ -22,21 +23,23 @@ export default function DeadlinesPage() {
 
     const loadPrograms = async () => {
       try {
-        const response = await fetch('/api/user-situation');
-        if (response.ok) {
-          const { situation } = await response.json();
-          if (situation) {
-            setPrograms(rankProgramsByUrgency(getEligiblePrograms(situation)));
-            return;
+        const res = await fetch('/api/user-situation');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.situation) {
+            const programsRes = await fetch('/api/aid-programs', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data.situation),
+            });
+            if (programsRes.ok) {
+              const programsData = await programsRes.json();
+              setPrograms(programsData.programs.map(rankedProgramToAidProgram));
+            }
           }
         }
-
-        const savedSituation = localStorage.getItem('userSituation');
-        if (savedSituation) {
-          setPrograms(rankProgramsByUrgency(getEligiblePrograms(JSON.parse(savedSituation))));
-        }
       } catch (error) {
-        console.error('Error loading saved situation:', error);
+        console.error('Error loading programs:', error);
       } finally {
         setIsLoading(false);
       }
