@@ -6,14 +6,11 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { establishServerSession } from "@/lib/firebase/session-client";
 
 export default function SignUpPage() {
-  const router = useRouter();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +27,7 @@ export default function SignUpPage() {
         password,
       );
       await establishServerSession(credential.user);
-      router.push("/dashboard");
+      window.location.assign("/dashboard");
     } catch {
       setError("Could not create an account with that email and password.");
     } finally {
@@ -47,7 +44,7 @@ export default function SignUpPage() {
         new GoogleAuthProvider(),
       );
       await establishServerSession(credential.user);
-      router.push("/dashboard");
+      window.location.assign("/dashboard");
     } catch {
       setError("Could not sign up with Google.");
     } finally {

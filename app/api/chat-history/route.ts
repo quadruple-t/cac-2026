@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth } from '@/lib/firebase/admin';
+import { SESSION_COOKIE_NAME } from '@/lib/firebase/session';
 import { saveChatHistory, getChatHistory } from '@/lib/firestore/chat-history';
 
 export async function GET(request: NextRequest) {
   try {
     const auth = getAdminAuth();
-    const session = await auth.verifySessionCookie(request.cookies.get('session')?.value || '');
+    const session = await auth.verifySessionCookie(request.cookies.get(SESSION_COOKIE_NAME)?.value || '');
     
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -22,8 +23,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const auth = getAdminAuth();
-    const session = await auth.verifySessionCookie(request.cookies.get('session')?.value || '');
-    
+    const session = await auth.verifySessionCookie(request.cookies.get(SESSION_COOKIE_NAME)?.value || '');
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -45,8 +46,8 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const auth = getAdminAuth();
-    const session = await auth.verifySessionCookie(request.cookies.get('session')?.value || '');
-    
+    const session = await auth.verifySessionCookie(request.cookies.get(SESSION_COOKIE_NAME)?.value || '');
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
