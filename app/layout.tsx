@@ -17,9 +17,9 @@ const publicSans = Public_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Aid Compass — Find the disaster aid you actually qualify for",
+  title: "Aid Compass — Support after Hurricane Helene",
   description:
-    "Answer a few plain questions about what the storm damaged. Aid Compass gives you a ranked list of disaster aid programs you're eligible for in western North Carolina — with deadlines, documents, and a direct link to each application.",
+    "Aid Compass helps people in western North Carolina find Hurricane Helene recovery support, deadlines, and official application links.",
 };
 
 export default function RootLayout({

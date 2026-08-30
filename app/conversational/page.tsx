@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/lib/firebase/use-auth';
-import { useRouter } from 'next/navigation';
 import Navigation from '@/components/navigation';
 import ConversationalIntake from '@/components/features/conversational-intake';
 import AidDashboard from '@/components/features/aid-dashboard';
@@ -10,15 +9,8 @@ import { getEligiblePrograms, rankProgramsByUrgency, UserSituation, AidProgram }
 
 export default function ConversationalPage() {
   const { user, loading } = useAuth();
-  const router = useRouter();
   const [userSituation, setUserSituation] = useState<UserSituation | null>(null);
   const [eligiblePrograms, setEligiblePrograms] = useState<AidProgram[]>([]);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/sign-in');
-    }
-  }, [user, loading, router]);
 
   const handleIntakeComplete = (situation: UserSituation) => {
     setUserSituation(situation);
@@ -63,14 +55,22 @@ export default function ConversationalPage() {
                   Your Results
                 </p>
                 <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-                  Aid Programs for You
+                  Programs That May Fit
                 </h1>
                 <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-                  Based on what you told us about your situation in {userSituation.county}, you can apply for {eligiblePrograms.length} aid programs.
+                  Based on what you shared about {userSituation.county}, here are {eligiblePrograms.length} programs to explore.
                 </p>
               </div>
 
               <AidDashboard programs={eligiblePrograms} userSituation={userSituation} />
+
+              {!user && (
+                <div className="mx-auto mt-8 max-w-2xl rounded-[14px] border border-[#d8b9a4] bg-[#fffaf5] p-5 text-center">
+                  <h2 className="text-[1.2rem] font-bold text-[#1f1610]">Want to save your results?</h2>
+                  <p className="mt-2 text-[1rem] text-[#55483d]">Create a free account to keep your programs and deadlines in one place.</p>
+                  <a href="/sign-up?next=/dashboard" className="mt-4 inline-block rounded-lg bg-[#b0673f] px-5 py-3 text-[1rem] font-bold text-white no-underline hover:bg-[#895031]">Create a free account</a>
+                </div>
+              )}
               
               <div className="text-center mt-8">
                 <button

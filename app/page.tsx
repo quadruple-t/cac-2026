@@ -2,6 +2,7 @@
 
 import Navigation from '@/components/navigation';
 import { CompassMark } from '@/components/compass-mark';
+import { HeroRotator } from '@/components/hero-rotator';
 
 const CONTOUR_PATHS = [
   "M -40 90 C 220 40 460 150 720 95 S 1180 40 1480 110",
@@ -14,33 +15,18 @@ const CONTOUR_PATHS = [
   "M -40 640 C 240 590 520 690 780 635 S 1200 585 1480 650",
 ];
 
-const problemPoints = [
-  {
-    title: "Dozens of programs",
-    body: "Federal, state, county, and nonprofit aid. Each has its own rules about who qualifies.",
-  },
-  {
-    title: "Repeat forms",
-    body: "The same questions asked five different ways, on five different websites, in five different orders.",
-  },
-  {
-    title: "Quiet deadlines",
-    body: "Application windows that close while you're still dealing with everything else the storm left behind.",
-  },
-];
-
 const steps = [
   {
-    title: "Tell us what happened",
-    body: "A few plain questions about your home, your household, and what the storm damaged. No documents needed yet.",
+    title: "Tell us what you need",
+    body: "Answer a few simple questions about your household. No documents needed to start.",
   },
   {
-    title: "See what you qualify for",
-    body: "We match your answers against current programs and rank them by what fits you best and what closes soonest.",
+    title: "Explore your options",
+    body: "See programs that may fit your situation, along with key deadlines.",
   },
   {
-    title: "Apply and keep track",
-    body: "Each match lists the documents required, the deadline, and a link straight to the official application. You apply on their site. We just get you there.",
+    title: "Take the next step",
+    body: "Use the official application link when you’re ready to apply.",
   },
 ];
 
@@ -76,94 +62,48 @@ export default function Home() {
               </g>
             </svg>
           </div>
-          <div className="relative z-10 mx-auto grid max-w-[1080px] items-center gap-12 px-[22px] pb-[78px] pt-16 lg:grid-cols-[minmax(0,1fr)_360px]">
-            <div className="max-w-[660px]">
-              <p className="ac-reveal mb-[18px] text-[0.82rem] font-semibold uppercase tracking-[0.08em] text-[#6b5a4e]">
-                <span className="text-[#895031]">Hurricane Helene recovery</span>{" "}
-                · Western North Carolina
+          <div className="relative z-10 mx-auto flex max-w-[1080px] flex-wrap items-center gap-x-12 gap-y-10 px-[22px] pb-[92px] pt-20">
+            <div className="max-w-[620px] flex-1 min-w-[320px]">
+              <p className="ac-reveal mb-5 text-[1rem] font-bold uppercase tracking-[0.06em] text-[#895031]">
+                Hurricane Helene recovery · Western North Carolina
               </p>
               <h1
                 id="hero-h"
-                className="ac-reveal mb-5 font-serif text-[clamp(2.2rem,6vw,3.4rem)] font-medium leading-[1.08] tracking-[-0.015em] text-[#1f1610]"
+                className="ac-reveal mb-6 font-serif text-[clamp(2.85rem,7vw,4.5rem)] font-medium leading-[1.03] tracking-[-0.025em] text-[#1f1610]"
               >
                 Find the disaster aid you actually qualify for.
               </h1>
-              <p className="ac-reveal-2 mb-[30px] max-w-[560px] text-[clamp(1.05rem,2.6vw,1.22rem)] text-[#55483d]">
-                Answer a few plain questions about what the storm damaged.
-                Aid Compass gives you a ranked list of programs you&apos;re
-                eligible for. It shows deadlines, the documents you&apos;ll
-                need, and a direct link to each application.
+              <p className="ac-reveal-2 mb-9 max-w-[620px] text-[clamp(1.25rem,3vw,1.5rem)] leading-relaxed text-[#55483d]">
+                Answer a few simple questions to explore support programs,
+                deadlines, and official application links.
               </p>
-              <div className="ac-reveal-3 flex flex-wrap items-center gap-x-[18px] gap-y-3.5">
+              <div className="ac-reveal-3 flex flex-wrap items-center gap-x-5 gap-y-4">
                 <a
-                  href="/sign-up"
-                  className="ac-sheen rounded-[10px] px-[26px] py-3.5 text-[1.05rem] font-semibold text-white no-underline bg-[#b0673f] shadow-[0_10px_24px_rgba(176,103,63,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#895031] hover:shadow-[0_14px_28px_rgba(176,103,63,0.4)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[#b0673f]"
+                  href="/conversational"
+                  className="ac-sheen rounded-[10px] px-7 py-4 text-[1.2rem] font-bold text-white no-underline bg-[#b0673f] shadow-[0_10px_24px_rgba(176,103,63,0.3)] transition-all hover:-translate-y-0.5 hover:bg-[#895031] hover:shadow-[0_14px_28px_rgba(176,103,63,0.4)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[#b0673f]"
                 >
-                  Get started, it&apos;s free
+                  See support for me
                 </a>
-                <span className="text-[0.9rem] text-[#6b5a4e]">
-                  Free, make an account to start, Independent, not a government
-                  site
+                <span className="text-[1rem] text-[#6b5a4e]">
+                  Free to use · Not a government site
                 </span>
               </div>
             </div>
-            <div className="ac-map-card relative hidden rounded-[24px] border border-[#d8b9a4] bg-[#fffaf5]/80 p-5 shadow-[0_24px_60px_rgba(61,43,32,0.16)] backdrop-blur-sm lg:block">
-              <span className="absolute -bottom-3 -left-5 rounded-full border border-[#d8b9a4] bg-[#fffaf5] px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#895031] shadow-md">Clearer steps ahead</span>
-              <div className="absolute -right-3 -top-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#b0673f] text-white shadow-lg">
-                <CompassMark needleColor="#ffffff" />
-              </div>
-              <div className="mb-8 flex items-center justify-between">
-                <span className="text-[0.7rem] font-bold uppercase tracking-[0.14em] text-[#895031]">Your recovery map</span>
-                <span className="rounded-full bg-[#eadbce] px-2.5 py-1 text-[0.7rem] font-semibold text-[#895031]">Step 1 of 3</span>
-              </div>
-              <svg viewBox="0 0 300 150" className="h-auto w-full" aria-label="A path from your situation to matched aid programs">
-                <path d="M18 116 C70 98 66 44 120 57 S182 128 224 78 S256 38 282 24" fill="none" stroke="#d9b69d" strokeWidth="3" strokeDasharray="6 8" />
-                <circle cx="18" cy="116" r="9" fill="#3d2b20" />
-                <circle cx="120" cy="57" r="9" fill="#b0673f" />
-                <circle cx="224" cy="78" r="9" fill="#b0673f" />
-                <circle cx="282" cy="24" r="11" fill="#3d2b20" />
-                <path d="m278 24 4-8 4 8-4 8z" fill="#fffaf5" />
-              </svg>
-              <div className="mt-1 grid grid-cols-3 gap-2 text-[0.72rem] text-[#6b5a4e]">
-                <span>Your story</span><span className="text-center">Matched aid</span><span className="text-right">Next step</span>
-              </div>
-              <p className="mt-6 border-t border-[#eadbce] pt-4 text-sm leading-relaxed text-[#55483d]">
-                One clear path through programs, documents, and deadlines.
-              </p>
+            <div className="ac-reveal-3 flex flex-none justify-center">
+              <HeroRotator />
             </div>
           </div>
         </section>
 
-        {/* PROBLEM */}
-        <section
-          aria-labelledby="prob-h"
-          className="border-y border-[#e4d9cf] bg-[#faf6f1]"
-        >
-          <div className="mx-auto max-w-[1080px] px-[22px] py-[60px]">
-            <p className="mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-              The problem
-            </p>
-            <h2
-              id="prob-h"
-              className="mb-[34px] max-w-[640px] font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610]"
-            >
-              The help exists. Finding it is the hard part.
-            </h2>
-            <ul className="m-0 flex list-none flex-wrap gap-5 p-0">
-              {problemPoints.map((point) => (
-                <li
-                  key={point.title}
-                  className="ac-lift min-w-[240px] flex-1 basis-[240px] rounded-[14px] border border-[#e4d9cf] border-t-2 border-t-[#3d2b20] bg-[#fdf9f5] px-5 pb-5 pt-[18px]"
-                >
-                  <h3 className="mb-1.5 text-[1.05rem] font-semibold text-[#2a201a]">
-                    {point.title}
-                  </h3>
-                  <p className="m-0 text-[0.98rem] text-[#6b5a4e]">
-                    {point.body}
-                  </p>
-                </li>
-              ))}
-            </ul>
+        <section aria-label="Urgent help" className="border-y border-[#e4d9cf] bg-[#faf6f1]">
+          <div className="mx-auto flex max-w-[1080px] flex-col gap-3 px-[22px] py-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-[1.2rem] font-bold text-[#1f1610]">Need help right away?</h2>
+              <p className="text-[1rem] text-[#55483d]">For housing, food, utilities, and local services, call NC 211. For an immediate emergency, call 911.</p>
+            </div>
+            <a href="tel:211" className="flex-none rounded-lg bg-[#3d2b20] px-5 py-3 text-center text-[1.05rem] font-bold text-white no-underline hover:bg-[#2b1e15]">
+              Call 211
+            </a>
           </div>
         </section>
 
@@ -173,20 +113,20 @@ export default function Home() {
           aria-labelledby="how-h"
           className="mx-auto max-w-[1080px] px-[22px] py-[66px]"
         >
-          <p className="mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
+          <p className="mb-3 text-[1rem] font-bold uppercase tracking-[0.06em] text-[#895031]">
             How it works
           </p>
           <h2
             id="how-h"
-            className="mb-10 max-w-[640px] font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610]"
+            className="mb-10 max-w-[700px] font-serif text-[clamp(2.1rem,5vw,3rem)] font-medium leading-[1.1] tracking-[-0.01em] text-[#1f1610]"
           >
-            Three steps. About ten minutes.
+            Three simple steps to get started.
           </h2>
           <ol className="m-0 flex list-none flex-wrap gap-6 p-0">
             {steps.map((step, i) => (
               <li
                 key={step.title}
-                className="ac-lift min-w-[260px] flex-1 basis-[260px] rounded-[18px] border border-[#e4d9cf] bg-[#faf6f1] px-6 py-[26px]"
+                className="ac-lift min-w-[260px] flex-1 basis-[260px] rounded-[18px] border border-[#e4d9cf] bg-[#faf6f1] px-6 py-7"
               >
                 <span
                   aria-hidden="true"
@@ -194,10 +134,10 @@ export default function Home() {
                 >
                   {i + 1}
                 </span>
-                <h3 className="mb-2 text-[1.15rem] font-semibold text-[#2a201a]">
+                <h3 className="mb-2.5 text-[1.3rem] font-semibold text-[#2a201a]">
                   {step.title}
                 </h3>
-                <p className="m-0 text-[#6b5a4e]">{step.body}</p>
+                <p className="m-0 text-[1.1rem] leading-relaxed text-[#6b5a4e]">{step.body}</p>
               </li>
             ))}
           </ol>
@@ -220,8 +160,8 @@ export default function Home() {
               </span>
             </div>
             <p className="m-0 text-[0.92rem] text-[#a8917f]">
-              Free help finding and applying for disaster aid in western
-              North Carolina.
+              A free tool for finding Hurricane Helene recovery support in
+              western North Carolina.
             </p>
           </div>
           <div className="flex flex-wrap gap-12">

@@ -21,7 +21,7 @@ export default function QuickIntakeLauncher() {
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label="Open quick intake"
-        className="ac-sheen fixed bottom-5 right-5 z-30 rounded-full px-4 py-3 text-sm font-semibold text-white bg-[#b0673f] shadow-lg transition-transform hover:-translate-y-0.5 hover:bg-[#895031] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b0673f]"
+        className="ac-sheen fixed bottom-5 right-5 z-30 rounded-full px-5 py-3.5 text-[1rem] font-bold text-white bg-[#b0673f] shadow-lg transition-transform hover:-translate-y-0.5 hover:bg-[#895031] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b0673f]"
       >
         Chat with us
       </button>
@@ -35,7 +35,7 @@ export default function QuickIntakeLauncher() {
         className="fixed bottom-5 right-5 z-30 w-[min(390px,calc(100vw-2rem))] rounded-[14px] border border-[#e4d9cf] bg-[#faf6f1] p-3 text-[#2a201a] shadow-xl"
       >
         <div className="mb-2 flex items-center justify-between px-1">
-          <p className="text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">Chat with us</p>
+          <p className="text-[0.9rem] font-bold uppercase tracking-[0.06em] text-[#895031]">Find aid</p>
           <button
             type="button"
             onClick={() => setIsOpen(false)}
@@ -46,8 +46,8 @@ export default function QuickIntakeLauncher() {
           </button>
         </div>
         <ConversationalIntake compact onComplete={() => router.push('/conversational')} />
-        <Link href="/conversational" className="mt-2 block text-center text-xs font-semibold text-[#895031] no-underline hover:text-[#6b5a4e]">
-          Enlarge chat →
+        <Link href="/conversational" className="mt-3 block text-center text-[0.95rem] font-semibold text-[#895031] no-underline hover:text-[#6b5a4e]">
+          Continue on a full page →
         </Link>
       </aside>
     );
@@ -66,21 +66,21 @@ export default function QuickIntakeLauncher() {
       >
         ×
       </button>
-      <p className="mb-1 text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-        Need a faster start?
+      <p className="mb-2 text-[0.9rem] font-bold uppercase tracking-[0.06em] text-[#895031]">
+        Need help?
       </p>
-      <h2 className="pr-5 font-serif text-[1.25rem] font-medium leading-tight text-[#1f1610]">
-        Tell us what happened.
+      <h2 className="pr-5 font-serif text-[1.6rem] font-medium leading-tight text-[#1f1610]">
+        Find aid in a few steps.
       </h2>
-      <p className="mt-2 text-sm leading-relaxed text-[#6b5a4e]">
-        Answer a few conversational questions and get matched with disaster aid programs.
+      <p className="mt-3 text-[1.05rem] leading-relaxed text-[#6b5a4e]">
+        Answer a few questions to explore programs that may fit your situation.
       </p>
       <button
         type="button"
         onClick={() => setIsChatOpen(true)}
-        className="ac-sheen mt-4 inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold text-white bg-[#b0673f] no-underline transition-transform hover:-translate-y-0.5 hover:bg-[#895031] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b0673f]"
+        className="ac-sheen mt-5 inline-flex w-full items-center justify-center rounded-lg px-4 py-3 text-[1.05rem] font-bold text-white bg-[#b0673f] no-underline transition-transform hover:-translate-y-0.5 hover:bg-[#895031] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b0673f]"
       >
-        Chat with us →
+        Start here →
       </button>
     </aside>
   );

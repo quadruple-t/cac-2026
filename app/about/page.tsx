@@ -26,7 +26,7 @@ const contributors = [
   },
   {
     name: "Mukesh Ramanathan",
-    bio: "Mukesh worked on the app’s core flows and integrations, connecting intake answers with personalized resources and next steps.",
+    bio: "Mukesh worked the majority of the frontend. He worked on the conversational AI intake, the program discovery, and the document checklist features.",
   },
   {
     name: "Ansh Nayak",

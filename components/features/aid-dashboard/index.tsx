@@ -95,16 +95,16 @@ export default function AidDashboard({ programs, userSituation, applicationStatu
       {/* Header */}
       <div className="text-center mb-8">
         <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-          Your Personalized Aid Dashboard
+          Your results
         </p>
         <h2 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-          Programs You Qualify For
+          Programs that may fit
         </h2>
         <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-          Based on your situation in {userSituation?.county || 'your area'}, you&apos;re eligible for {programs.length} aid programs.
+          Based on your situation in {userSituation?.county || 'your area'}, here are {programs.length} programs to explore.
         </p>
         <div className="mx-auto mt-5 flex w-fit items-center gap-2 rounded-full border border-[#d8b9a4] bg-[#fffaf5] px-3 py-1.5 text-xs font-semibold text-[#895031]">
-          <span className="text-base leading-none">✦</span> Ranked by fit and urgency
+          <span className="text-base leading-none">✦</span> Ranked by fit and deadline
         </div>
       </div>
 
