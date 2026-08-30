@@ -378,7 +378,10 @@ function MultiSelectGroup({
 }
 
 function multiValue<K extends keyof UserSituation>(formData: Partial<UserSituation>, field: K): string[] {
-  return (formData[field] as unknown as string[] | undefined) ?? [];
+  const val = formData[field];
+  if (Array.isArray(val)) return val as unknown as string[];
+  if (typeof val === 'string') return [val];
+  return [];
 }
 
 function LocationFields({ formData, setField }: FieldsProps) {
