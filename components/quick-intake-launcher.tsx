@@ -8,7 +8,7 @@ import ConversationalIntake from '@/components/features/conversational-intake';
 export default function QuickIntakeLauncher() {
   const pathname = usePathname();
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   if (pathname === '/conversational' || pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up')) {
@@ -23,7 +23,7 @@ export default function QuickIntakeLauncher() {
         aria-label="Open quick intake"
         className="ac-sheen fixed bottom-5 right-5 z-30 rounded-full px-5 py-3.5 text-[1rem] font-bold text-white bg-[#b0673f] shadow-lg transition-transform hover:-translate-y-0.5 hover:bg-[#895031] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b0673f]"
       >
-        Chat with us
+        Find aid
       </button>
     );
   }
