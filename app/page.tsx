@@ -2,6 +2,7 @@
 
 import Navigation from '@/components/navigation';
 import { CompassMark } from '@/components/compass-mark';
+import { HeroRotator } from '@/components/hero-rotator';
 
 const CONTOUR_PATHS = [
   "M -40 90 C 220 40 460 150 720 95 S 1180 40 1480 110",
@@ -61,8 +62,8 @@ export default function Home() {
               </g>
             </svg>
           </div>
-          <div className="relative z-10 mx-auto max-w-[1080px] px-[22px] pb-[92px] pt-20">
-            <div className="max-w-[720px]">
+          <div className="relative z-10 mx-auto flex max-w-[1080px] flex-wrap items-center gap-x-12 gap-y-10 px-[22px] pb-[92px] pt-20">
+            <div className="max-w-[620px] flex-1 min-w-[320px]">
               <p className="ac-reveal mb-5 text-[1rem] font-bold uppercase tracking-[0.06em] text-[#895031]">
                 Hurricane Helene recovery · Western North Carolina
               </p>
@@ -70,7 +71,7 @@ export default function Home() {
                 id="hero-h"
                 className="ac-reveal mb-6 font-serif text-[clamp(2.85rem,7vw,4.5rem)] font-medium leading-[1.03] tracking-[-0.025em] text-[#1f1610]"
               >
-                Find aid and next steps after Hurricane Helene.
+                Find the disaster aid you actually qualify for.
               </h1>
               <p className="ac-reveal-2 mb-9 max-w-[620px] text-[clamp(1.25rem,3vw,1.5rem)] leading-relaxed text-[#55483d]">
                 Answer a few simple questions to explore support programs,
@@ -87,6 +88,9 @@ export default function Home() {
                   Free to use · Not a government site
                 </span>
               </div>
+            </div>
+            <div className="ac-reveal-3 flex flex-none justify-center">
+              <HeroRotator />
             </div>
           </div>
         </section>
