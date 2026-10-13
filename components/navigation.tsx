@@ -12,6 +12,7 @@ const navItems = [
   { name: 'Find aid', href: '/conversational' },
   { name: 'My aid', href: '/dashboard' },
   { name: 'Deadlines', href: '/deadlines' },
+  { name: 'My info', href: '/settings' },
   { name: 'FEMA letter', href: '/fema' },
   { name: 'About', href: '/about' },
 ];

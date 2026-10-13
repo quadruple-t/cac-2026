@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import ConversationalIntake from '@/components/features/conversational-intake';
+import { persistIntakeSituation } from '@/lib/user-situation-client';
 
 export default function QuickIntakeLauncher() {
   const pathname = usePathname();
@@ -45,7 +46,13 @@ export default function QuickIntakeLauncher() {
             ×
           </button>
         </div>
-        <ConversationalIntake compact onComplete={() => router.push('/conversational')} />
+        <ConversationalIntake
+          compact
+          onComplete={async (situation) => {
+            const outcome = await persistIntakeSituation(situation);
+            router.push(outcome === 'saved' ? '/dashboard' : '/conversational');
+          }}
+        />
         <Link href="/conversational" className="mt-3 block text-center text-[0.95rem] font-semibold text-[#895031] no-underline hover:text-[#6b5a4e]">
           Continue on a full page →
         </Link>

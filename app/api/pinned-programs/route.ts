@@ -9,8 +9,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const programIds = await getPinnedPrograms(user.uid);
-    return NextResponse.json({ programIds });
+    const { programIds, programs } = await getPinnedPrograms(user.uid);
+    return NextResponse.json({ programIds, programs });
   } catch (error) {
     console.error('Error in GET /api/pinned-programs:', error);
     return NextResponse.json({ error: 'Failed to fetch pinned programs', details: String(error) }, { status: 500 });
@@ -24,8 +24,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { programIds } = await request.json();
-    await savePinnedPrograms(user.uid, programIds);
+    const { programIds, programs } = await request.json();
+    if (!Array.isArray(programIds) || !programIds.every((id) => typeof id === 'string')) {
+      return NextResponse.json({ error: 'programIds must be an array of strings' }, { status: 400 });
+    }
+    // Only keep snapshots for ids that are still pinned.
+    const snapshots = Array.isArray(programs)
+      ? programs.filter((p) => p && typeof p.id === 'string' && programIds.includes(p.id))
+      : [];
+    await savePinnedPrograms(user.uid, programIds, snapshots);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error in POST /api/pinned-programs:', error);

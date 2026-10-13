@@ -74,9 +74,10 @@ function mapToDocumentIds(text: string): string[] {
 }
 
 /** Maps a ranked Google Sheet row onto the AidProgram shape so the existing dashboard UI can render it unchanged. */
-export function rankedProgramToAidProgram({ program, matchReason }: RankedAidProgramResponse, index: number): AidProgram {
+export function rankedProgramToAidProgram({ program, matchReason }: RankedAidProgramResponse): AidProgram {
   return {
-    id: program.sourceUrl || `${program.name}-${index}`,
+    // Stable across re-ranking (no array index), so pins keep matching.
+    id: program.sourceUrl || `${program.name}-${program.agency}`.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
     name: program.name,
     agency: program.agency,
     description: program.description,
