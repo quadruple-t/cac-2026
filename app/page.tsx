@@ -186,6 +186,14 @@ export default function Home() {
                     How it works
                   </a>
                 </li>
+                <li>
+                  <a
+                    href="/privacy"
+                    className="text-[#cdbcae] no-underline hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  >
+                    Privacy policy
+                  </a>
+                </li>
               </ul>
             </div>
             <div>
