@@ -3,10 +3,10 @@
 /**
  * Settings page.
  *
- * Rather than re-running the Aid Center questionnaire, this shows a
- * plain-language summary of the user's stored situation
- * (already in Firestore via /api/user-situation) and lets them correct it by
- * typing a short natural-language note — similar to editing a memory. Each
+ * Shows the user's stored situation (Firestore via /api/user-situation) as an
+ * AI-generated plain-language summary, lets them edit the core answers
+ * directly, and lets them correct anything by typing a short natural-language
+ * note — similar to editing a memory. Each
  * note is turned into a proposed patch the user reviews and confirms before
  * anything is saved.
  */
@@ -17,8 +17,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navigation from '@/components/navigation';
 import { CompassStatus } from '@/components/compass-status';
+import SituationEditor from '@/components/features/situation-editor';
 import { UserSituation } from '@/lib/aid-programs';
-import { getGeminiModel, getCorrectionExtractionModel } from '@/lib/firebase/ai';
+import { getGeminiModel, getCorrectionExtractionModel, aiErrorMessage } from '@/lib/firebase/ai';
 import {
   buildSummaryPrompt,
   buildCorrectionPrompt,
@@ -52,7 +53,9 @@ export default function SettingsPage() {
       setSummary(result.response.text().trim());
     } catch (error) {
       console.error('Error generating situation summary:', error);
-      setSummaryError("Couldn't generate a summary right now. Your saved answers are still safe.");
+      setSummaryError(
+        aiErrorMessage(error, "Couldn't generate a summary right now.") + ' Your saved answers are still safe.'
+      );
     }
     setSummaryLoading(false);
   }, []);
@@ -103,7 +106,7 @@ export default function SettingsPage() {
       }
     } catch (error) {
       console.error('Error extracting correction:', error);
-      setExtractError("Something went wrong reading that note. Please try again.");
+      setExtractError(aiErrorMessage(error, 'Something went wrong reading that note. Please try again.'));
     }
 
     setIsExtracting(false);
@@ -135,6 +138,28 @@ export default function SettingsPage() {
       alert('Error saving changes. Check console for details.');
     }
     setIsSaving(false);
+  };
+
+  // Direct edit of the core fields (no AI round trip). Works for users who
+  // have no saved situation yet, too: the first save creates it.
+  const handleDirectSave = async (patch: Partial<UserSituation>) => {
+    try {
+      const res = await fetch('/api/user-situation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      });
+      if (!res.ok) return false;
+
+      const merged = { ...(situation ?? {}), ...patch } as UserSituation;
+      setSituation(merged);
+      setPendingChanges(null);
+      void generateSummary(merged);
+      return true;
+    } catch (error) {
+      console.error('Error saving edits:', error);
+      return false;
+    }
   };
 
   const handleDiscardChanges = () => {
@@ -184,8 +209,8 @@ export default function SettingsPage() {
               What We Know About Your Situation
             </h1>
             <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] leading-relaxed max-w-2xl mx-auto">
-              Here&apos;s a summary of the answers you&apos;ve shared with Aid Compass. If anything has
-              changed or looks wrong, just tell us in your own words below.
+              Here&apos;s what Aid Compass has saved from your chat and questionnaire. Edit any answer
+              directly, or tell us what changed in your own words.
             </p>
           </div>
 
@@ -195,15 +220,26 @@ export default function SettingsPage() {
                 You haven&apos;t shared any details about your situation yet.
               </p>
               <p className="text-[#6b5a4e] mb-6">
-                Start with the Disaster Aid Center to answer a few questions — you&apos;ll be able to
-                come back here anytime to review or correct what you told us.
+                Fill in the details below, chat with Wren, or use the full questionnaire. You can come
+                back here anytime to review or correct what you told us.
               </p>
-              <Link
-                href="/dashboard"
-                className="inline-block bg-[#3d2b20] text-white rounded-[10px] px-6 py-3 font-semibold no-underline hover:bg-[#2b1e15] transition-colors"
-              >
-                Go to Aid Center
-              </Link>
+              <div className="flex flex-wrap justify-center gap-3">
+                <Link
+                  href="/conversational"
+                  className="inline-block bg-[#3d2b20] text-white rounded-[10px] px-6 py-3 font-semibold no-underline hover:bg-[#2b1e15] transition-colors"
+                >
+                  Chat with Wren
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="inline-block border border-[#3d2b20] text-[#3d2b20] rounded-[10px] px-6 py-3 font-semibold no-underline hover:bg-[#f2ece5] transition-colors"
+                >
+                  Full questionnaire
+                </Link>
+              </div>
+              <div className="mt-8 border-t border-[#e4d9cf] pt-6 text-left">
+                <SituationEditor situation={null} onSave={handleDirectSave} />
+              </div>
             </div>
           ) : (
             <div className="relative max-w-2xl mx-auto space-y-6">
@@ -219,6 +255,21 @@ export default function SettingsPage() {
                 ) : (
                   <p className="text-[#1f1610] leading-relaxed whitespace-pre-wrap">{summary}</p>
                 )}
+              </div>
+
+              {/* Direct edit */}
+              <div className="bg-white rounded-[14px] border border-[#e4d9cf] p-6">
+                <p className="text-sm text-[#895031] font-semibold uppercase tracking-[0.08em] mb-3">
+                  Edit Your Answers
+                </p>
+                <SituationEditor situation={situation} onSave={handleDirectSave} />
+                <p className="mt-4 text-sm text-[#6b5a4e]">
+                  Need to change other details?{' '}
+                  <Link href="/dashboard" className="text-[#895031] font-medium hover:text-[#6b5a4e]">
+                    Open the full questionnaire
+                  </Link>
+                  .
+                </p>
               </div>
 
               {/* Correction box */}

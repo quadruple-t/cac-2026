@@ -8,12 +8,14 @@ import { clearServerSession } from '@/lib/firebase/session-client';
 import { useAuth } from '@/lib/firebase/use-auth';
 import { CompassMark } from '@/components/compass-mark';
 
+// Links flagged requiresAuth are hidden until the visitor is signed in.
 const navItems = [
-  { name: 'Find aid', href: '/conversational' },
-  { name: 'My aid', href: '/dashboard' },
-  { name: 'Deadlines', href: '/deadlines' },
-  { name: 'FEMA letter', href: '/fema' },
-  { name: 'About', href: '/about' },
+  { name: 'Find aid', href: '/conversational', requiresAuth: false },
+  { name: 'My aid', href: '/dashboard', requiresAuth: true },
+  { name: 'Deadlines', href: '/deadlines', requiresAuth: true },
+  { name: 'My info', href: '/settings', requiresAuth: true },
+  { name: 'FEMA letter', href: '/fema', requiresAuth: true },
+  { name: 'About', href: '/about', requiresAuth: false },
 ];
 
 export default function Navigation() {
@@ -21,6 +23,7 @@ export default function Navigation() {
   const router = useRouter();
   const { user, loading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const visibleNavItems = user ? navItems : navItems.filter((item) => !item.requiresAuth);
 
   async function handleSignOut() {
     await Promise.all([getFirebaseAuth().signOut(), clearServerSession()]);
@@ -47,7 +50,7 @@ export default function Navigation() {
 
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="hidden items-center gap-0.5 md:flex">
-            {navItems.map((item) => (
+            {visibleNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -96,7 +99,7 @@ export default function Navigation() {
       {isMenuOpen && (
         <div id="mobile-navigation" className="border-t border-[#e4d9cf] bg-[#faf6f1] px-[22px] py-3 md:hidden">
           <div className="mx-auto flex max-w-[1080px] flex-col gap-1">
-            {navItems.map((item) => (
+            {visibleNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

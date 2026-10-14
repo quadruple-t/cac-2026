@@ -1,14 +1,14 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
-import type { ChatSession } from 'firebase/ai';
+import type { ChatSession, Content } from 'firebase/ai';
 import { UserSituation } from '@/lib/aid-programs';
-import { getGeminiModel, getSituationExtractionModel } from '@/lib/firebase/ai';
+import { getGeminiModel, getSituationExtractionModel, aiErrorMessage } from '@/lib/firebase/ai';
 import { CompassStatus } from '@/components/compass-status';
 import AidIntakeForm from '@/components/features/aid-intake';
 
 interface ConversationalIntakeProps {
-  onComplete: (situation: UserSituation) => void;
+  onComplete: (situation: UserSituation) => void | Promise<void>;
   compact?: boolean;
 }
 
@@ -61,6 +61,7 @@ const REQUIRED_FIELDS = [
 
 const ERROR_THRESHOLD = 3;
 const CHAT_HISTORY_STORAGE_KEY = 'wrenChatMessages';
+const GATHERED_SITUATION_STORAGE_KEY = 'wrenGatheredSituation';
 
 function validateSituation(raw: Record<string, unknown>): Partial<UserSituation> {
   const out: Partial<UserSituation> = {};
@@ -87,15 +88,19 @@ function validateSituation(raw: Record<string, unknown>): Partial<UserSituation>
   return out;
 }
 
-async function runExtraction(messages: Message[]): Promise<Partial<UserSituation>> {
-  const transcript = messages
-    .map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
-    .join('\n');
+async function runExtraction(
+  previousAssistantMessage: string,
+  userMessage: string,
+  known: Partial<UserSituation>,
+): Promise<Partial<UserSituation>> {
+  // Only the newest exchange plus what we already know, so the prompt stays
+  // small however long the conversation gets, and it can run in parallel with
+  // the chat reply (it doesn't need the reply).
+  const prompt = `Extract any of the situation fields that can be confidently determined from the user's latest message (the assistant's previous message is only context for short answers like "yes"). Omit any field not clearly stated by the user; do not guess.
 
-  const prompt = `Given the following conversation transcript between a disaster aid assistant and a user, extract any of the situation fields that can be confidently determined from what the user has said. Omit any field not yet clearly stated by the user; do not guess.
-
-Transcript:
-${transcript}`;
+Already known: ${JSON.stringify(known)}
+Assistant: ${previousAssistantMessage}
+User: ${userMessage}`;
 
   const result = await getSituationExtractionModel().generateContent(prompt);
   const parsed = JSON.parse(result.response.text());
@@ -116,61 +121,118 @@ function loadStoredMessages(): Message[] {
   return [{ role: 'assistant', content: GREETING }];
 }
 
+function loadStoredSituation(): Partial<UserSituation> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const stored = localStorage.getItem(GATHERED_SITUATION_STORAGE_KEY);
+    if (stored) return validateSituation(JSON.parse(stored));
+  } catch {
+    // Ignore malformed storage.
+  }
+  return {};
+}
+
+// Rebuilds the model's memory from the stored transcript so a reload doesn't
+// leave the UI showing a conversation the model has forgotten. Gemini history
+// must start with a user turn, so the greeting is dropped.
+function toChatHistory(messages: Message[]): Content[] {
+  const turns = messages.map((m) => ({
+    role: m.role === 'user' ? ('user' as const) : ('model' as const),
+    parts: [{ text: m.content }],
+  }));
+  const firstUser = turns.findIndex((t) => t.role === 'user');
+  if (firstUser === -1) return [];
+  const history = turns.slice(firstUser);
+  while (history.length > 0 && history[history.length - 1].role === 'user') history.pop();
+  return history;
+}
+
 export default function ConversationalIntake({ onComplete, compact = false }: ConversationalIntakeProps) {
   const [messages, setMessages] = useState<Message[]>(loadStoredMessages);
-  const [userSituation, setUserSituation] = useState<Partial<UserSituation>>({});
+  const [userSituation, setUserSituation] = useState<Partial<UserSituation>>(loadStoredSituation);
   const [isTyping, setIsTyping] = useState(false);
+  const [pendingExtractions, setPendingExtractions] = useState(0);
+  const [isFinishing, setIsFinishing] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [errorCount, setErrorCount] = useState(0);
   const [useManualFallback, setUseManualFallback] = useState(false);
 
   const chatSessionRef = useRef<ChatSession | null>(null);
+  const situationRef = useRef<Partial<UserSituation>>(userSituation);
+  const extractionsRef = useRef<Set<Promise<void>>>(new Set());
 
   useEffect(() => {
     localStorage.setItem(CHAT_HISTORY_STORAGE_KEY, JSON.stringify(messages));
   }, [messages]);
 
+  useEffect(() => {
+    situationRef.current = userSituation;
+    localStorage.setItem(GATHERED_SITUATION_STORAGE_KEY, JSON.stringify(userSituation));
+  }, [userSituation]);
+
   const gatheredCount = REQUIRED_FIELDS.filter(
     (key) => userSituation[key] !== undefined
   ).length;
+
+  // Runs in the background so the user can keep chatting while their answer
+  // is turned into structured fields.
+  const startExtraction = (previousAssistantMessage: string, userMessage: string) => {
+    setPendingExtractions((n) => n + 1);
+    const task: Promise<void> = runExtraction(previousAssistantMessage, userMessage, situationRef.current)
+      .then((validated) => {
+        if (Object.keys(validated).length > 0) {
+          const merged = { ...situationRef.current, ...validated };
+          situationRef.current = merged;
+          setUserSituation(merged);
+        }
+      })
+      .catch(() => {
+        // Extraction failed, continue without updating situation
+      })
+      .finally(() => {
+        extractionsRef.current.delete(task);
+        setPendingExtractions((n) => n - 1);
+      });
+    extractionsRef.current.add(task);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim() || isTyping) return;
 
     const userMessage = inputValue;
+    const previousAssistantMessage =
+      [...messages].reverse().find((m) => m.role === 'assistant')?.content ?? '';
     const messagesWithUser = [...messages, { role: 'user' as const, content: userMessage }];
     setMessages(messagesWithUser);
     setInputValue('');
     setIsTyping(true);
 
+    startExtraction(previousAssistantMessage, userMessage);
+
+    let replyText = '';
     try {
       if (!chatSessionRef.current) {
         chatSessionRef.current = getGeminiModel().startChat({
           systemInstruction: SYSTEM_INSTRUCTION,
+          history: toChatHistory(messages),
         });
       }
 
-      const result = await chatSessionRef.current.sendMessage(userMessage);
-      const replyText = result.response.text();
-      const messagesWithReply = [...messagesWithUser, { role: 'assistant' as const, content: replyText }];
-      setMessages(messagesWithReply);
-
-      try {
-        const validated = await runExtraction(messagesWithReply);
-        if (Object.keys(validated).length > 0) {
-          setUserSituation((prev) => ({ ...prev, ...validated }));
-        }
-      } catch {
-        // Extraction failed, continue without updating situation
+      const { stream } = await chatSessionRef.current.sendMessageStream(userMessage);
+      for await (const chunk of stream) {
+        replyText += chunk.text();
+        setMessages([...messagesWithUser, { role: 'assistant', content: replyText }]);
       }
+      if (!replyText) throw new Error('Empty response');
 
       setErrorCount(0);
     } catch (error) {
       console.error('Error in conversation:', error);
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: "I'm sorry, I'm having trouble right now. Please try again." },
+      const errorMessage = aiErrorMessage(error, "I'm sorry, I'm having trouble right now. Please try again.");
+      setMessages([
+        ...messagesWithUser,
+        { role: 'assistant', content: replyText ? `${replyText}\n\n${errorMessage}` : errorMessage },
       ]);
       setErrorCount((prev) => prev + 1);
     }
@@ -181,16 +243,24 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
   const handleRestart = () => {
     setMessages([{ role: 'assistant', content: GREETING }]);
     setUserSituation({});
+    situationRef.current = {};
     setInputValue('');
     setErrorCount(0);
     setUseManualFallback(false);
     chatSessionRef.current = null;
     localStorage.removeItem(CHAT_HISTORY_STORAGE_KEY);
+    localStorage.removeItem(GATHERED_SITUATION_STORAGE_KEY);
   };
 
-  const handleShowResults = () => {
-    if (gatheredCount > 0) {
-      onComplete(userSituation as UserSituation);
+  const handleShowResults = async () => {
+    if (gatheredCount === 0 || isFinishing) return;
+    setIsFinishing(true);
+    // Let any in-flight extraction land so the last answer isn't missed.
+    await Promise.allSettled([...extractionsRef.current]);
+    try {
+      await onComplete(situationRef.current as UserSituation);
+    } finally {
+      setIsFinishing(false);
     }
   };
 
@@ -252,7 +322,7 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
             </div>
           ))}
 
-          {isTyping && (
+          {isTyping && messages[messages.length - 1]?.role === 'user' && (
             <div className="flex justify-start">
               <div className="bg-white border border-[#e4d9cf] p-3 rounded-[14px]">
                 <div className="flex space-x-2">
@@ -296,9 +366,10 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
             {gatheredCount > 0 && (
               <button
                 onClick={handleShowResults}
-                className="text-[#b0673f] hover:text-[#895031] font-medium text-sm"
+                disabled={isFinishing}
+                className="text-[#b0673f] hover:text-[#895031] font-medium text-sm disabled:opacity-50"
               >
-                Show Results ({gatheredCount}/{REQUIRED_FIELDS.length} fields)
+                {isFinishing ? 'Saving...' : `Show Results (${gatheredCount}/${REQUIRED_FIELDS.length} fields)`}
               </button>
             )}
           </div>
@@ -327,6 +398,9 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
         <div className="mt-6 bg-[#faf6f1] rounded-[14px] p-4 border border-[#e4d9cf]">
           <p className="text-sm text-[#895031] font-semibold uppercase tracking-[0.08em] mb-2">
             Information Gathered
+            {pendingExtractions > 0 && (
+              <span className="ml-2 normal-case tracking-normal font-normal text-[#6b5a4e]">updating...</span>
+            )}
           </p>
           <div className="flex flex-wrap gap-2">
             {REQUIRED_FIELDS.filter((key) => userSituation[key] !== undefined).map((key) => (

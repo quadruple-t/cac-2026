@@ -21,6 +21,9 @@ export default function AidDashboard({ programs, userSituation, applicationStatu
   const [expandedProgram, setExpandedProgram] = useState<string | null>(null);
   const [localStatuses, setLocalStatuses] = useState<Record<string, ApplicationStatus>>(applicationStatuses);
   const [pinnedPrograms, setPinnedPrograms] = useState<string[]>([]);
+  // Saved copies of pinned programs, so the Deadline Tracker can show a pin
+  // even when it isn't in the current top matches.
+  const [pinnedSnapshots, setPinnedSnapshots] = useState<AidProgram[]>([]);
 
   useEffect(() => {
     const loadPinnedPrograms = async () => {
@@ -29,6 +32,7 @@ export default function AidDashboard({ programs, userSituation, applicationStatu
         if (res.ok) {
           const data = await res.json();
           setPinnedPrograms(data.programIds || []);
+          setPinnedSnapshots(data.programs || []);
         } else {
           const errorData = await res.json();
           console.error('Failed to load pinned programs:', res.status, errorData);
@@ -45,23 +49,36 @@ export default function AidDashboard({ programs, userSituation, applicationStatu
       ? pinnedPrograms.filter(id => id !== programId)
       : [...pinnedPrograms, programId];
     
+    const previousSnapshots = pinnedSnapshots;
+    const newSnapshots = previousSnapshots.filter(p => newPinned.includes(p.id));
+    const program = programs.find(p => p.id === programId);
+    if (program && newPinned.includes(programId) && !newSnapshots.some(p => p.id === programId)) {
+      newSnapshots.push(program);
+    }
+
     setPinnedPrograms(newPinned);
-    
+    setPinnedSnapshots(newSnapshots);
+
+    const revert = () => {
+      setPinnedPrograms(pinnedPrograms);
+      setPinnedSnapshots(previousSnapshots);
+    };
+
     try {
       const res = await fetch('/api/pinned-programs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ programIds: newPinned }),
+        body: JSON.stringify({ programIds: newPinned, programs: newSnapshots }),
       });
-      
+
       if (!res.ok) {
         const errorData = await res.json();
         console.error('Failed to save pinned programs:', res.status, errorData);
-        setPinnedPrograms(pinnedPrograms);
+        revert();
       }
     } catch (error) {
       console.error('Error saving pinned programs:', error);
-      setPinnedPrograms(pinnedPrograms);
+      revert();
     }
   };
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { getGeminiModel } from '@/lib/firebase/ai';
+import { getGeminiModel, isAIBusyError, AI_BUSY_MESSAGE } from '@/lib/firebase/ai';
 import { CompleteIcon } from '@/components/feature-icons';
 
 interface AnalysisResult {
@@ -77,7 +77,11 @@ Return ONLY the JSON, no other text.`;
     } catch (err) {
       console.error('AI analysis error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      setError(`Failed to analyze the letter: ${errorMessage}. Please try again or make sure you have pasted the full letter text.`);
+      setError(
+        isAIBusyError(err)
+          ? AI_BUSY_MESSAGE
+          : `Failed to analyze the letter: ${errorMessage}. Please try again or make sure you have pasted the full letter text.`
+      );
       setCurrentStep('upload');
     } finally {
     }

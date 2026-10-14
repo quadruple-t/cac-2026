@@ -10,9 +10,9 @@
  *      situation: the list of aid programs they're eligible for, and a
  *      personalized document checklist for applying to those programs.
  *
- * The user's situation is persisted to localStorage (not a database) so it
- * can be shared across this page, the Deadline Tracker, and the standalone
- * Document Checklist page without re-asking the same questions.
+ * The user's situation is persisted to Firestore (via /api/user-situation) so
+ * it's shared across this page, the Deadline Tracker, Settings, and the
+ * chatbot without re-asking the same questions.
  */
 
 import { useState, useEffect } from 'react';
@@ -23,6 +23,11 @@ import AidDashboard from '@/components/features/aid-dashboard';
 import AidIntakeForm from '@/components/features/aid-intake';
 import { UserSituation, AidProgram } from '@/lib/aid-programs';
 import { rankedProgramToAidProgram } from '@/lib/sheets/aid-programs-adapter';
+import {
+  clearPendingSituation,
+  readPendingSituation,
+  saveUserSituation,
+} from '@/lib/user-situation-client';
 
 export default function DashboardPage() {
   // Firebase auth state. `loading` is true until Firebase has resolved
@@ -82,7 +87,15 @@ export default function DashboardPage() {
 
     // Load user situation from Firebase
     const loadUserSituation = async () => {
+      if (!user) return;
       try {
+        // Answers gathered by the chatbot while signed out are stashed locally;
+        // save them to the account now so they show up everywhere.
+        const pending = readPendingSituation();
+        if (pending && (await saveUserSituation(pending))) {
+          clearPendingSituation();
+        }
+
         const res = await fetch('/api/user-situation');
         if (res.ok) {
           const data = await res.json();

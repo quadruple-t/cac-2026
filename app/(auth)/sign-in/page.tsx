@@ -8,6 +8,7 @@ import {
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
+import { AuthPrivacyNote } from "@/components/auth-privacy-note";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { establishServerSession } from "@/lib/firebase/session-client";
 
@@ -69,6 +70,8 @@ function SignInForm() {
       <h1 className="mb-6 font-serif text-2xl font-medium text-[#1f1610]">
         Sign in
       </h1>
+
+      <AuthPrivacyNote />
 
       <form onSubmit={handleEmailSignIn} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1.5 text-sm text-[#55483d]">

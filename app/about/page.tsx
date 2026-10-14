@@ -1,4 +1,5 @@
 import Navigation from '@/components/navigation';
+import { TeamAvatar } from '@/components/team-avatar';
 
 const trustPoints = [
   {
@@ -22,18 +23,22 @@ const trustPoints = [
 const contributors = [
   {
     name: "Taran Duba",
+    photo: "/team/taran-duba.jpg",
     bio: "Taran helped shape Aid Compass around the real questions disaster survivors face, keeping the experience clear, practical, and focused on people.",
   },
   {
     name: "Mukesh Ramanathan",
+    photo: "/team/mukesh-ramanathan.jpg",
     bio: "Mukesh worked the majority of the frontend. He worked on the conversational AI intake, the program discovery, and the document checklist features.",
   },
   {
     name: "Ansh Nayak",
+    photo: "/team/ansh-nayak.jpg",
     bio: "Ansh built the majority of the database of programs and charitable organizations, and optimized the website integration across features.",
   },
   {
     name: "Hannah Kim",
+    photo: "/team/hannah-kim.jpg",
     bio: "Hannah brought a people-first perspective to the project, helping us keep the language welcoming and easy to understand.",
   },
 ];
@@ -138,15 +143,7 @@ export default function AboutPage() {
             <ul className="m-0 mt-10 grid list-none grid-cols-1 gap-x-6 gap-y-10 p-0 sm:grid-cols-2">
               {contributors.map((person) => (
                 <li key={person.name} className="flex flex-col items-center text-center">
-                  <span
-                    aria-hidden="true"
-                    className="h-[216px] w-[216px] flex-none rounded-full border border-[#4a362a] bg-[#3d2b20] bg-cover bg-center"
-                    style={{
-                      backgroundImage: `url(/team/${person.name
-                        .toLowerCase()
-                        .replace(/\s+/g, "-")}.jpg)`,
-                    }}
-                  />
+                  <TeamAvatar name={person.name} photo={person.photo} />
                   <h3 className="mb-1 mt-4 font-serif text-[1.02rem] font-semibold text-white">
                     {person.name}
                   </h3>

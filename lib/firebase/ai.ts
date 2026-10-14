@@ -113,3 +113,19 @@ export function getCorrectionExtractionModel(): GenerativeModel {
   }
   return cachedCorrectionModel;
 }
+
+export const AI_BUSY_MESSAGE =
+  "Our AI is experiencing high traffic right now. Please try again in a little while.";
+
+// True when a Firebase AI call failed because the model is overloaded or
+// rate-limited (HTTP 429/500/503), as opposed to a bug in our own request.
+export function isAIBusyError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /\[(429|500|503)[\s\]]|high demand|overloaded|unavailable|quota|rate limit/i.test(message);
+}
+
+// Friendly message for a failed AI call: the busy notice when the model is
+// overloaded, otherwise the caller's own fallback.
+export function aiErrorMessage(error: unknown, fallback: string): string {
+  return isAIBusyError(error) ? AI_BUSY_MESSAGE : fallback;
+}

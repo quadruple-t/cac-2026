@@ -12,6 +12,7 @@ interface DeadlineTrackerProps {
 
 export default function DeadlineTracker({ programs, applicationStatuses, onStatusChange }: DeadlineTrackerProps) {
   const [pinnedPrograms, setPinnedPrograms] = useState<string[]>([]);
+  const [pinnedSnapshots, setPinnedSnapshots] = useState<AidProgram[]>([]);
   const [completedPlanSteps, setCompletedPlanSteps] = useState<Record<string, number>>(() => {
     if (typeof window === 'undefined') return {};
 
@@ -25,12 +26,18 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
       if (res.ok) {
         const data = await res.json();
         setPinnedPrograms(data.programIds || []);
+        setPinnedSnapshots(data.programs || []);
       }
     };
     loadPinnedPrograms();
   }, []);
 
-  const filteredPrograms = programs.filter(program => pinnedPrograms.includes(program.id));
+  // Prefer live program data when the program is in the current matches, but
+  // fall back to the saved snapshot so pins show up without a questionnaire
+  // (or after the program drops out of the top matches).
+  const filteredPrograms = pinnedPrograms
+    .map(id => programs.find(p => p.id === id) ?? pinnedSnapshots.find(p => p.id === id))
+    .filter((program): program is AidProgram => Boolean(program));
 
   const completedStepsFor = (programId: string) => {
     const status = applicationStatuses[programId] || 'not_applied';
