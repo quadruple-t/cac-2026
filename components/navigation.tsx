@@ -15,7 +15,7 @@ const navItems = [
   { name: 'Deadlines', href: '/deadlines', requiresAuth: true },
   { name: 'My info', href: '/settings', requiresAuth: true },
   { name: 'FEMA letter', href: '/fema', requiresAuth: true },
-  { name: 'About', href: '/about', requiresAuth: true },
+  { name: 'About', href: '/about', requiresAuth: false },
 ];
 
 export default function Navigation() {
