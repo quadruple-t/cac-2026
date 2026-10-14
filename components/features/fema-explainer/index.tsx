@@ -38,10 +38,7 @@ export default function FemaExplainer() {
     setCurrentStep('analyzing');
 
     try {
-      console.log('Starting FEMA letter analysis...');
       const model = getGeminiModel();
-      console.log('Gemini model obtained');
-      
       const prompt = `You are an expert at interpreting FEMA disaster assistance letters. Analyze the following FEMA letter and provide a clear, easy-to-understand explanation.
 
 FEMA Letter:
@@ -72,13 +69,9 @@ For denied applications, always mention the 60-day appeal window and the FEMA he
 For "Additional Information Needed" status, emphasize the importance of responding promptly.
 Return ONLY the JSON, no other text.`;
 
-      console.log('Sending prompt to AI...');
       const result = await model.generateContent(prompt);
       const responseText = result.response.text();
-      console.log('AI response received:', responseText);
-      
       const parsed = JSON.parse(responseText);
-      console.log('Parsed analysis:', parsed);
       setAnalysis(parsed);
       setCurrentStep('results');
     } catch (err) {
