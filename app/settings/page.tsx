@@ -19,7 +19,7 @@ import Navigation from '@/components/navigation';
 import { CompassStatus } from '@/components/compass-status';
 import SituationEditor from '@/components/features/situation-editor';
 import { UserSituation } from '@/lib/aid-programs';
-import { getGeminiModel, getCorrectionExtractionModel } from '@/lib/firebase/ai';
+import { getGeminiModel, getCorrectionExtractionModel, aiErrorMessage } from '@/lib/firebase/ai';
 import {
   buildSummaryPrompt,
   buildCorrectionPrompt,
@@ -53,7 +53,9 @@ export default function SettingsPage() {
       setSummary(result.response.text().trim());
     } catch (error) {
       console.error('Error generating situation summary:', error);
-      setSummaryError("Couldn't generate a summary right now. Your saved answers are still safe.");
+      setSummaryError(
+        aiErrorMessage(error, "Couldn't generate a summary right now.") + ' Your saved answers are still safe.'
+      );
     }
     setSummaryLoading(false);
   }, []);
@@ -104,7 +106,7 @@ export default function SettingsPage() {
       }
     } catch (error) {
       console.error('Error extracting correction:', error);
-      setExtractError("Something went wrong reading that note. Please try again.");
+      setExtractError(aiErrorMessage(error, 'Something went wrong reading that note. Please try again.'));
     }
 
     setIsExtracting(false);

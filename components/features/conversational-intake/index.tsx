@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect } from 'react';
 import type { ChatSession, Content } from 'firebase/ai';
 import { UserSituation } from '@/lib/aid-programs';
-import { getGeminiModel, getSituationExtractionModel } from '@/lib/firebase/ai';
+import { getGeminiModel, getSituationExtractionModel, aiErrorMessage } from '@/lib/firebase/ai';
 import { CompassStatus } from '@/components/compass-status';
 import AidIntakeForm from '@/components/features/aid-intake';
 
@@ -229,7 +229,7 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
       setErrorCount(0);
     } catch (error) {
       console.error('Error in conversation:', error);
-      const errorMessage = "I'm sorry, I'm having trouble right now. Please try again.";
+      const errorMessage = aiErrorMessage(error, "I'm sorry, I'm having trouble right now. Please try again.");
       setMessages([
         ...messagesWithUser,
         { role: 'assistant', content: replyText ? `${replyText}\n\n${errorMessage}` : errorMessage },
