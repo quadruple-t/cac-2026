@@ -241,7 +241,7 @@ export default function SettingsPage() {
             </div>
           ) : (
             <div className="relative max-w-2xl mx-auto space-y-6">
-              {/* AI-generated summary */}
+              {/* Summary */}
               <div className="bg-[#faf6f1] rounded-[14px] border border-[#e4d9cf] p-6">
                 <p className="text-sm text-[#895031] font-semibold uppercase tracking-[0.08em] mb-3">
                   Your Situation, Summarized
