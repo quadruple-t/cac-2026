@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/firebase/use-auth';
 import Navigation from '@/components/navigation';
+import SiteFooter from '@/components/site-footer';
+import { PageHeader } from '@/components/page-header';
 import ConversationalIntake from '@/components/features/conversational-intake';
 import AidDashboard from '@/components/features/aid-dashboard';
 import { getEligiblePrograms, rankProgramsByUrgency, UserSituation, AidProgram } from '@/lib/aid-programs';
@@ -58,10 +60,11 @@ export default function ConversationalPage() {
       <div className="min-h-full bg-[#f2ece5] flex flex-col flex-1">
         <Navigation />
         <main className="flex-1">
-          <div className="text-center py-12">
-            <p className="text-[#6b5a4e]">Loading...</p>
+          <div className="ac-page ac-page-narrow">
+            <p className="ac-muted" role="status">Loading…</p>
           </div>
         </main>
+        <SiteFooter />
       </div>
     );
   }
@@ -71,45 +74,43 @@ export default function ConversationalPage() {
       <Navigation />
 
       <main className="flex-1">
-        <section className="mx-auto max-w-[1080px] px-[22px] py-[66px]">
+        <div className={`ac-page${userSituation ? '' : ' ac-page-narrow'}`}>
           {!userSituation ? (
             <ConversationalIntake onComplete={handleIntakeComplete} />
           ) : (
             <div>
-              <div className="text-center mb-8">
-                <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-                  Your Results
-                </p>
-                <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-                  Programs That May Fit
-                </h1>
-                <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-                  Based on what you shared about {userSituation.county}, here are {eligiblePrograms.length} programs to explore.
-                </p>
-              </div>
+              <PageHeader
+                kicker="Your results"
+                title="Programs that may fit"
+                lead={`Based on what you shared${userSituation.county ? ` about ${userSituation.county}` : ''}, here ${
+                  eligiblePrograms.length === 1 ? 'is 1 program' : `are ${eligiblePrograms.length} programs`
+                } to explore.`}
+              />
 
               <AidDashboard programs={eligiblePrograms} userSituation={userSituation} />
 
               {!user && (
-                <div className="mx-auto mt-8 max-w-2xl rounded-[14px] border border-[#d8b9a4] bg-[#fffaf5] p-5 text-center">
-                  <h2 className="text-[1.2rem] font-bold text-[#1f1610]">Want to save your results?</h2>
-                  <p className="mt-2 text-[1rem] text-[#55483d]">Create a free account to keep your programs and deadlines in one place.</p>
-                  <a href="/sign-up?next=/dashboard" className="mt-4 inline-block rounded-lg bg-[#b0673f] px-5 py-3 text-[1rem] font-bold text-white no-underline hover:bg-[#895031]">Create a free account</a>
-                </div>
+                <section className="ac-card mt-10 max-w-2xl" aria-labelledby="save-results-heading">
+                  <h2 id="save-results-heading" className="ac-h3">Want to save your results?</h2>
+                  <p className="text-[1rem] leading-relaxed text-[#55483d]">
+                    Create a free account to keep your programs and deadlines in one place.
+                  </p>
+                  <a href="/sign-up?next=/dashboard" className="ac-btn mt-5">
+                    Create a free account
+                  </a>
+                </section>
               )}
-              
-              <div className="text-center mt-8">
-                <button
-                  onClick={handleReset}
-                  className="text-[#895031] hover:text-[#6b5a4e] font-medium text-sm"
-                >
-                  ← Start Over
+
+              <div className="mt-8">
+                <button type="button" onClick={handleReset} className="ac-btn-ghost">
+                  Start over
                 </button>
               </div>
             </div>
           )}
-        </section>
+        </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }

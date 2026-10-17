@@ -75,8 +75,8 @@ const YES_NO_FIELDS: YesNoField[] = [
   { key: 'hasAppliedToFEMA', label: 'Have you applied to FEMA?' },
 ];
 
-const inputClass =
-  'w-full px-3 py-2 border border-[#e4d9cf] rounded-[10px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white disabled:opacity-50';
+// Shared .ac-input / .ac-label primitives from app/globals.css.
+const inputClass = 'ac-input';
 
 interface SituationEditorProps {
   situation: Partial<UserSituation> | null;
@@ -134,9 +134,9 @@ export default function SituationEditor({ situation, onSave }: SituationEditorPr
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       <label className="block">
-        <span className="mb-1 block text-sm font-medium text-[#1f1610]">County</span>
+        <span className="ac-label">County</span>
         <input
           type="text"
           value={draft.county ?? ''}
@@ -147,10 +147,10 @@ export default function SituationEditor({ situation, onSave }: SituationEditorPr
         />
       </label>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-2">
         {SELECT_FIELDS.map((field) => (
           <label key={field.key} className="block">
-            <span className="mb-1 block text-sm font-medium text-[#1f1610]">{field.label}</span>
+            <span className="ac-label">{field.label}</span>
             <select
               value={draft[field.key] ?? ''}
               onChange={(e) => update({ [field.key]: e.target.value || undefined } as Partial<CoreSituation>)}
@@ -169,7 +169,7 @@ export default function SituationEditor({ situation, onSave }: SituationEditorPr
 
         {YES_NO_FIELDS.map((field) => (
           <label key={field.key} className="block">
-            <span className="mb-1 block text-sm font-medium text-[#1f1610]">{field.label}</span>
+            <span className="ac-label">{field.label}</span>
             <select
               value={draft[field.key] === undefined ? '' : draft[field.key] ? 'yes' : 'no'}
               onChange={(e) =>
@@ -186,16 +186,20 @@ export default function SituationEditor({ situation, onSave }: SituationEditorPr
         ))}
       </div>
 
-      <div className="flex items-center gap-4">
-        <button
-          type="submit"
-          disabled={isSaving}
-          className="bg-[#3d2b20] text-white rounded-[10px] px-6 py-3 font-semibold hover:bg-[#2b1e15] transition-colors disabled:opacity-50"
-        >
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1">
+        <button type="submit" disabled={isSaving} className="ac-btn-dark">
           {isSaving ? 'Saving...' : 'Save changes'}
         </button>
-        {status === 'saved' && <p role="status" className="text-sm text-[#168260]">Saved.</p>}
-        {status === 'error' && <p role="alert" className="text-sm text-[#a33a2a]">Couldn&apos;t save. Please try again.</p>}
+        {status === 'saved' && (
+          <p role="status" className="m-0 text-[0.95rem] font-semibold text-[#3f7d5c]">
+            Saved.
+          </p>
+        )}
+        {status === 'error' && (
+          <p role="alert" className="m-0 text-[0.95rem] font-semibold text-[#a33a2a]">
+            Couldn&apos;t save. Please try again.
+          </p>
+        )}
       </div>
     </form>
   );

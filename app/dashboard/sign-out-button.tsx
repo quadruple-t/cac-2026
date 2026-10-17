@@ -20,9 +20,9 @@ export function SignOutButton() {
       type="button"
       onClick={handleSignOut}
       disabled={submitting}
-      className="w-fit rounded-lg border border-[#e4d9cf] bg-white px-4 py-2.5 font-semibold text-[#2a201a] transition-colors hover:bg-[#f2ece5] disabled:opacity-60"
+      className="ac-btn-ghost w-fit"
     >
-      Sign out
+      {submitting ? "Signing out…" : "Sign out"}
     </button>
   );
 }

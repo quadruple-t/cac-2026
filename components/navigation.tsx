@@ -36,7 +36,7 @@ export default function Navigation({ variant = 'solid' }: { variant?: 'solid' | 
       className={
         stage
           ? 'ac-nav-stage fixed inset-x-0 top-0 z-40 bg-[#f2ece5]/80 backdrop-blur-md'
-          : 'sticky top-0 z-20 border-b border-[#e4d9cf] bg-[#f2ece5]/85 shadow-[0_4px_20px_rgba(61,43,32,0.04)] backdrop-blur-sm'
+          : 'sticky top-0 z-20 border-b border-[#e4d9cf] bg-[#f2ece5]/85 backdrop-blur-md'
       }
     >
       <nav aria-label="Primary" className="mx-auto flex max-w-[1080px] items-center justify-between gap-2 px-[14px] py-3 sm:gap-4 sm:px-[22px]">
@@ -63,7 +63,7 @@ export default function Navigation({ variant = 'solid' }: { variant?: 'solid' | 
                 href={item.href}
                 className={`ac-nav-text group relative flex items-center whitespace-nowrap text-[0.83rem] font-medium no-underline transition-all ${
                   pathname === item.href
-                  ? 'rounded-full bg-[#eadbce] px-3 py-2 text-[1rem] text-[#895031] shadow-sm'
+                  ? 'rounded-full bg-[#eadbce] px-3 py-2 text-[1rem] text-[#895031]'
                     : 'rounded-full px-3 py-2 text-[1rem] text-[#6b5a4e] hover:bg-[#f7efe8] hover:text-[#2a201a]'
                 }`}
               >

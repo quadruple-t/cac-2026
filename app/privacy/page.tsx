@@ -1,5 +1,7 @@
 import Link from "next/link";
 import Navigation from "@/components/navigation";
+import { PageHeader } from "@/components/page-header";
+import SiteFooter from "@/components/site-footer";
 
 export const metadata = {
   title: "Privacy",
@@ -65,38 +67,32 @@ export default function PrivacyPage() {
       <Navigation />
 
       <main className="flex-1">
-        <section className="mx-auto max-w-[720px] px-[22px] py-[66px]">
-          <div className="mb-[34px] text-center">
-            <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-              Privacy
-            </p>
-            <h1 className="ac-reveal mb-4 font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610]">
-              Your information, in plain language
-            </h1>
-            <p className="ac-reveal-2 text-[#6b5a4e]">
-              Last updated October 14, 2026
-            </p>
-          </div>
+        <div className="ac-page ac-page-narrow">
+          <PageHeader
+            kicker="Privacy policy"
+            title="Your information, in plain language"
+            lead="Why we ask you to sign in, what we save, and how you can delete it."
+          >
+            <p className="ac-note m-0">Last updated October 14, 2026</p>
+          </PageHeader>
 
-          <div className="ac-reveal-2 flex flex-col gap-4">
+          <div className="max-w-[68ch]">
             {sections.map((section) => (
               <section
                 key={section.title}
-                className="rounded-[14px] border border-[#e4d9cf] bg-[#faf6f1] p-6"
+                className="border-t border-[#e4d9cf] py-8"
               >
-                <h2 className="mb-3 font-serif text-[1.2rem] font-medium text-[#1f1610]">
-                  {section.title}
-                </h2>
+                <h2 className="ac-h3 mb-3!">{section.title}</h2>
                 {section.body?.map((paragraph) => (
                   <p
                     key={paragraph}
-                    className="mb-3 text-[0.95rem] leading-relaxed text-[#6b5a4e] last:mb-0"
+                    className="mb-4 text-[1.05rem] leading-relaxed text-[#55483d] last:mb-0"
                   >
                     {paragraph}
                   </p>
                 ))}
                 {section.list && (
-                  <ul className="m-0 flex list-disc flex-col gap-2 pl-5 text-[0.95rem] leading-relaxed text-[#6b5a4e]">
+                  <ul className="ac-points text-[1.05rem] leading-relaxed text-[#55483d]">
                     {section.list.map((item) => (
                       <li key={item}>{item}</li>
                     ))}
@@ -104,15 +100,16 @@ export default function PrivacyPage() {
                 )}
               </section>
             ))}
-          </div>
 
-          <p className="mt-8 text-center text-sm text-[#6b5a4e]">
-            <Link href="/" className="font-semibold text-[#3d2b20]">
-              Back to home
-            </Link>
-          </p>
-        </section>
+            <p className="mt-10 border-t border-[#e4d9cf] pt-8 text-[1rem]">
+              <Link href="/" className="ac-link">
+                Back to home
+              </Link>
+            </p>
+          </div>
+        </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }

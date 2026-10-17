@@ -17,7 +17,7 @@ interface AidDashboardProps {
   onStatusChange?: (programId: string, status: ApplicationStatus) => void;
 }
 
-export default function AidDashboard({ programs, userSituation, applicationStatuses = {}, onStatusChange }: AidDashboardProps) {
+export default function AidDashboard({ programs, applicationStatuses = {}, onStatusChange }: AidDashboardProps) {
   const [expandedProgram, setExpandedProgram] = useState<string | null>(null);
   const [localStatuses, setLocalStatuses] = useState<Record<string, ApplicationStatus>>(applicationStatuses);
   const [pinnedPrograms, setPinnedPrograms] = useState<string[]>([]);
@@ -101,52 +101,41 @@ export default function AidDashboard({ programs, userSituation, applicationStatu
   } as const;
 
   const statusLabels = {
-    not_applied: 'Not Applied',
+    not_applied: 'Not applied',
     applied: 'Applied',
     approved: 'Approved',
-    received: 'Received Funds'
+    received: 'Received funds'
   };
 
+  // The page that renders this list owns the heading (county, count, and
+  // ranking note), so this component is just the grid of program cards.
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-          Your results
-        </p>
-        <h2 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-          Programs that may fit
-        </h2>
-        <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-          Based on your situation in {userSituation?.county || 'your area'}, here are {programs.length} programs to explore.
-        </p>
-        <div className="mx-auto mt-5 flex w-fit items-center gap-2 rounded-full border border-[#d8b9a4] bg-[#fffaf5] px-3 py-1.5 text-xs font-semibold text-[#895031]">
-          <span className="text-base leading-none">✦</span> Ranked by fit and deadline
+    <div>
+      {programs.length > 0 && (
+        <div className="grid items-start gap-5 md:grid-cols-2">
+          {programs.map((program) => (
+            <ProgramCard
+              key={program.id}
+              program={program}
+              isExpanded={expandedProgram === program.id}
+              onToggle={() => toggleExpand(program.id)}
+              status={localStatuses[program.id] || 'not_applied'}
+              onStatusChange={(status) => handleStatusChange(program.id, status)}
+              statusTone={statusTones[localStatuses[program.id] || 'not_applied']}
+              statusLabel={statusLabels[localStatuses[program.id] || 'not_applied']}
+              isPinned={pinnedPrograms.includes(program.id)}
+              onPin={() => togglePin(program.id)}
+            />
+          ))}
         </div>
-      </div>
-
-      {/* Programs Grid */}
-      <div className="ac-reveal-3 grid md:grid-cols-2 gap-6">
-        {programs.map((program) => (
-          <ProgramCard
-            key={program.id}
-            program={program}
-            isExpanded={expandedProgram === program.id}
-            onToggle={() => toggleExpand(program.id)}
-            status={localStatuses[program.id] || 'not_applied'}
-            onStatusChange={(status) => handleStatusChange(program.id, status)}
-            statusTone={statusTones[localStatuses[program.id] || 'not_applied']}
-            statusLabel={statusLabels[localStatuses[program.id] || 'not_applied']}
-            isPinned={pinnedPrograms.includes(program.id)}
-            onPin={() => togglePin(program.id)}
-          />
-        ))}
-      </div>
+      )}
 
       {programs.length === 0 && (
-        <div className="bg-[#faf6f1] rounded-[14px] p-8 text-center border border-[#e4d9cf]">
-          <p className="text-[#6b5a4e] text-[1.05rem]">
-            No programs matched your specific situation. Try adjusting your criteria or contact NC 211 for personalized assistance.
+        <div className="ac-card max-w-2xl">
+          <h2 className="ac-h3">No programs matched yet</h2>
+          <p className="ac-muted m-0">
+            None of the programs we track matched your answers. Try changing your answers, or call NC 211 for
+            personal help finding assistance.
           </p>
         </div>
       )}
@@ -167,35 +156,37 @@ interface ProgramCardProps {
 }
 
 function ProgramCard({ program, isExpanded, onToggle, status, onStatusChange, statusTone, statusLabel, isPinned, onPin }: ProgramCardProps) {
+  const statusId = `status-${program.id}`;
   return (
-    <div className="ac-lift bg-[#faf6f1] rounded-[18px] border border-[#e4d9cf] overflow-hidden">
-      {/* Card Header */}
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1">
-            <h3 className="font-serif text-[1.15rem] font-medium text-[#1f1610] mb-1">
+    <article className="ac-card ac-card-flush">
+      <div className="p-5 sm:p-6">
+        <div className="mb-3 flex items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <h3 className="ac-h3">
               {program.name}
             </h3>
-            <p className="text-[#6b5a4e] text-[0.92rem]">{program.agency}</p>
+            <p className="ac-muted m-0 text-[0.95rem]">{program.agency}</p>
           </div>
-          <div className="flex flex-col items-end gap-2">
-            <button
-              onClick={onPin}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                isPinned 
-                  ? 'bg-[#b0673f] text-white' 
-                  : 'bg-[#f2ece5] text-[#6b5a4e] hover:bg-[#e4d9cf]'
-              }`}
-              aria-label={isPinned ? 'Unpin program' : 'Pin program'}
-            >
-              <PinIcon className="w-3.5 h-3.5" />
-              {isPinned ? 'Pinned' : 'Pin'}
-            </button>
-            <CompassStatus tone={statusTone} label={statusLabel} />
-          </div>
+          <button
+            type="button"
+            onClick={onPin}
+            className={`inline-flex min-h-[44px] flex-none items-center gap-1.5 rounded-[10px] border px-3 text-[0.92rem] font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#b0673f] ${
+              isPinned
+                ? 'border-[#3d2b20] bg-[#3d2b20] text-white hover:bg-[#241811]'
+                : 'border-[#e4d9cf] bg-white text-[#1f1610] hover:border-[#c99a7d]'
+            }`}
+            aria-label={isPinned ? 'Unpin program' : 'Pin program'}
+          >
+            <PinIcon className="h-3.5 w-3.5" />
+            {isPinned ? 'Pinned' : 'Pin'}
+          </button>
         </div>
 
-        <p className="text-[#6b5a4e] text-[1.05rem] leading-relaxed mb-4">
+        <div className="mb-4">
+          <CompassStatus tone={statusTone} label={statusLabel} />
+        </div>
+
+        <p className="mb-4 text-[1rem] leading-relaxed text-[#55483d]">
           {program.description}
         </p>
 
@@ -204,87 +195,87 @@ function ProgramCard({ program, isExpanded, onToggle, status, onStatusChange, st
             href={program.matchReason.sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="block mb-4 text-[0.9rem] italic text-[#895031] hover:text-[#b0673f] leading-relaxed underline decoration-[#e4d9cf] underline-offset-2"
+            className="mb-4 block border-l-2 border-[#b0673f] pl-3 text-[0.92rem] leading-relaxed text-[#895031] underline decoration-[#d8b9a4] underline-offset-2 hover:text-[#3d2b20]"
           >
             {program.matchReason.sentence}
           </a>
         )}
 
-        {/* Key Details */}
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center text-sm text-[#6b5a4e]">
-            <AmountIcon className="mr-2 text-[#b0673f]" />
+        {/* Key details */}
+        <ul className="mb-5 grid list-none gap-2 border-y border-[#eadfd4] py-3 pl-0 text-[0.95rem] text-[#55483d]">
+          <li className="flex items-center gap-2.5">
+            <AmountIcon className="text-[#895031]" />
             <span>{program.maxAmount}</span>
-          </div>
-          <div className="flex items-center text-sm text-[#6b5a4e]">
-            <ClockIcon className="mr-2 text-[#b0673f]" />
+          </li>
+          <li className="flex items-center gap-2.5">
+            <ClockIcon className="text-[#895031]" />
             <span>{program.deadline}</span>
-          </div>
-          <div className="flex items-center text-sm text-[#6b5a4e]">
-            <DocumentIcon className="mr-2 text-[#b0673f]" />
+          </li>
+          <li className="flex items-center gap-2.5">
+            <DocumentIcon className="text-[#895031]" />
             <span>{program.requiredDocuments.length} documents required</span>
-          </div>
-        </div>
+          </li>
+        </ul>
 
-        {/* Status Tracker */}
+        {/* Status tracker */}
         <div className="mb-4">
-          <label className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2">
-            Application Status
+          <label htmlFor={statusId} className="ac-label">
+            Application status
           </label>
           <select
+            id={statusId}
             value={status}
             onChange={(e) => onStatusChange(e.target.value as ApplicationStatus)}
-            className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+            className="ac-input"
           >
-            <option value="not_applied">Not Applied</option>
+            <option value="not_applied">Not applied</option>
             <option value="applied">Applied</option>
             <option value="approved">Approved</option>
-            <option value="received">Received Funds</option>
+            <option value="received">Received funds</option>
           </select>
         </div>
 
         <button
+          type="button"
           onClick={onToggle}
-          className="w-full bg-[#b0673f] text-white py-3 px-6 rounded-[10px] font-semibold text-[1.05rem] hover:bg-[#895031] transition-colors"
+          aria-expanded={isExpanded}
+          className="ac-btn-ghost w-full"
         >
-          {isExpanded ? 'Show Less' : 'View Details'}
+          {isExpanded ? 'Hide documents' : 'See documents and apply'}
         </button>
       </div>
 
-      {/* Expanded Content */}
+      {/* Expanded content */}
       {isExpanded && (
-        <div className="px-6 pb-6 border-t border-[#e4d9cf] pt-6">
-          <h4 className="text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-3">
-            Required Documents
+        <div className="border-t border-[#e4d9cf] px-5 pb-6 pt-5 sm:px-6">
+          <h4 className="mb-3 font-serif text-[1.15rem] font-medium text-[#1f1610]">
+            Documents you&apos;ll need
           </h4>
-          
+
           {(() => {
             const groupedDocs = groupDocumentsByCategory(program.requiredDocuments);
             const categoryLabels: Record<string, string> = {
               identification: 'Identification',
-              proof_of_ownership: 'Proof of Ownership/Occupancy',
-              financial: 'Financial Documents',
-              damage: 'Damage Documentation',
-              insurance: 'Insurance Information',
-              other: 'Other Documents',
+              proof_of_ownership: 'Proof of ownership or occupancy',
+              financial: 'Financial documents',
+              damage: 'Damage documentation',
+              insurance: 'Insurance information',
+              other: 'Other documents',
             };
-            
+
             return Object.entries(groupedDocs).map(([category, docs]) => {
               if (docs.length === 0) return null;
-              
+
               return (
-                <div key={category} className="mb-4">
-                  <h5 className="font-semibold text-[#1f1610] text-sm mb-2">
+                <div key={category} className="mb-5">
+                  <h5 className="mb-2 text-[0.95rem] font-bold text-[#1f1610]">
                     {categoryLabels[category] || category}
                   </h5>
-                  <ul className="space-y-2">
+                  <ul className="ac-points">
                     {docs.map(doc => (
-                      <li key={doc.id} className="flex items-start gap-2">
-                        <span className="text-[#b0673f] mt-0.5 text-sm">•</span>
-                        <div>
-                          <p className="text-[#1f1610] text-[0.98rem] font-medium">{doc.name}</p>
-                          <p className="text-[#6b5a4e] text-[0.9rem]">{doc.description}</p>
-                        </div>
+                      <li key={doc.id}>
+                        <p className="m-0 text-[0.98rem] font-semibold text-[#1f1610]">{doc.name}</p>
+                        <p className="m-0 text-[0.92rem] text-[#6b5a4e]">{doc.description}</p>
                       </li>
                     ))}
                   </ul>
@@ -297,12 +288,12 @@ function ProgramCard({ program, isExpanded, onToggle, status, onStatusChange, st
             href={program.applicationUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="block w-full bg-[#b0673f] text-white py-3 px-6 rounded-[10px] font-semibold text-[1.05rem] hover:bg-[#895031] transition-colors text-center"
+            className="ac-btn mt-1 w-full"
           >
-            Apply Now →
+            Apply on the program&apos;s site
           </a>
         </div>
       )}
-    </div>
+    </article>
   );
 }

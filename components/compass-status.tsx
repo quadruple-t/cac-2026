@@ -36,7 +36,7 @@ export function CompassStatus({
 
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full border bg-white px-2.5 py-1 text-[0.7rem] font-medium uppercase tracking-[0.04em]"
+      className="inline-flex flex-none items-center gap-1.5 whitespace-nowrap rounded-full border bg-white px-2.5 py-1 text-[0.8rem] font-semibold"
       style={{ borderColor: needleColor, color: needleColor }}
     >
       <svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true" className="flex-none">

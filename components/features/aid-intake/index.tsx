@@ -35,21 +35,21 @@ const SECTIONS: SectionMeta[] = [
   {
     id: 'applicantType',
     number: 2,
-    title: 'Applicant Type',
+    title: 'Applicant type',
     description: 'Who is applying for assistance.',
     getFields: getApplicantTypeFields,
   },
   {
     id: 'damageNeeds',
     number: 3,
-    title: 'Damage and Needs Assessment',
+    title: 'Damage and needs',
     description: 'What was affected, and what kind of help you need.',
     getFields: getDamageNeedsFields,
   },
   {
     id: 'insuranceRecovery',
     number: 4,
-    title: 'Insurance, Prior Assistance, and Recovery Status',
+    title: 'Insurance, prior help, and recovery',
     description: 'Your coverage, claims, and what still needs help.',
     getFields: getInsuranceRecoveryFields,
   },
@@ -139,31 +139,20 @@ export default function AidIntakeForm({ onSubmit, initialData, onCancel, submitL
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <h2 className="font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-        Tell Us About Your Situation
-      </h2>
-      <p className="text-[#6b5a4e] mb-6 text-[1.05rem] leading-relaxed">
-        We&apos;ll use this information to match you with the right aid programs.
-      </p>
-
-      <div className="mb-8 rounded-[18px] border border-[#d8b9a4] bg-[linear-gradient(135deg,#fffaf5,#f3e4d8)] p-5 shadow-[0_12px_28px_rgba(61,43,32,0.08)]">
-        <div className="mb-3 flex items-center justify-between text-sm">
-          <span className="font-semibold text-[#3d2b20]">Your matching profile</span>
-          <span className="font-medium text-[#895031]">{progress.answered}/{progress.total} answered</span>
+    <div className="max-w-3xl">
+      <div className="mb-6 border-b border-[#e4d9cf] pb-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+          <h2 className="ac-h3">Tell us about your situation</h2>
+          <span className="text-[0.95rem] font-semibold text-[#895031]">
+            {progress.answered} of {progress.total} answered
+          </span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-[#eadbce]">
-          <div className="h-full rounded-full bg-[linear-gradient(90deg,#b0673f,#d08a62)] transition-all" style={{ width: `${progress.total ? (progress.answered / progress.total) * 100 : 0}%` }} />
+        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#e4d9cf]">
+          <div className="h-full rounded-full bg-[#b0673f] transition-[width] duration-300" style={{ width: `${progress.total ? (progress.answered / progress.total) * 100 : 0}%` }} />
         </div>
-        <p className="mt-3 text-sm text-[#6b5a4e]">Every answer helps us narrow the search. Skip anything you&apos;d rather not share.</p>
-      </div>
-
-      {/* Disclaimer */}
-      <div className="mb-8 rounded-[14px] border border-[#e4d9cf] bg-[#faf6f1] px-5 py-4 flex gap-3">
-        <span className="text-[#b0673f] text-lg leading-none" aria-hidden="true">i</span>
-        <p className="text-[#6b5a4e] text-[0.95rem] leading-relaxed">
-          Every question below is optional. Answer only what you&apos;re comfortable sharing to stay secure —
-          the more information you provide, the more accurate your results will be.
+        <p className="ac-note mt-3 mb-0">
+          We use your answers to match you with aid programs. Every question is optional, so skip anything
+          you&apos;d rather not share. The more you answer, the closer the matches.
         </p>
       </div>
 
@@ -173,44 +162,45 @@ export default function AidIntakeForm({ onSubmit, initialData, onCancel, submitL
           const { answered, total } = answeredCount(section);
 
           return (
-            <div
-              key={section.id}
-              className={`ac-lift rounded-[14px] border bg-white overflow-hidden ${isOpen ? 'border-[#c99a7d] shadow-[0_12px_28px_rgba(61,43,32,0.08)]' : 'border-[#e4d9cf]'}`}
-            >
+            <div key={section.id} className="ac-card ac-card-flush">
               <button
                 type="button"
                 onClick={() => toggleSection(section.id)}
                 aria-expanded={isOpen}
-                className="w-full flex items-center justify-between px-6 py-5 text-left"
+                className="flex w-full items-center justify-between gap-4 rounded-[16px] px-5 py-5 text-left focus-visible:outline-3 focus-visible:-outline-offset-3 focus-visible:outline-[#b0673f] sm:px-6"
               >
                 <div className="flex items-center gap-4">
-                  <span className={`flex h-9 w-9 flex-none items-center justify-center rounded-full text-white text-[0.9rem] font-semibold shadow-sm ${isOpen ? 'bg-[#b0673f]' : 'bg-[#3d2b20]'}`}>
+                  <span className={`flex h-9 w-9 flex-none items-center justify-center rounded-full font-serif text-[1.05rem] font-medium text-white ${isOpen ? 'bg-[#a85f38]' : 'bg-[#3d2b20]'}`}>
                     {section.number}
                   </span>
                   <div>
-                    <h3 className="font-serif text-[1.15rem] font-medium text-[#1f1610]">
+                    <h3 className="ac-h3 mb-0">
                       {section.title}
                     </h3>
-                    <p className="text-[#6b5a4e] text-[0.9rem]">{section.description}</p>
+                    <p className="ac-note m-0">{section.description}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 flex-none">
+                <div className="flex flex-none items-center gap-3">
                   {answered > 0 && (
-                    <span className="text-[0.75rem] font-medium text-[#895031] bg-[#f2ece5] rounded-full px-2.5 py-1">
+                    <span className="hidden text-[0.88rem] font-semibold text-[#895031] sm:inline">
                       {answered} of {total} answered
                     </span>
                   )}
-                  <span
-                    className={`text-[#895031] transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 16 16"
+                    fill="none"
                     aria-hidden="true"
+                    className={`flex-none text-[#895031] transition-transform ${isOpen ? 'rotate-180' : ''}`}
                   >
-                    ▾
-                  </span>
+                    <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </div>
               </button>
 
               {isOpen && (
-                <div className="px-6 pb-6 border-t border-[#e4d9cf] pt-6 space-y-6">
+                <div className="space-y-6 border-t border-[#e4d9cf] px-5 pb-6 pt-6 sm:px-6">
                   {section.id === 'location' && (
                     <LocationFields formData={formData} setField={setField} />
                   )}
@@ -229,22 +219,17 @@ export default function AidIntakeForm({ onSubmit, initialData, onCancel, submitL
           );
         })}
 
-        <button
-          type="submit"
-          className="ac-sheen ac-cta w-full text-white py-3.5 px-6 rounded-[10px] font-semibold text-[1.05rem] hover:-translate-y-0.5 focus:ring-2 focus:ring-[#b0673f] focus:ring-offset-2 transition-all"
-        >
-          {submitLabel ?? 'Find My Eligible Programs'}
-        </button>
-
-        {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="w-full text-center text-[#895031] hover:text-[#6b5a4e] font-medium text-sm"
-          >
-            Cancel
+        <div className="flex flex-col gap-3 pt-4 sm:flex-row">
+          <button type="submit" className="ac-btn w-full sm:w-auto">
+            {submitLabel ?? 'Find programs that may fit'}
           </button>
-        )}
+
+          {onCancel && (
+            <button type="button" onClick={onCancel} className="ac-btn-ghost w-full sm:w-auto">
+              Cancel
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );
@@ -271,7 +256,7 @@ function SelectField({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+      <label htmlFor={id} className="ac-label">
         {label}
       </label>
       <select
@@ -279,7 +264,7 @@ function SelectField({
         name={id}
         value={value || ''}
         onChange={e => onChange(e.target.value)}
-        className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+        className="ac-input"
       >
         <option value="">Prefer not to say</option>
         {options.map(opt => (
@@ -301,27 +286,27 @@ function YesNoField({
 }) {
   return (
     <div>
-      <label className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+      <label className="ac-label">
         {label}
       </label>
-      <div className="flex space-x-6">
-        <label className="flex items-center space-x-2">
+      <div className="flex gap-6">
+        <label className="flex min-h-[44px] cursor-pointer items-center gap-2.5">
           <input
             type="radio"
             checked={value === true}
             onChange={() => onChange(true)}
-            className="w-5 h-5 text-[#b0673f] border-[#e4d9cf] focus:ring-[#b0673f]"
+            className="h-5 w-5 flex-none cursor-pointer accent-[#b0673f]"
           />
-          <span className="text-[1.05rem] text-[#2a201a]">Yes</span>
+          <span className="text-[1rem] text-[#1f1610]">Yes</span>
         </label>
-        <label className="flex items-center space-x-2">
+        <label className="flex min-h-[44px] cursor-pointer items-center gap-2.5">
           <input
             type="radio"
             checked={value === false}
             onChange={() => onChange(false)}
-            className="w-5 h-5 text-[#b0673f] border-[#e4d9cf] focus:ring-[#b0673f]"
+            className="h-5 w-5 flex-none cursor-pointer accent-[#b0673f]"
           />
-          <span className="text-[1.05rem] text-[#2a201a]">No</span>
+          <span className="text-[1rem] text-[#1f1610]">No</span>
         </label>
       </div>
     </div>
@@ -351,11 +336,11 @@ function MultiSelectGroup({
   };
   return (
     <div>
-      <label className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+      <label className="ac-label">
         {label}
-        {max && <span className="normal-case font-normal text-[#6b5a4e]"> (choose up to {max})</span>}
+        {max && <span className="font-normal text-[#6b5a4e]"> (choose up to {max})</span>}
       </label>
-      <div className="flex flex-wrap gap-x-6 gap-y-2">
+      <div className="flex flex-wrap gap-x-6">
         {options.map(option => {
           const checked = selected.includes(option);
           const disabled = !checked && !!max && selected.length >= max;
@@ -366,9 +351,9 @@ function MultiSelectGroup({
                 checked={checked}
                 disabled={disabled}
                 onChange={() => toggle(option)}
-                className="w-5 h-5 text-[#b0673f] border-[#e4d9cf] rounded focus:ring-[#b0673f] focus:ring-offset-2"
+                className="h-5 w-5 flex-none cursor-pointer accent-[#b0673f]"
               />
-              <span className="text-[1.05rem] text-[#2a201a]">{option}</span>
+              <span className="text-[1rem] text-[#1f1610]">{option}</span>
             </label>
           );
         })}
@@ -388,7 +373,7 @@ function LocationFields({ formData, setField }: FieldsProps) {
   return (
     <>
       <div>
-        <label htmlFor="county" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+        <label htmlFor="county" className="ac-label">
           What county are you in?
         </label>
         <input
@@ -397,13 +382,13 @@ function LocationFields({ formData, setField }: FieldsProps) {
           name="county"
           value={formData.county || ''}
           onChange={e => setField('county', e.target.value)}
-          className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+          className="ac-input"
           placeholder="e.g., Buncombe County"
         />
       </div>
 
       <div>
-        <label htmlFor="city" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+        <label htmlFor="city" className="ac-label">
           What city are you in?
         </label>
         <input
@@ -412,13 +397,13 @@ function LocationFields({ formData, setField }: FieldsProps) {
           name="city"
           value={formData.city || ''}
           onChange={e => setField('city', e.target.value)}
-          className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+          className="ac-input"
           placeholder="e.g., Asheville"
         />
       </div>
 
       <div>
-        <label htmlFor="zipCode" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+        <label htmlFor="zipCode" className="ac-label">
           What is your ZIP code?
         </label>
         <input
@@ -427,7 +412,7 @@ function LocationFields({ formData, setField }: FieldsProps) {
           name="zipCode"
           value={formData.zipCode || ''}
           onChange={e => setField('zipCode', e.target.value)}
-          className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+          className="ac-input"
           placeholder="e.g., 28801"
           inputMode="numeric"
           pattern="[0-9]{5}(-[0-9]{4})?"
@@ -435,7 +420,7 @@ function LocationFields({ formData, setField }: FieldsProps) {
       </div>
 
       <div>
-        <label htmlFor="address" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+        <label htmlFor="address" className="ac-label">
           What is your street address?
         </label>
         <input
@@ -444,21 +429,21 @@ function LocationFields({ formData, setField }: FieldsProps) {
           name="address"
           value={formData.address || ''}
           onChange={e => setField('address', e.target.value)}
-          className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+          className="ac-input"
           placeholder="e.g., 123 Main St"
         />
       </div>
 
       <div>
-        <label className="flex items-center space-x-3">
+        <label className="flex min-h-[44px] cursor-pointer items-center gap-3">
           <input
             type="checkbox"
             name="disasterAtThisAddress"
             checked={formData.disasterAtThisAddress !== false}
             onChange={e => setField('disasterAtThisAddress', e.target.checked)}
-            className="w-5 h-5 text-[#b0673f] border-[#e4d9cf] rounded focus:ring-[#b0673f] focus:ring-offset-2"
+            className="h-5 w-5 flex-none cursor-pointer accent-[#b0673f]"
           />
-          <span className="text-[1.05rem] font-medium text-[#2a201a]">
+          <span className="text-[1rem] font-semibold text-[#1f1610]">
             Did the disaster happen at this address?
           </span>
         </label>
@@ -466,7 +451,7 @@ function LocationFields({ formData, setField }: FieldsProps) {
 
       {formData.disasterAtThisAddress === false && (
         <div>
-          <label htmlFor="disasterLocation" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+          <label htmlFor="disasterLocation" className="ac-label">
             Where did the disaster happen?
           </label>
           <input
@@ -475,7 +460,7 @@ function LocationFields({ formData, setField }: FieldsProps) {
             name="disasterLocation"
             value={formData.disasterLocation || ''}
             onChange={e => setField('disasterLocation', e.target.value)}
-            className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+            className="ac-input"
             placeholder="e.g., 456 Oak St, Asheville, NC 28801"
           />
         </div>
@@ -508,7 +493,7 @@ function ApplicantTypeFields({ formData, setField }: FieldsProps) {
   return (
     <>
       <div>
-        <label htmlFor="applicantCategory" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+        <label htmlFor="applicantCategory" className="ac-label">
           Are you applying as an individual, household, business, nonprofit, farmer, or property owner?
         </label>
         <select
@@ -516,7 +501,7 @@ function ApplicantTypeFields({ formData, setField }: FieldsProps) {
           name="applicantCategory"
           value={formData.applicantCategory || ''}
           onChange={e => setField('applicantCategory', e.target.value as UserSituation['applicantCategory'])}
-          className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+          className="ac-input"
         >
           <option value="">Prefer not to say</option>
           <option value="individual">Individual</option>
@@ -524,14 +509,14 @@ function ApplicantTypeFields({ formData, setField }: FieldsProps) {
           <option value="business">Business</option>
           <option value="nonprofit">Nonprofit</option>
           <option value="farmer">Farmer</option>
-          <option value="property_owner">Property Owner</option>
+          <option value="property_owner">Property owner</option>
         </select>
       </div>
 
       {!isEntityApplicant && (
         <>
           <div>
-            <label htmlFor="housingStatus" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+            <label htmlFor="housingStatus" className="ac-label">
               Are you a homeowner, renter, landlord, or currently unhoused?
             </label>
             <select
@@ -539,7 +524,7 @@ function ApplicantTypeFields({ formData, setField }: FieldsProps) {
               name="housingStatus"
               value={formData.housingStatus || ''}
               onChange={e => setField('housingStatus', e.target.value as UserSituation['housingStatus'])}
-              className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+              className="ac-input"
             >
               <option value="">Prefer not to say</option>
               <option value="homeowner">Homeowner</option>
@@ -550,7 +535,7 @@ function ApplicantTypeFields({ formData, setField }: FieldsProps) {
           </div>
 
           <div>
-            <label htmlFor="ageRange" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+            <label htmlFor="ageRange" className="ac-label">
               What is your age range?
             </label>
             <select
@@ -558,7 +543,7 @@ function ApplicantTypeFields({ formData, setField }: FieldsProps) {
               name="ageRange"
               value={formData.ageRange || ''}
               onChange={e => setField('ageRange', e.target.value as UserSituation['ageRange'])}
-              className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+              className="ac-input"
             >
               <option value="">Prefer not to say</option>
               <option value="18-24">18-24</option>
@@ -570,7 +555,7 @@ function ApplicantTypeFields({ formData, setField }: FieldsProps) {
 
           {formData.applicantCategory !== 'individual' && (
             <div>
-              <label htmlFor="householdSize" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+              <label htmlFor="householdSize" className="ac-label">
                 How many people are in your household?
               </label>
               <input
@@ -580,41 +565,41 @@ function ApplicantTypeFields({ formData, setField }: FieldsProps) {
                 min={1}
                 value={formData.householdSize ?? ''}
                 onChange={e => setField('householdSize', e.target.value ? Number(e.target.value) : undefined)}
-                className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+                className="ac-input"
                 placeholder="e.g., 4"
               />
             </div>
           )}
 
           <div>
-            <label className="flex items-center space-x-3">
+            <label className="flex min-h-[44px] cursor-pointer items-center gap-3">
               <input
                 type="checkbox"
                 name="hasDisabilityOrMedicalNeed"
                 checked={formData.hasDisabilityOrMedicalNeed === true}
                 onChange={e => setField('hasDisabilityOrMedicalNeed', e.target.checked)}
-                className="w-5 h-5 text-[#b0673f] border-[#e4d9cf] rounded focus:ring-[#b0673f] focus:ring-offset-2"
+                className="h-5 w-5 flex-none cursor-pointer accent-[#b0673f]"
               />
-              <span className="text-[1.05rem] font-medium text-[#2a201a]">
+              <span className="text-[1rem] font-semibold text-[#1f1610]">
                 Does anyone in your household have a disability, mobility limitation, or medical need?
               </span>
             </label>
           </div>
 
           <div>
-            <label className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+            <label className="ac-label">
               Is anyone in the household a veteran, senior, child, or pregnant person?
             </label>
-            <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <div className="flex flex-wrap gap-x-6">
               {VULNERABLE_POPULATIONS.map(({ value, label }) => (
-                <label key={value} className="flex items-center space-x-2">
+                <label key={value} className="flex min-h-[44px] cursor-pointer items-center gap-2.5">
                   <input
                     type="checkbox"
                     checked={(formData.vulnerablePopulations ?? []).includes(value)}
                     onChange={() => toggleVulnerablePopulation(value)}
-                    className="w-5 h-5 text-[#b0673f] border-[#e4d9cf] rounded focus:ring-[#b0673f] focus:ring-offset-2"
+                    className="h-5 w-5 flex-none cursor-pointer accent-[#b0673f]"
                   />
-                  <span className="text-[1.05rem] text-[#2a201a]">{label}</span>
+                  <span className="text-[1rem] text-[#1f1610]">{label}</span>
                 </label>
               ))}
             </div>
@@ -623,7 +608,7 @@ function ApplicantTypeFields({ formData, setField }: FieldsProps) {
       )}
 
       <div>
-        <label htmlFor="ownershipStatus" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+        <label htmlFor="ownershipStatus" className="ac-label">
           Do you own or rent?
         </label>
         <select
@@ -631,7 +616,7 @@ function ApplicantTypeFields({ formData, setField }: FieldsProps) {
           name="ownershipStatus"
           value={formData.ownershipStatus || ''}
           onChange={e => setField('ownershipStatus', e.target.value as UserSituation['ownershipStatus'])}
-          className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+          className="ac-input"
         >
           <option value="">Prefer not to say</option>
           <option value="owner">Owner</option>
@@ -641,35 +626,35 @@ function ApplicantTypeFields({ formData, setField }: FieldsProps) {
       </div>
 
       <div>
-        <label htmlFor="isFarmer" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+        <label htmlFor="isFarmer" className="ac-label">
           Are you a farmer or do you own agricultural land?
         </label>
-        <div className="flex space-x-6">
-          <label className="flex items-center space-x-2">
+        <div className="flex gap-6">
+          <label className="flex min-h-[44px] cursor-pointer items-center gap-2.5">
             <input
               type="radio"
               name="isFarmer"
               checked={formData.isFarmer === true}
               onChange={() => setField('isFarmer', true)}
-              className="w-5 h-5 text-[#b0673f] border-[#e4d9cf] focus:ring-[#b0673f]"
+              className="h-5 w-5 flex-none cursor-pointer accent-[#b0673f]"
             />
-            <span className="text-[1.05rem] text-[#2a201a]">Yes</span>
+            <span className="text-[1rem] text-[#1f1610]">Yes</span>
           </label>
-          <label className="flex items-center space-x-2">
+          <label className="flex min-h-[44px] cursor-pointer items-center gap-2.5">
             <input
               type="radio"
               name="isFarmer"
               checked={formData.isFarmer === false}
               onChange={() => setField('isFarmer', false)}
-              className="w-5 h-5 text-[#b0673f] border-[#e4d9cf] focus:ring-[#b0673f]"
+              className="h-5 w-5 flex-none cursor-pointer accent-[#b0673f]"
             />
-            <span className="text-[1.05rem] text-[#2a201a]">No</span>
+            <span className="text-[1rem] text-[#1f1610]">No</span>
           </label>
         </div>
       </div>
 
       <div>
-        <label htmlFor="incomeRange" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+        <label htmlFor="incomeRange" className="ac-label">
           What is your household income range?
         </label>
         <select
@@ -677,7 +662,7 @@ function ApplicantTypeFields({ formData, setField }: FieldsProps) {
           name="incomeRange"
           value={formData.incomeRange || ''}
           onChange={e => setField('incomeRange', e.target.value as UserSituation['incomeRange'])}
-          className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+          className="ac-input"
         >
           <option value="">Prefer not to say</option>
           <option value="low">Under $50,000</option>
@@ -694,17 +679,17 @@ type NeedCategory =
   | 'childcare' | 'medical' | 'employment' | 'business' | 'agricultural' | 'nonprofit';
 
 const NEED_CATEGORIES: { value: NeedCategory; label: string }[] = [
-  { value: 'home', label: 'Home Damage' },
-  { value: 'rental', label: 'Rental Housing Damage' },
-  { value: 'personal_property', label: 'Personal Property Loss' },
-  { value: 'vehicle', label: 'Vehicle and Transportation Damage' },
-  { value: 'utilities', label: 'Food, Utilities, and Essential Services' },
-  { value: 'childcare', label: 'Childcare Impact' },
-  { value: 'medical', label: 'Medical, Disability, and Funeral Needs' },
-  { value: 'employment', label: 'Employment and Income Loss' },
-  { value: 'business', label: 'Business Damage' },
-  { value: 'agricultural', label: 'Agricultural Damage' },
-  { value: 'nonprofit', label: 'Nonprofit Damage' },
+  { value: 'home', label: 'Home damage' },
+  { value: 'rental', label: 'Rental housing damage' },
+  { value: 'personal_property', label: 'Personal property loss' },
+  { value: 'vehicle', label: 'Vehicle and transportation damage' },
+  { value: 'utilities', label: 'Food, utilities, and essential services' },
+  { value: 'childcare', label: 'Childcare impact' },
+  { value: 'medical', label: 'Medical, disability, and funeral needs' },
+  { value: 'employment', label: 'Employment and income loss' },
+  { value: 'business', label: 'Business damage' },
+  { value: 'agricultural', label: 'Agricultural damage' },
+  { value: 'nonprofit', label: 'Nonprofit damage' },
 ];
 
 const GENERAL_IMPACT_FIELDS: (keyof UserSituation)[] = [
@@ -744,16 +729,16 @@ function allFieldsAnswered(formData: Partial<UserSituation>, fields: (keyof User
 
 /** Green once done, orange while actively being viewed (and not yet done), outline otherwise. */
 function checklistCircleClass(done: boolean, active: boolean): string {
-  if (done) return 'bg-[#10b981] border-[#10b981]';
+  if (done) return 'bg-[#3f7d5c] border-[#3f7d5c]';
   if (active) return 'bg-[#b0673f] border-[#b0673f]';
-  return 'border-[#e4d9cf]';
+  return 'border-[#c9b8a9] bg-white';
 }
 
 function GeneralImpactFields({ formData, setField }: FieldsProps) {
   return (
     <>
       <div>
-        <label htmlFor="damageDate" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+        <label htmlFor="damageDate" className="ac-label">
           When did the damage or loss occur?
         </label>
         <input
@@ -762,7 +747,7 @@ function GeneralImpactFields({ formData, setField }: FieldsProps) {
           name="damageDate"
           value={formData.damageDate || ''}
           onChange={e => setField('damageDate', e.target.value)}
-          className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+          className="ac-input"
         />
       </div>
 
@@ -819,15 +804,15 @@ function GeneralImpactFields({ formData, setField }: FieldsProps) {
       />
 
       <div>
-        <label className="flex items-center space-x-3">
+        <label className="flex min-h-[44px] cursor-pointer items-center gap-3">
           <input
             type="checkbox"
             name="hasInsurance"
             checked={formData.hasInsurance === true}
             onChange={e => setField('hasInsurance', e.target.checked)}
-            className="w-5 h-5 text-[#b0673f] border-[#e4d9cf] rounded focus:ring-[#b0673f] focus:ring-offset-2"
+            className="h-5 w-5 flex-none cursor-pointer accent-[#b0673f]"
           />
-          <span className="text-[1.05rem] font-medium text-[#2a201a]">
+          <span className="text-[1rem] font-semibold text-[#1f1610]">
             Do you have insurance (homeowners, renters, flood, or business)?
           </span>
         </label>
@@ -951,7 +936,7 @@ function HomeDamageFields({ formData, setField }: FieldsProps) {
         ]}
       />
 
-      <p className="text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[#895031] pt-2">Access &amp; Property</p>
+      <p className="m-0 border-t border-[#e4d9cf] pt-6 font-serif text-[1.15rem] font-medium text-[#1f1610]">Access and property</p>
 
       <MultiSelectGroup
         label="Was access to your home damaged?"
@@ -1233,7 +1218,7 @@ function ChildcareFields({ formData, setField }: FieldsProps) {
       />
 
       <div>
-        <label htmlFor="numberOfChildrenNeedingCare" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+        <label htmlFor="numberOfChildrenNeedingCare" className="ac-label">
           How many children need childcare assistance?
         </label>
         <input
@@ -1243,7 +1228,7 @@ function ChildcareFields({ formData, setField }: FieldsProps) {
           min={0}
           value={formData.numberOfChildrenNeedingCare ?? ''}
           onChange={e => setField('numberOfChildrenNeedingCare', e.target.value ? Number(e.target.value) : undefined)}
-          className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+          className="ac-input"
           placeholder="e.g., 2"
         />
       </div>
@@ -1671,12 +1656,12 @@ function DamageNeedsFields({ formData, setField }: FieldsProps) {
   };
 
   return (
-    <div className="flex gap-8 items-start">
-      <div className="flex-1 min-w-0 space-y-6">
+    <div className="flex flex-col gap-6 md:flex-row md:items-start md:gap-8">
+      <div className="min-w-0 flex-1 space-y-6">
         {activeView === null ? (
           <>
             <div>
-              <label htmlFor="primaryNeed" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+              <label htmlFor="primaryNeed" className="ac-label">
                 What is your primary need or type of damage?
               </label>
               <select
@@ -1684,7 +1669,7 @@ function DamageNeedsFields({ formData, setField }: FieldsProps) {
                 name="primaryNeed"
                 value={formData.primaryNeed || ''}
                 onChange={e => setPrimaryNeed(e.target.value)}
-                className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+                className="ac-input"
               >
                 <option value="">Select one</option>
                 {NEED_CATEGORIES.map(cat => (
@@ -1694,27 +1679,27 @@ function DamageNeedsFields({ formData, setField }: FieldsProps) {
             </div>
 
             <div>
-              <label className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+              <label className="ac-label">
                 Do you have any other needs or damage? Select all that apply.
               </label>
-              <div className="flex flex-wrap gap-x-6 gap-y-2">
+              <div className="flex flex-wrap gap-x-6">
                 {NEED_CATEGORIES.filter(cat => cat.value !== primaryNeed).map(cat => (
-                  <label key={cat.value} className="flex items-center space-x-2">
+                  <label key={cat.value} className="flex min-h-[44px] cursor-pointer items-center gap-2.5">
                     <input
                       type="checkbox"
                       checked={supplementaryNeeds.includes(cat.value)}
                       onChange={() => toggleSupplementaryNeed(cat.value)}
-                      className="w-5 h-5 text-[#b0673f] border-[#e4d9cf] rounded focus:ring-[#b0673f] focus:ring-offset-2"
+                      className="h-5 w-5 flex-none cursor-pointer accent-[#b0673f]"
                     />
-                    <span className="text-[1.05rem] text-[#2a201a]">{cat.label}</span>
+                    <span className="text-[1rem] text-[#1f1610]">{cat.label}</span>
                   </label>
                 ))}
               </div>
             </div>
 
             {(!primaryNeed && supplementaryNeeds.length === 0) && (
-              <p className="text-[#6b5a4e] text-[0.9rem]">
-                Pick a need above, then find it in the checklist on the right to answer its questions.
+              <p className="ac-note m-0">
+                Pick a need above, then choose it from your needs list to answer its questions.
               </p>
             )}
           </>
@@ -1723,20 +1708,23 @@ function DamageNeedsFields({ formData, setField }: FieldsProps) {
             <button
               type="button"
               onClick={() => setActiveView(null)}
-              className="text-[#895031] hover:text-[#6b5a4e] font-medium text-sm"
+              className="ac-link inline-flex min-h-[44px] items-center gap-1.5 text-[0.95rem] hover:text-[#3d2b20]"
             >
-              ← Edit your needs
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="flex-none">
+                <path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Edit your needs
             </button>
 
             {/* Clearly names whichever section is currently active, so it's
                 never ambiguous what the questions below belong to. */}
             <div className="border-b border-[#e4d9cf] pb-4">
-              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-[#895031] mb-1.5">
+              <p className="mb-1 text-[0.92rem] font-bold text-[#895031]">
                 You&apos;re answering
               </p>
-              <h3 className="font-serif text-[1.4rem] font-medium text-[#1f1610] flex items-center gap-2">
+              <h3 className="ac-h3 flex items-center gap-2">
                 {activeView === 'general' && <DocumentIcon className="text-[#b0673f]" />}
-                {activeView === 'general' ? 'General Impact' : NEED_CATEGORIES.find(c => c.value === activeView)?.label}
+                {activeView === 'general' ? 'General impact' : NEED_CATEGORIES.find(c => c.value === activeView)?.label}
               </h3>
             </div>
 
@@ -1755,9 +1743,9 @@ function DamageNeedsFields({ formData, setField }: FieldsProps) {
       {/* Read-only reflection of General Impact + the user's chosen needs —
           no input controls here. Clicking an item replaces whatever the main
           column is showing (the picker or another section) with that one. */}
-      <aside className="w-64 flex-none rounded-[14px] border border-[#e4d9cf] bg-[#faf6f1] p-5 sticky top-6">
-        <p className="text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-[#895031] mb-4">
-          Your Needs Checklist
+      <aside className="order-first w-full flex-none rounded-[12px] border border-[#e4d9cf] bg-white p-4 md:sticky md:top-24 md:order-none md:w-64">
+        <p className="mb-3 font-serif text-[1.1rem] font-medium text-[#1f1610]">
+          Your needs
         </p>
 
         {(() => {
@@ -1768,38 +1756,38 @@ function DamageNeedsFields({ formData, setField }: FieldsProps) {
               type="button"
               onClick={() => goToSection('general')}
               disabled={!primaryNeed}
-              className={`w-full flex items-center gap-2 rounded-[10px] px-2.5 py-2 mb-1 text-left transition-colors ${
-                generalActive ? 'bg-white' : 'hover:bg-white'
-              } disabled:hover:bg-transparent disabled:cursor-default`}
+              className={`mb-1 flex min-h-[44px] w-full items-center gap-2 rounded-[10px] px-2.5 py-2 text-left transition-colors ${
+                generalActive ? 'bg-[#f2ece5]' : 'hover:bg-[#f2ece5]'
+              } disabled:cursor-default disabled:hover:bg-transparent`}
             >
               <span
-                className={`flex h-4 w-4 flex-none items-center justify-center rounded-full border text-[0.6rem] text-white ${checklistCircleClass(generalDone, generalActive)}`}
+                className={`flex h-[18px] w-[18px] flex-none items-center justify-center rounded-full border text-[0.65rem] leading-none text-white ${checklistCircleClass(generalDone, generalActive)}`}
                 aria-hidden="true"
               >
                 {generalDone && !generalActive ? '✓' : ''}
               </span>
               <DocumentIcon className={generalActive ? 'text-[#b0673f]' : primaryNeed ? 'text-[#895031]' : 'text-[#b8ab9e]'} />
               <span
-                className={`flex-1 text-[0.85rem] ${generalActive ? 'font-bold' : 'font-semibold'} ${
-                  generalActive ? 'text-[#b0673f]' : primaryNeed ? 'text-[#1f1610]' : 'text-[#b8ab9e]'
+                className={`flex-1 text-[0.92rem] ${generalActive ? 'font-bold' : 'font-semibold'} ${
+                  generalActive ? 'text-[#895031]' : primaryNeed ? 'text-[#1f1610]' : 'text-[#a8988a]'
                 }`}
               >
-                General Impact
+                General impact
               </span>
               {generalActive && (
-                <span className="text-[0.6rem] font-semibold uppercase tracking-wide text-[#b0673f]">Viewing</span>
+                <span className="text-[0.8rem] font-semibold text-[#895031]">Viewing</span>
               )}
             </button>
           );
         })()}
-        <p className="text-[0.75rem] text-[#6b5a4e] mb-4 pl-[26px]">
+        <p className="mb-4 pl-[34px] text-[0.85rem] leading-snug text-[#6b5a4e]">
           {primaryNeed
-            ? 'General questions about your situation — always available.'
-            : 'Unlocks once you pick a primary need below.'}
+            ? 'General questions about your situation. Always available.'
+            : 'Opens once you pick a primary need.'}
         </p>
 
         {/* Primary and Secondary Needs stem from General Impact. */}
-        <div className="border-l-2 border-[#e4d9cf] pl-4 ml-1 space-y-1.5">
+        <div className="ml-1 space-y-1 border-l-2 border-[#e4d9cf] pl-3">
           {primaryNeed && (() => {
             const primaryDone = allFieldsAnswered(formData, CATEGORY_FIELDS[primaryNeed]);
             const primaryActive = activeView === primaryNeed;
@@ -1807,18 +1795,18 @@ function DamageNeedsFields({ formData, setField }: FieldsProps) {
               <button
                 type="button"
                 onClick={() => goToSection(primaryNeed)}
-                className={`w-full flex items-center gap-2 rounded-[10px] px-2.5 py-1.5 text-left text-[0.85rem] transition-colors ${
-                  primaryActive ? 'bg-white text-[#1f1610] font-bold' : 'text-[#1f1610] font-medium hover:bg-white'
+                className={`flex min-h-[44px] w-full items-center gap-2 rounded-[10px] px-2.5 py-1.5 text-left text-[0.92rem] transition-colors ${
+                  primaryActive ? 'bg-[#f2ece5] font-bold text-[#1f1610]' : 'font-medium text-[#1f1610] hover:bg-[#f2ece5]'
                 }`}
               >
                 <span
-                  className={`flex h-4 w-4 flex-none items-center justify-center rounded-full border text-[0.6rem] text-white ${checklistCircleClass(primaryDone, primaryActive)}`}
+                  className={`flex h-[18px] w-[18px] flex-none items-center justify-center rounded-full border text-[0.65rem] leading-none text-white ${checklistCircleClass(primaryDone, primaryActive)}`}
                   aria-hidden="true"
                 >
                   {primaryDone && !primaryActive ? '✓' : ''}
                 </span>
                 <span className="flex-1">{NEED_CATEGORIES.find(c => c.value === primaryNeed)?.label}</span>
-                <span className="text-[0.6rem] font-semibold uppercase tracking-wide text-[#b0673f]">
+                <span className="text-[0.8rem] font-semibold text-[#895031]">
                   {primaryActive ? 'Viewing' : 'Primary'}
                 </span>
               </button>
@@ -1836,26 +1824,26 @@ function DamageNeedsFields({ formData, setField }: FieldsProps) {
                 key={cat}
                 type="button"
                 onClick={() => goToSection(cat)}
-                className={`w-full flex items-center gap-2 rounded-[10px] px-2.5 py-1.5 text-left text-[0.85rem] transition-colors ${
-                  isActive ? 'bg-white text-[#1f1610] font-bold' : wasOpened ? 'text-[#1f1610] hover:bg-white' : 'text-[#6b5a4e] hover:bg-white'
+                className={`flex min-h-[44px] w-full items-center gap-2 rounded-[10px] px-2.5 py-1.5 text-left text-[0.92rem] transition-colors ${
+                  isActive ? 'bg-[#f2ece5] font-bold text-[#1f1610]' : wasOpened ? 'text-[#1f1610] hover:bg-[#f2ece5]' : 'text-[#6b5a4e] hover:bg-[#f2ece5]'
                 }`}
               >
                 <span
-                  className={`flex h-4 w-4 flex-none items-center justify-center rounded-full border text-[0.6rem] text-white ${checklistCircleClass(done, isActive)}`}
+                  className={`flex h-[18px] w-[18px] flex-none items-center justify-center rounded-full border text-[0.65rem] leading-none text-white ${checklistCircleClass(done, isActive)}`}
                   aria-hidden="true"
                 >
                   {done && !isActive ? '✓' : ''}
                 </span>
                 <span className="flex-1">{meta.label}</span>
                 {isActive && (
-                  <span className="text-[0.6rem] font-semibold uppercase tracking-wide text-[#b0673f]">Viewing</span>
+                  <span className="text-[0.8rem] font-semibold text-[#895031]">Viewing</span>
                 )}
               </button>
             );
           })}
 
           {!primaryNeed && supplementaryNeeds.length === 0 && (
-            <p className="text-[0.8rem] text-[#6b5a4e] italic">Nothing selected yet.</p>
+            <p className="m-0 py-2 text-[0.88rem] text-[#6b5a4e]">Nothing selected yet.</p>
           )}
         </div>
       </aside>
@@ -1891,15 +1879,15 @@ function InsuranceOverviewFields({ formData, setField }: FieldsProps) {
       />
 
       <div>
-        <label className="flex items-center space-x-3">
+        <label className="flex min-h-[44px] cursor-pointer items-center gap-3">
           <input
             type="checkbox"
             name="hasAppliedToFEMA"
             checked={formData.hasAppliedToFEMA === true}
             onChange={e => setField('hasAppliedToFEMA', e.target.checked)}
-            className="w-5 h-5 text-[#b0673f] border-[#e4d9cf] rounded focus:ring-[#b0673f] focus:ring-offset-2"
+            className="h-5 w-5 flex-none cursor-pointer accent-[#b0673f]"
           />
-          <span className="text-[1.05rem] font-medium text-[#2a201a]">
+          <span className="text-[1rem] font-semibold text-[#1f1610]">
             Have you already applied for FEMA assistance?
           </span>
         </label>
@@ -2125,7 +2113,7 @@ function InsuranceUrgentNeedFields({ formData, setField }: FieldsProps) {
   return (
     <>
       <div>
-        <label htmlFor="mostUrgentNeedDescription" className="block text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-2.5">
+        <label htmlFor="mostUrgentNeedDescription" className="ac-label">
           What is your most urgent unresolved need right now?
         </label>
         <input
@@ -2134,7 +2122,7 @@ function InsuranceUrgentNeedFields({ formData, setField }: FieldsProps) {
           name="mostUrgentNeedDescription"
           value={formData.mostUrgentNeedDescription || ''}
           onChange={e => setField('mostUrgentNeedDescription', e.target.value)}
-          className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow"
+          className="ac-input"
           placeholder="e.g., Safe temporary housing for my family"
         />
       </div>
@@ -2158,17 +2146,17 @@ type InsuranceGroupKey = 'overview' | 'coverage' | 'claim' | 'documentation' | '
 
 const INSURANCE_GROUPS: { value: InsuranceGroupKey; label: string; fields: (keyof UserSituation)[] }[] = [
   { value: 'overview', label: 'Overview', fields: ['applyingForProgramId', 'damageSeverity', 'hasAppliedToFEMA'] },
-  { value: 'coverage', label: 'A. Insurance Coverage', fields: ['hadInsuranceAtDisaster', 'insuranceTypesHeld', 'insuranceCoveredItems'] },
+  { value: 'coverage', label: 'Insurance coverage', fields: ['hadInsuranceAtDisaster', 'insuranceTypesHeld', 'insuranceCoveredItems'] },
   {
     value: 'claim',
-    label: 'B. Insurance Claim Status',
+    label: 'Insurance claim status',
     fields: [
       'filedInsuranceClaimForDisaster', 'insuranceClaimStatus', 'receivedSettlementLetter', 'insuranceCoveredAllLosses',
       'insurancePaymentAmount', 'unpaidNeedsAfterInsurance', 'claimPartiallyOrFullyDenied', 'claimDenialReason', 'wantsHelpWithInsuranceAppeal',
     ],
   },
-  { value: 'documentation', label: 'Documentation and Prior Assistance', fields: ['evidenceOfDamage', 'assistanceAlreadyReceived', 'unresolvedNeeds'] },
-  { value: 'urgentNeed', label: 'Most Urgent Need', fields: ['mostUrgentNeedDescription', 'priorityNeeds'] },
+  { value: 'documentation', label: 'Documentation and prior help', fields: ['evidenceOfDamage', 'assistanceAlreadyReceived', 'unresolvedNeeds'] },
+  { value: 'urgentNeed', label: 'Most urgent need', fields: ['mostUrgentNeedDescription', 'priorityNeeds'] },
 ];
 
 const INSURANCE_GROUP_COMPONENTS: Record<InsuranceGroupKey, (props: FieldsProps) => React.JSX.Element> = {
@@ -2187,13 +2175,13 @@ function InsuranceRecoveryFields({ formData, setField }: FieldsProps) {
   const activeMeta = INSURANCE_GROUPS.find(g => g.value === activeGroup)!;
 
   return (
-    <div className="flex gap-8 items-start">
-      <div className="flex-1 min-w-0 space-y-6">
+    <div className="flex flex-col gap-6 md:flex-row md:items-start md:gap-8">
+      <div className="min-w-0 flex-1 space-y-6">
         <div className="border-b border-[#e4d9cf] pb-4">
-          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-[#895031] mb-1.5">
+          <p className="mb-1 text-[0.92rem] font-bold text-[#895031]">
             You&apos;re answering
           </p>
-          <h3 className="font-serif text-[1.4rem] font-medium text-[#1f1610]">
+          <h3 className="ac-h3">
             {activeMeta.label}
           </h3>
         </div>
@@ -2204,11 +2192,11 @@ function InsuranceRecoveryFields({ formData, setField }: FieldsProps) {
       {/* Fixed checklist — same visual language as the Damage/Needs
           checklist, but every group is always present since none of these
           depend on the user's profile. */}
-      <aside className="w-64 flex-none rounded-[14px] border border-[#e4d9cf] bg-[#faf6f1] p-5 sticky top-6">
-        <p className="text-[0.7rem] font-semibold uppercase tracking-[0.1em] text-[#895031] mb-4">
+      <aside className="order-first w-full flex-none rounded-[12px] border border-[#e4d9cf] bg-white p-4 md:sticky md:top-24 md:order-none md:w-64">
+        <p className="mb-3 font-serif text-[1.1rem] font-medium text-[#1f1610]">
           Sections
         </p>
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {INSURANCE_GROUPS.map(group => {
             const done = areFieldsAnswered(formData, group.fields);
             const isActive = activeGroup === group.value;
@@ -2217,12 +2205,12 @@ function InsuranceRecoveryFields({ formData, setField }: FieldsProps) {
                 key={group.value}
                 type="button"
                 onClick={() => setActiveGroup(group.value)}
-                className={`w-full flex items-center gap-2 rounded-[10px] px-2.5 py-1.5 text-left text-[0.85rem] transition-colors ${
-                  isActive ? 'bg-white text-[#1f1610] font-bold' : 'text-[#1f1610] hover:bg-white'
+                className={`flex min-h-[44px] w-full items-center gap-2 rounded-[10px] px-2.5 py-1.5 text-left text-[0.92rem] transition-colors ${
+                  isActive ? 'bg-[#f2ece5] font-bold text-[#1f1610]' : 'text-[#1f1610] hover:bg-[#f2ece5]'
                 }`}
               >
                 <span
-                  className={`flex h-4 w-4 flex-none items-center justify-center rounded-full border text-[0.6rem] text-white ${checklistCircleClass(done, isActive)}`}
+                  className={`flex h-[18px] w-[18px] flex-none items-center justify-center rounded-full border text-[0.65rem] leading-none text-white ${checklistCircleClass(done, isActive)}`}
                   aria-hidden="true"
                 >
                   {done && !isActive ? '✓' : ''}

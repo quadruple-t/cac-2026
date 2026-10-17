@@ -252,7 +252,7 @@
   display: inline-block;
   padding: 14px 26px;
   border-radius: 10px;
-  background: #b0673f;
+  background: #a85f38;
   color: #fff;
   font-size: 1.1rem;
   font-weight: 700;
@@ -620,5 +620,239 @@ html[data-ac-dark='1'] .ac-nav-stage .ac-nav-cta {
 @media (max-width: 767px) {
   .ls-cue {
     display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Site-wide primitives: the homepage's design language for every other page.
+   Flat bordered surfaces, Newsreader display type in sentence case, one clay
+   primary action per view, no drop shadows, no all-caps labels.
+--------------------------------------------------------------------------- */
+@layer components {
+  .ac-page {
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 56px 22px 88px;
+  }
+  .ac-page-narrow {
+    max-width: 760px;
+  }
+
+  .ac-page-head {
+    max-width: 46rem;
+    margin-bottom: 40px;
+  }
+  .ac-kicker {
+    margin: 0 0 12px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #895031;
+  }
+  .ac-h1,
+  .ac-h2,
+  .ac-h3 {
+    font-family: var(--font-newsreader), Georgia, serif;
+    font-weight: 500;
+    color: #1f1610;
+    text-wrap: balance;
+  }
+  .ac-h1 {
+    margin: 0 0 14px;
+    font-size: clamp(2.2rem, 4.6vw, 3.3rem);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+  }
+  .ac-h2 {
+    margin: 0 0 10px;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .ac-h3 {
+    margin: 0 0 6px;
+    font-size: 1.3rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .ac-lead {
+    max-width: 36rem;
+    margin: 0;
+    font-size: clamp(1.05rem, 1.4vw, 1.18rem);
+    line-height: 1.55;
+    color: #55483d;
+  }
+  .ac-muted {
+    color: #6b5a4e;
+  }
+  .ac-note {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #6b5a4e;
+  }
+
+  .ac-card {
+    border: 1px solid #e4d9cf;
+    border-radius: 16px;
+    background: #faf6f1;
+    padding: 24px;
+  }
+  .ac-card-flush {
+    padding: 0;
+    overflow: hidden;
+  }
+  .ac-card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #e4d9cf;
+  }
+  .ac-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 20px;
+  }
+  .ac-row + .ac-row {
+    border-top: 1px solid #eadfd4;
+  }
+  .ac-band-dark {
+    border-color: #4a3628;
+    background: #241811;
+    color: #f2ece5;
+  }
+  .ac-band-dark .ac-h1,
+  .ac-band-dark .ac-h2,
+  .ac-band-dark .ac-h3 {
+    color: #fff;
+  }
+  .ac-band-dark .ac-lead,
+  .ac-band-dark .ac-muted,
+  .ac-band-dark .ac-note {
+    color: #cdbcae;
+  }
+
+  .ac-btn,
+  .ac-btn-dark,
+  .ac-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 12px 24px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+  /* #a85f38 rather than the #b0673f accent: white text needs 4.5:1. */
+  .ac-btn {
+    background: #a85f38;
+    color: #fff;
+  }
+  .ac-btn:hover {
+    background: #895031;
+    color: #fff;
+  }
+  .ac-btn-dark {
+    background: #3d2b20;
+    color: #fff;
+  }
+  .ac-btn-dark:hover {
+    background: #241811;
+    color: #fff;
+  }
+  .ac-btn-ghost {
+    border-color: #e4d9cf;
+    background: #faf6f1;
+    color: #1f1610;
+    font-weight: 600;
+  }
+  .ac-btn-ghost:hover {
+    border-color: #c99a7d;
+    background: #fff;
+    color: #1f1610;
+  }
+  .ac-btn:not(:disabled):hover,
+  .ac-btn-dark:not(:disabled):hover {
+    transform: translateY(-1px);
+  }
+  .ac-btn:disabled,
+  .ac-btn-dark:disabled,
+  .ac-btn-ghost:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .ac-btn-sm {
+    min-height: 44px;
+    padding: 8px 16px;
+    font-size: 0.95rem;
+  }
+  .ac-btn:focus-visible,
+  .ac-btn-dark:focus-visible,
+  .ac-btn-ghost:focus-visible,
+  .ac-link:focus-visible {
+    outline: 3px solid #b0673f;
+    outline-offset: 3px;
+  }
+  .ac-link {
+    font-weight: 600;
+    color: #895031;
+  }
+
+  .ac-points {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ac-points li {
+    position: relative;
+    padding-left: 22px;
+  }
+  .ac-points li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 0.55em;
+    width: 8px;
+    height: 8px;
+    background: #b0673f;
+    transform: rotate(45deg);
+  }
+
+  .ac-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1f1610;
+  }
+  .ac-input {
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 14px;
+    border: 1px solid #e4d9cf;
+    border-radius: 10px;
+    background: #fff;
+    color: #1f1610;
+    font-size: 1rem;
+  }
+  .ac-input:focus {
+    border-color: #b0673f;
+    outline: 2px solid #b0673f;
+    outline-offset: 0;
+  }
+  .ac-input:disabled {
+    opacity: 0.5;
   }
 }

@@ -19,6 +19,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/firebase/use-auth';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/navigation';
+import SiteFooter from '@/components/site-footer';
+import { PageHeader } from '@/components/page-header';
 import AidDashboard from '@/components/features/aid-dashboard';
 import AidIntakeForm from '@/components/features/aid-intake';
 import { UserSituation, AidProgram } from '@/lib/aid-programs';
@@ -136,6 +138,7 @@ export default function DashboardPage() {
   };
 
   const handleReset = async () => {
+    if (!confirm('Start over? This deletes your saved answers. Your pinned programs stay.')) return;
     try {
       await fetch('/api/user-situation', { method: 'DELETE' });
       setUserSituation(null);
@@ -153,69 +156,73 @@ export default function DashboardPage() {
       <div className="min-h-full bg-[#f2ece5] flex flex-col flex-1">
         <Navigation />
         <main className="flex-1">
-          <div className="text-center py-12">
-            <p className="text-[#6b5a4e]">Loading...</p>
+          <div className="ac-page">
+            <p className="ac-muted" role="status">Loading your aid programs…</p>
           </div>
         </main>
+        <SiteFooter />
       </div>
     );
   }
+
+  // One opener for the whole page, adapting to whether we're showing the
+  // questionnaire or the ranked results.
+  const showingForm = !userSituation || isEditing;
+  const programCount = eligiblePrograms.length;
 
   return (
     <div className="min-h-full bg-[#f2ece5] flex flex-col flex-1">
       <Navigation />
 
       <main className="flex-1">
-        <section className="relative mx-auto max-w-[1080px] overflow-hidden px-[22px] py-[56px]">
-          <div aria-hidden="true" className="pointer-events-none absolute -right-40 top-0 h-80 w-80 rounded-full bg-[#d9b69d]/20 blur-3xl" />
-          {/* Header — always visible, regardless of which step the user is on. */}
-          <div className="relative mb-[34px] text-center">
-            <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-              My Aid Programs
-            </p>
-            <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-              Find Help for Your Situation
-            </h1>
-            <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] leading-relaxed max-w-2xl mx-auto">
-              Answer a few quick questions to see which aid programs you can apply for.
-            </p>
-            <div className="mx-auto mt-5 flex w-fit items-center gap-2 rounded-full border border-[#d8b9a4] bg-[#fffaf5]/80 px-3 py-1.5 text-xs font-semibold text-[#895031] shadow-sm">
-              <span className="h-2 w-2 rounded-full bg-[#b0673f]" /> Personalized for your situation
-            </div>
-          </div>
+        <div className="ac-page">
+          {showingForm ? (
+            <PageHeader
+              kicker="My aid"
+              title={userSituation ? 'Update your answers' : 'Find aid for your situation'}
+              lead={
+                userSituation
+                  ? 'Change anything that’s different now, and we’ll re-rank your programs.'
+                  : 'Answer a few questions and we’ll show the aid programs that fit you best.'
+              }
+            />
+          ) : (
+            <PageHeader
+              kicker="My aid"
+              title="Programs that may fit"
+              lead={`Based on your situation in ${userSituation?.county || 'your area'}, here ${
+                programCount === 1 ? 'is 1 program' : `are ${programCount} programs`
+              }, best fit and soonest deadline first.`}
+            >
+              <button type="button" onClick={() => setIsEditing(true)} className="ac-btn-ghost">
+                Edit my answers
+              </button>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="ac-link min-h-[44px] cursor-pointer bg-transparent px-1 text-[1rem] underline decoration-[#d8b9a4] underline-offset-4 hover:text-[#3d2b20]"
+              >
+                Start over
+              </button>
+            </PageHeader>
+          )}
 
           {/* Main Content:
               - No situation yet, or the user chose to edit -> show the intake form.
-              - Situation exists -> show the tabbed programs/documents view. */}
-          {!userSituation || isEditing ? (
+              - Situation exists -> show the ranked program list. */}
+          {showingForm ? (
             <AidIntakeForm
               onSubmit={handleFormSubmit}
               initialData={userSituation ?? undefined}
               onCancel={userSituation ? () => setIsEditing(false) : undefined}
-              submitLabel={userSituation ? 'Update My Results' : undefined}
+              submitLabel={userSituation ? 'Update my results' : undefined}
             />
           ) : (
-            <div>
-              <AidDashboard programs={eligiblePrograms} userSituation={userSituation} />
-
-              <div className="text-center mt-8 flex items-center justify-center gap-6">
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="text-[#895031] hover:text-[#6b5a4e] font-medium text-sm"
-                >
-                  ← Edit Answers
-                </button>
-                <button
-                  onClick={handleReset}
-                  className="text-[#895031] hover:text-[#6b5a4e] font-medium text-sm"
-                >
-                  Start Over
-                </button>
-              </div>
-            </div>
+            <AidDashboard programs={eligiblePrograms} userSituation={userSituation} />
           )}
-        </section>
+        </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }

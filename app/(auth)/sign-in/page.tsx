@@ -42,7 +42,9 @@ function SignInForm() {
       await establishServerSession(credential.user);
       window.location.assign(next);
     } catch {
-      setError("Could not sign in with that email and password.");
+      setError(
+        "We couldn't sign you in with that email and password. Check both and try again, or continue with Google.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -59,7 +61,9 @@ function SignInForm() {
       await establishServerSession(credential.user);
       window.location.assign(next);
     } catch {
-      setError("Could not sign in with Google.");
+      setError(
+        "Google sign-in didn't finish. Try again, or sign in with your email and password.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -67,66 +71,79 @@ function SignInForm() {
 
   return (
     <div>
-      <h1 className="mb-6 font-serif text-2xl font-medium text-[#1f1610]">
-        Sign in
-      </h1>
+      <h1 className="ac-h2">Sign in</h1>
+      <p className="ac-muted mt-0 mb-7 text-[1rem] leading-relaxed">
+        Pick up where you left off. Your answers and pinned programs are saved
+        to your account.
+      </p>
 
-      <AuthPrivacyNote />
-
-      <form onSubmit={handleEmailSignIn} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1.5 text-sm text-[#55483d]">
-          Email
+      <form onSubmit={handleEmailSignIn} className="flex flex-col gap-5">
+        <div>
+          <label htmlFor="sign-in-email" className="ac-label">
+            Email
+          </label>
           <input
+            id="sign-in-email"
             type="email"
+            autoComplete="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-lg border border-[#e4d9cf] bg-white px-3.5 py-2.5 text-[#1f1610] outline-none focus-visible:border-[#3d2b20]"
+            className="ac-input"
           />
-        </label>
-        <label className="flex flex-col gap-1.5 text-sm text-[#55483d]">
-          Password
+        </div>
+        <div>
+          <label htmlFor="sign-in-password" className="ac-label">
+            Password
+          </label>
           <input
+            id="sign-in-password"
             type="password"
+            autoComplete="current-password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="rounded-lg border border-[#e4d9cf] bg-white px-3.5 py-2.5 text-[#1f1610] outline-none focus-visible:border-[#3d2b20]"
+            className="ac-input"
           />
-        </label>
+        </div>
 
-        {error && <p className="text-sm text-[#a13c2c]">{error}</p>}
+        {error && (
+          <p
+            role="alert"
+            className="m-0 rounded-[10px] border border-[#e0b4a4] bg-[#fbf1ec] px-3.5 py-3 text-[0.95rem] leading-snug text-[#8f2f1f]"
+          >
+            {error}
+          </p>
+        )}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded-lg bg-[#3d2b20] px-4 py-2.5 font-semibold text-white transition-colors hover:bg-[#2b1e15] disabled:opacity-60"
-        >
-          Sign in
+        <button type="submit" disabled={submitting} className="ac-btn w-full">
+          {submitting ? "Signing in…" : "Sign in"}
         </button>
       </form>
 
-      <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-[0.06em] text-[#8a705d]">
-        <span className="h-px flex-1 bg-[#e4d9cf]" />
+      <div className="my-5 flex items-center gap-3 text-[0.9rem] text-[#6b5a4e]">
+        <span aria-hidden="true" className="h-px flex-1 bg-[#e4d9cf]" />
         or
-        <span className="h-px flex-1 bg-[#e4d9cf]" />
+        <span aria-hidden="true" className="h-px flex-1 bg-[#e4d9cf]" />
       </div>
 
       <button
         type="button"
         onClick={handleGoogleSignIn}
         disabled={submitting}
-        className="w-full rounded-lg border border-[#e4d9cf] bg-white px-4 py-2.5 font-semibold text-[#2a201a] transition-colors hover:bg-[#f2ece5] disabled:opacity-60"
+        className="ac-btn-ghost w-full"
       >
         Continue with Google
       </button>
 
-      <p className="mt-6 text-sm text-[#6b5a4e]">
+      <p className="ac-muted mb-0 mt-6 text-[0.95rem]">
         Don&apos;t have an account?{" "}
-        <Link href="/sign-up" className="font-semibold text-[#3d2b20]">
-          Sign up
+        <Link href="/sign-up" className="ac-link">
+          Create one
         </Link>
       </p>
+
+      <AuthPrivacyNote />
     </div>
   );
 }

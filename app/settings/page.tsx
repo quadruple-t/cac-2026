@@ -16,6 +16,8 @@ import { useAuth } from '@/lib/firebase/use-auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navigation from '@/components/navigation';
+import SiteFooter from '@/components/site-footer';
+import { PageHeader } from '@/components/page-header';
 import { CompassStatus } from '@/components/compass-status';
 import SituationEditor from '@/components/features/situation-editor';
 import { UserSituation } from '@/lib/aid-programs';
@@ -184,177 +186,173 @@ export default function SettingsPage() {
     }
   };
 
-  if (loading || isLoading) {
-    return (
-      <div className="min-h-full bg-[#f2ece5] flex flex-col flex-1">
-        <Navigation />
-        <main className="flex-1">
-          <div className="text-center py-12">
-            <p className="text-[#6b5a4e]">Loading...</p>
-          </div>
-        </main>
-      </div>
-    );
-  }
+  const isPageLoading = loading || isLoading;
 
+  // One layout for every state, so the header stays put (and only animates
+  // in once) while the saved answers load.
   return (
     <div className="min-h-full bg-[#f2ece5] flex flex-col flex-1">
       <Navigation />
 
       <main className="flex-1">
-        <section className="relative mx-auto max-w-[1080px] overflow-hidden px-[22px] py-[56px]">
-          <div aria-hidden="true" className="pointer-events-none absolute -right-40 top-0 h-80 w-80 rounded-full bg-[#d9b69d]/20 blur-3xl" />
+        <div className="ac-page ac-page-narrow">
+          <PageHeader
+            kicker="My info"
+            title="What we know about your situation"
+            lead="Here's what Aid Compass saved from your chat and questionnaire. Edit any answer directly, or tell us what changed in your own words."
+          />
 
-          <div className="relative mb-[34px] text-center">
-            <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-              Settings
+          {isPageLoading ? (
+            <p role="status" className="ac-muted m-0">
+              Loading your saved answers...
             </p>
-            <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-              What We Know About Your Situation
-            </h1>
-            <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] leading-relaxed max-w-2xl mx-auto">
-              Here&apos;s what Aid Compass has saved from your chat and questionnaire. Edit any answer
-              directly, or tell us what changed in your own words.
-            </p>
-          </div>
+          ) : !situation ? (
+            <div className="space-y-6">
+              <section aria-labelledby="no-info-heading" className="ac-card">
+                <h2 id="no-info-heading" className="ac-h3">
+                  You haven&apos;t shared any details yet
+                </h2>
+                <p className="ac-muted m-0 leading-relaxed">
+                  Fill in the details below, chat with Wren, or use the full questionnaire. You can come back
+                  here anytime to review or correct what you told us.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link href="/conversational" className="ac-btn">
+                    Chat with Wren
+                  </Link>
+                  <Link href="/dashboard" className="ac-btn-ghost">
+                    Open the full questionnaire
+                  </Link>
+                </div>
+              </section>
 
-          {!situation ? (
-            <div className="relative max-w-2xl mx-auto text-center bg-[#faf6f1] rounded-[14px] border border-[#e4d9cf] p-10">
-              <p className="text-[#1f1610] text-[1.05rem] mb-4">
-                You haven&apos;t shared any details about your situation yet.
-              </p>
-              <p className="text-[#6b5a4e] mb-6">
-                Fill in the details below, chat with Wren, or use the full questionnaire. You can come
-                back here anytime to review or correct what you told us.
-              </p>
-              <div className="flex flex-wrap justify-center gap-3">
-                <Link
-                  href="/conversational"
-                  className="inline-block bg-[#3d2b20] text-white rounded-[10px] px-6 py-3 font-semibold no-underline hover:bg-[#2b1e15] transition-colors"
-                >
-                  Chat with Wren
-                </Link>
-                <Link
-                  href="/dashboard"
-                  className="inline-block border border-[#3d2b20] text-[#3d2b20] rounded-[10px] px-6 py-3 font-semibold no-underline hover:bg-[#f2ece5] transition-colors"
-                >
-                  Full questionnaire
-                </Link>
-              </div>
-              <div className="mt-8 border-t border-[#e4d9cf] pt-6 text-left">
+              <section aria-labelledby="edit-heading" className="ac-card">
+                <h2 id="edit-heading" className="ac-h3">
+                  Or fill in the basics here
+                </h2>
+                <p className="ac-note m-0 mb-5">Answer as many as you like. You can change them later.</p>
                 <SituationEditor situation={null} onSave={handleDirectSave} />
-              </div>
+              </section>
             </div>
           ) : (
-            <div className="relative max-w-2xl mx-auto space-y-6">
+            <div className="space-y-6">
               {/* Summary */}
-              <div className="bg-[#faf6f1] rounded-[14px] border border-[#e4d9cf] p-6">
-                <p className="text-sm text-[#895031] font-semibold uppercase tracking-[0.08em] mb-3">
-                  Your Situation, Summarized
-                </p>
+              <section aria-labelledby="summary-heading" className="ac-card">
+                <h2 id="summary-heading" className="ac-h3">
+                  Your situation, summarized
+                </h2>
                 {summaryLoading ? (
-                  <p className="text-[#6b5a4e]">Reading through your answers...</p>
+                  <p className="ac-muted m-0">Reading through your answers...</p>
                 ) : summaryError ? (
-                  <p className="text-[#6b5a4e]">{summaryError}</p>
+                  <p className="ac-muted m-0">{summaryError}</p>
                 ) : (
-                  <p className="text-[#1f1610] leading-relaxed whitespace-pre-wrap">{summary}</p>
+                  <p className="m-0 whitespace-pre-wrap text-[1.05rem] leading-relaxed text-[#1f1610]">{summary}</p>
                 )}
-              </div>
+              </section>
 
               {/* Direct edit */}
-              <div className="bg-white rounded-[14px] border border-[#e4d9cf] p-6">
-                <p className="text-sm text-[#895031] font-semibold uppercase tracking-[0.08em] mb-3">
-                  Edit Your Answers
-                </p>
-                <SituationEditor situation={situation} onSave={handleDirectSave} />
-                <p className="mt-4 text-sm text-[#6b5a4e]">
+              <section aria-labelledby="edit-heading" className="ac-card">
+                <h2 id="edit-heading" className="ac-h3">
+                  Edit your answers
+                </h2>
+                <p className="ac-note m-0 mb-5">
                   Need to change other details?{' '}
-                  <Link href="/dashboard" className="text-[#895031] font-medium hover:text-[#6b5a4e]">
+                  <Link href="/dashboard" className="ac-link">
                     Open the full questionnaire
                   </Link>
                   .
                 </p>
-              </div>
+                <SituationEditor situation={situation} onSave={handleDirectSave} />
+              </section>
 
               {/* Correction box */}
-              <div className="bg-white rounded-[14px] border border-[#e4d9cf] p-6">
-                <p className="text-sm text-[#895031] font-semibold uppercase tracking-[0.08em] mb-3">
-                  Update Something
+              <section aria-labelledby="note-heading" className="ac-card">
+                <h2 id="note-heading" className="ac-h3">
+                  Tell us what changed
+                </h2>
+                <p className="ac-note m-0 mb-5">
+                  Describe it in your own words. We&apos;ll show you exactly what will change before anything is saved.
                 </p>
-                <form onSubmit={handleSubmitNote} className="space-y-3">
-                  <textarea
-                    value={noteInput}
-                    onChange={(e) => setNoteInput(e.target.value)}
-                    placeholder="e.g. My roof has since been repaired, or I don't have insurance anymore"
-                    disabled={isExtracting || isSaving}
-                    rows={3}
-                    className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white transition-shadow disabled:opacity-50 text-[1.05rem]"
-                  />
+                <form onSubmit={handleSubmitNote} className="space-y-4">
+                  <div>
+                    <label htmlFor="situation-note" className="ac-label">
+                      What&apos;s different now?
+                    </label>
+                    <textarea
+                      id="situation-note"
+                      value={noteInput}
+                      onChange={(e) => setNoteInput(e.target.value)}
+                      placeholder="e.g. My roof has since been repaired, or I don't have insurance anymore"
+                      disabled={isExtracting || isSaving}
+                      rows={3}
+                      className="ac-input leading-relaxed"
+                    />
+                  </div>
                   <button
                     type="submit"
                     disabled={!noteInput.trim() || isExtracting || isSaving}
-                    className="bg-[#3d2b20] text-white rounded-[10px] px-6 py-3 font-semibold hover:bg-[#2b1e15] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="ac-btn-dark"
                   >
-                    {isExtracting ? 'Reading...' : 'Update My Info'}
+                    {isExtracting ? 'Reading your note...' : 'Preview changes'}
                   </button>
                 </form>
 
                 {extractError && (
-                  <div className="mt-4 flex items-center gap-3">
+                  <div className="mt-5 flex flex-wrap items-center gap-3">
                     <CompassStatus tone="attention" label="Couldn't apply" />
-                    <p className="text-sm text-[#6b5a4e]">{extractError}</p>
+                    <p className="ac-muted m-0 text-[0.95rem]">{extractError}</p>
                   </div>
                 )}
 
                 {/* Diff review */}
                 {pendingChanges && (
-                  <div className="mt-5 border border-[#e4d9cf] rounded-[14px] p-4 bg-[#faf6f1]">
-                    <p className="text-sm text-[#895031] font-semibold uppercase tracking-[0.08em] mb-3">
+                  <div className="mt-6 rounded-[12px] border border-[#e4d9cf] bg-[#f2ece5] p-5">
+                    <h3 className="m-0 mb-3 font-serif text-[1.15rem] font-medium tracking-[-0.01em] text-[#1f1610]">
                       Here&apos;s what I&apos;ll update
-                    </p>
-                    <ul className="space-y-2 mb-4">
+                    </h3>
+                    <ul className="m-0 mb-5 grid list-none gap-2 p-0">
                       {Object.entries(pendingChanges).map(([key, value]) => (
-                        <li key={key} className="text-sm text-[#1f1610]">
+                        <li key={key} className="text-[0.95rem] leading-relaxed text-[#1f1610]">
                           <span className="font-semibold">{formatFieldLabel(key)}:</span>{' '}
-                          <span className="text-[#6b5a4e] line-through mr-1">
+                          <span className="mr-1 text-[#6b5a4e] line-through">
                             {formatFieldValue(situation[key as keyof UserSituation])}
                           </span>
                           <span>→ {formatFieldValue(value)}</span>
                         </li>
                       ))}
                     </ul>
-                    <div className="flex gap-4">
-                      <button
-                        onClick={handleConfirmChanges}
-                        disabled={isSaving}
-                        className="bg-[#b0673f] text-white rounded-[10px] px-5 py-2 font-semibold hover:bg-[#895031] transition-colors disabled:opacity-50"
-                      >
-                        {isSaving ? 'Saving...' : 'Looks Right, Save'}
+                    <div className="flex flex-wrap items-center gap-3">
+                      <button onClick={handleConfirmChanges} disabled={isSaving} className="ac-btn">
+                        {isSaving ? 'Saving...' : 'Save these changes'}
                       </button>
-                      <button
-                        onClick={handleDiscardChanges}
-                        disabled={isSaving}
-                        className="text-[#895031] hover:text-[#6b5a4e] font-medium text-sm disabled:opacity-50"
-                      >
+                      <button onClick={handleDiscardChanges} disabled={isSaving} className="ac-btn-ghost">
                         Discard
                       </button>
                     </div>
                   </div>
                 )}
-              </div>
+              </section>
 
-              <div className="text-center">
+              {/* Destructive action, kept apart from the everyday ones */}
+              <section aria-labelledby="delete-heading" className="mt-10 border-t border-[#e4d9cf] pt-8">
+                <h2 id="delete-heading" className="m-0 mb-1 text-base font-semibold text-[#1f1610]">
+                  Delete your saved answers
+                </h2>
+                <p className="ac-note m-0 mb-4">
+                  This permanently removes everything above from your account. It can&apos;t be undone.
+                </p>
                 <button
                   onClick={handleClearData}
-                  className="text-[#895031] hover:text-[#6b5a4e] font-medium text-sm"
+                  className="inline-flex min-h-[44px] cursor-pointer items-center rounded-[10px] border border-[#d9b3a8] bg-transparent px-5 font-semibold text-[#a33a2a] transition-colors hover:border-[#a33a2a] hover:bg-[#faf6f1] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[#a33a2a]"
                 >
                   Clear all my data
                 </button>
-              </div>
+              </section>
             </div>
           )}
-        </section>
+        </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }

@@ -22,29 +22,33 @@ export default function QuickIntakeLauncher() {
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label="Open quick intake"
-        className="ac-sheen fixed bottom-5 right-5 z-30 rounded-full px-5 py-3.5 text-[1rem] font-bold text-white bg-[#b0673f] shadow-lg transition-transform hover:-translate-y-0.5 hover:bg-[#895031] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b0673f]"
+        className="ac-btn-dark fixed bottom-5 right-5 z-30 border-[#5a4232]"
       >
         Find aid
       </button>
     );
   }
 
+  const closeButton = (
+    <button
+      type="button"
+      onClick={() => setIsOpen(false)}
+      aria-label="Dismiss quick intake"
+      className="inline-flex h-11 w-11 flex-none items-center justify-center rounded-[10px] text-[1.4rem] leading-none text-[#6b5a4e] hover:bg-[#f2ece5] hover:text-[#1f1610] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#b0673f]"
+    >
+      <span aria-hidden="true">×</span>
+    </button>
+  );
+
   if (isChatOpen) {
     return (
       <aside
         aria-label="Quick conversational intake"
-        className="fixed bottom-5 right-5 z-30 w-[min(390px,calc(100vw-2rem))] rounded-[14px] border border-[#e4d9cf] bg-[#faf6f1] p-3 text-[#2a201a] shadow-xl"
+        className="fixed bottom-5 right-5 z-30 w-[min(390px,calc(100vw-2rem))] max-h-[calc(100vh-2.5rem)] overflow-y-auto rounded-[16px] border border-[#cdbcae] bg-[#faf6f1] p-3 text-[#1f1610]"
       >
-        <div className="mb-2 flex items-center justify-between px-1">
-          <p className="text-[0.9rem] font-bold uppercase tracking-[0.06em] text-[#895031]">Find aid</p>
-          <button
-            type="button"
-            onClick={() => setIsOpen(false)}
-            aria-label="Dismiss quick intake"
-            className="rounded-full px-2 py-1 text-lg leading-none text-[#6b5a4e] hover:bg-[#f2ece5] hover:text-[#2a201a]"
-          >
-            ×
-          </button>
+        <div className="mb-2 flex items-center justify-between gap-3 pl-1">
+          <p className="font-serif text-[1.2rem] font-medium text-[#1f1610]">Find aid</p>
+          {closeButton}
         </div>
         <ConversationalIntake
           compact
@@ -53,8 +57,11 @@ export default function QuickIntakeLauncher() {
             router.push(outcome === 'saved' ? '/dashboard' : '/conversational');
           }}
         />
-        <Link href="/conversational" className="mt-3 block text-center text-[0.95rem] font-semibold text-[#895031] no-underline hover:text-[#6b5a4e]">
-          Continue on a full page →
+        <Link
+          href="/conversational"
+          className="ac-link mt-2 flex min-h-11 items-center justify-center text-[0.95rem] no-underline hover:underline"
+        >
+          Continue on the full page
         </Link>
       </aside>
     );
@@ -63,31 +70,20 @@ export default function QuickIntakeLauncher() {
   return (
     <aside
       aria-label="Quick conversational intake"
-      className="fixed bottom-5 right-5 z-30 w-[min(330px,calc(100vw-2rem))] rounded-[14px] border border-[#e4d9cf] bg-[#faf6f1] p-5 text-[#2a201a] shadow-xl"
+      className="fixed bottom-5 right-5 z-30 w-[min(330px,calc(100vw-2rem))] rounded-[16px] border border-[#cdbcae] bg-[#faf6f1] p-5 text-[#1f1610]"
     >
-      <button
-        type="button"
-        onClick={() => setIsOpen(false)}
-        aria-label="Dismiss quick intake"
-        className="absolute right-3 top-3 rounded-full px-2 py-1 text-lg leading-none text-[#6b5a4e] hover:bg-[#f2ece5] hover:text-[#2a201a]"
-      >
-        ×
-      </button>
-      <p className="mb-2 text-[0.9rem] font-bold uppercase tracking-[0.06em] text-[#895031]">
-        Need help?
-      </p>
-      <h2 className="pr-5 font-serif text-[1.6rem] font-medium leading-tight text-[#1f1610]">
+      <div className="flex items-start justify-between gap-3">
+        <p className="ac-kicker mt-2.5">Need help?</p>
+        <div className="-mr-2 -mt-2">{closeButton}</div>
+      </div>
+      <h2 className="font-serif text-[1.6rem] font-medium leading-tight tracking-[-0.01em] text-[#1f1610]">
         Find aid in a few steps.
       </h2>
-      <p className="mt-3 text-[1.05rem] leading-relaxed text-[#6b5a4e]">
+      <p className="mt-3 text-[1.05rem] leading-relaxed text-[#55483d]">
         Answer a few questions to explore programs that may fit your situation.
       </p>
-      <button
-        type="button"
-        onClick={() => setIsChatOpen(true)}
-        className="ac-sheen mt-5 inline-flex w-full items-center justify-center rounded-lg px-4 py-3 text-[1.05rem] font-bold text-white bg-[#b0673f] no-underline transition-transform hover:-translate-y-0.5 hover:bg-[#895031] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b0673f]"
-      >
-        Start here →
+      <button type="button" onClick={() => setIsChatOpen(true)} className="ac-btn mt-5 w-full">
+        Start the questions
       </button>
     </aside>
   );

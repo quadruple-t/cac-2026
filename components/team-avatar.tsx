@@ -22,18 +22,18 @@ export function TeamAvatar({ name, photo }: TeamAvatarProps) {
   const [failed, setFailed] = useState(false);
 
   return (
-    <span className="relative flex h-[216px] w-[216px] flex-none items-center justify-center overflow-hidden rounded-full border border-[#4a362a] bg-[#3d2b20]">
+    <span className="relative flex h-[128px] w-[128px] flex-none items-center justify-center overflow-hidden rounded-full border border-[#e4d9cf] bg-[#eadfd4]">
       {photo && !failed ? (
         <Image
           src={photo}
           alt={name}
           fill
-          sizes="216px"
+          sizes="128px"
           className="object-cover"
           onError={() => setFailed(true)}
         />
       ) : (
-        <span aria-label={name} role="img" className="font-serif text-[3.5rem] font-medium text-[#cc9c82]">
+        <span aria-label={name} role="img" className="font-serif text-[2.4rem] font-medium tracking-[-0.02em] text-[#895031]">
           {initialsFor(name)}
         </span>
       )}
