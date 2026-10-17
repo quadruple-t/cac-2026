@@ -12,7 +12,7 @@ const sections = [
     title: "Why you need an account",
     body: [
       "Your answers describe a hard moment in your life: where you live, what was damaged, your household and income. An account lets us keep that information tied only to you, so no one else can open it.",
-      "It also means you don't have to start over. Your answers, pinned programs, deadline progress, and chat with Wren are saved to your account and are there when you come back on any device.",
+      "It also means you don't have to start over. Your answers and pinned programs are saved to your account and are there when you come back on any device. Your chat with Wren and your deadline checklist progress are kept in this browser only.",
     ],
   },
   {
@@ -20,7 +20,7 @@ const sections = [
     list: [
       "Your sign-in details: your email address, or the basic profile Google shares with us if you choose Continue with Google. We never see or store your Google password.",
       "Your situation: the answers you give in the questionnaire or chat, such as county, address, what was damaged, ownership, damage severity, household income range, insurance, and farm status.",
-      "Your activity: programs you pin, application status you mark, deadline steps you complete, and your conversation with Wren.",
+      "Your pinned programs, saved to your account. Your conversation with Wren and the deadline steps you check off are stored only in your browser, not on our servers, and clearing your browser data removes them.",
     ],
   },
   {

@@ -84,17 +84,26 @@ interface SituationEditorProps {
   onSave: (patch: Partial<UserSituation>) => Promise<boolean>;
 }
 
+const toDraft = (situation: Partial<UserSituation> | null): Partial<CoreSituation> => ({
+  county: situation?.county,
+  damageType: situation?.damageType,
+  ownershipStatus: situation?.ownershipStatus,
+  damageSeverity: situation?.damageSeverity,
+  hasInsurance: situation?.hasInsurance,
+  isFarmer: situation?.isFarmer,
+  incomeRange: situation?.incomeRange,
+  hasAppliedToFEMA: situation?.hasAppliedToFEMA,
+});
+
 export default function SituationEditor({ situation, onSave }: SituationEditorProps) {
-  const [draft, setDraft] = useState<Partial<CoreSituation>>(() => ({
-    county: situation?.county,
-    damageType: situation?.damageType,
-    ownershipStatus: situation?.ownershipStatus,
-    damageSeverity: situation?.damageSeverity,
-    hasInsurance: situation?.hasInsurance,
-    isFarmer: situation?.isFarmer,
-    incomeRange: situation?.incomeRange,
-    hasAppliedToFEMA: situation?.hasAppliedToFEMA,
-  }));
+  const [draft, setDraft] = useState<Partial<CoreSituation>>(() => toDraft(situation));
+  // Re-sync when the saved situation changes elsewhere (e.g. an AI correction
+  // is applied), so a later save doesn't write stale values back over it.
+  const [syncedSituation, setSyncedSituation] = useState(situation);
+  if (situation !== syncedSituation) {
+    setSyncedSituation(situation);
+    setDraft(toDraft(situation));
+  }
   const [isSaving, setIsSaving] = useState(false);
   const [status, setStatus] = useState<'idle' | 'saved' | 'error'>('idle');
 
@@ -106,13 +115,15 @@ export default function SituationEditor({ situation, onSave }: SituationEditorPr
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Only send fields that were set and actually changed.
+    // Only send fields that actually changed. A field set back to
+    // "Not answered" (or an emptied county) is sent as null, which clears it.
     const patch: Record<string, unknown> = {};
     (Object.keys(draft) as (keyof CoreSituation)[]).forEach((key) => {
-      const value = draft[key];
-      if (value !== undefined && value !== '' && value !== situation?.[key]) {
-        patch[key] = typeof value === 'string' ? value.trim() : value;
-      }
+      const raw = draft[key];
+      const value = typeof raw === 'string' ? raw.trim() || undefined : raw;
+      const saved = situation?.[key] ?? undefined;
+      if (value === saved) return;
+      patch[key] = value === undefined ? null : value;
     });
     if (Object.keys(patch).length === 0) return;
 

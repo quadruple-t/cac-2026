@@ -151,10 +151,14 @@ export default function SettingsPage() {
       });
       if (!res.ok) return false;
 
-      const merged = { ...(situation ?? {}), ...patch } as UserSituation;
-      setSituation(merged);
+      // Null in the patch means the field was cleared.
+      const merged = { ...(situation ?? {}), ...patch } as Record<string, unknown>;
+      for (const key of Object.keys(merged)) {
+        if (merged[key] === null) delete merged[key];
+      }
+      setSituation(merged as unknown as UserSituation);
       setPendingChanges(null);
-      void generateSummary(merged);
+      void generateSummary(merged as unknown as UserSituation);
       return true;
     } catch (error) {
       console.error('Error saving edits:', error);

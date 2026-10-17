@@ -5,10 +5,22 @@ import type { UserSituation } from "@/lib/aid-programs";
 
 const collection = () => getAdminDb().collection("userSituations");
 
+/**
+ * Merges `situation` into the user's doc. A field whose value is `null` is
+ * removed from the stored doc (how the editor clears an answer).
+ */
 export async function saveUserSituation(
   uid: string,
-  situation: UserSituation,
+  situation: Partial<Record<keyof UserSituation, unknown>>,
 ): Promise<string> {
+  const updates: Record<string, unknown> = {};
+  const values: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(situation)) {
+    if (key === "uid" || value === undefined) continue;
+    updates[key] = value === null ? FieldValue.delete() : value;
+    if (value !== null) values[key] = value;
+  }
+
   // Check if user already has a situation document
   const snapshot = await collection().where("uid", "==", uid).limit(1).get();
   
@@ -16,7 +28,7 @@ export async function saveUserSituation(
     // Update existing document
     const doc = snapshot.docs[0];
     await doc.ref.update({
-      ...situation,
+      ...updates,
       updatedAt: FieldValue.serverTimestamp(),
     });
     return doc.id;
@@ -25,7 +37,7 @@ export async function saveUserSituation(
   // Create new document
   const doc = await collection().add({
     uid,
-    ...situation,
+    ...values,
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   });
