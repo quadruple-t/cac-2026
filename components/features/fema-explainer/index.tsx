@@ -340,7 +340,7 @@ Return ONLY the JSON, no other text.`;
             <div className="w-full bg-[#e4d9cf] rounded-full h-2 mb-8">
               <div
                 className="bg-[#b0673f] h-2 rounded-full transition-all duration-300"
-                style={{ width: `${((walkthroughStep + 1) / analysis.nextSteps.length) * 100}%` }}
+                style={{ width: `${Math.min(100, ((walkthroughStep + 1) / analysis.nextSteps.length) * 100)}%` }}
               />
             </div>
 
@@ -370,8 +370,7 @@ Return ONLY the JSON, no other text.`;
                   </button>
                   <button
                     onClick={handleNextWalkthrough}
-                    disabled={walkthroughStep === analysis.nextSteps.length - 1}
-                    className="bg-[#b0673f] text-white px-6 py-3 rounded-[10px] font-semibold hover:bg-[#895031] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-[#b0673f] text-white px-6 py-3 rounded-[10px] font-semibold hover:bg-[#895031] transition-colors"
                   >
                     {walkthroughStep === analysis.nextSteps.length - 1 ? 'Complete' : 'Next →'}
                   </button>
