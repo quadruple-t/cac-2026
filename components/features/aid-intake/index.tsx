@@ -220,7 +220,7 @@ export default function AidIntakeForm({ onSubmit, initialData, onCancel, submitL
         })}
 
         <div className="flex flex-col gap-3 pt-4 sm:flex-row">
-          <button type="submit" className="ac-btn w-full sm:w-auto">
+          <button type="submit" className="ac-btn ac-sheen w-full sm:w-auto">
             {submitLabel ?? 'Find programs that may fit'}
           </button>
 

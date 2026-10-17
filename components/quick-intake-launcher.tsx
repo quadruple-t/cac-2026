@@ -22,7 +22,7 @@ export default function QuickIntakeLauncher() {
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label="Open quick intake"
-        className="ac-btn-dark fixed bottom-5 right-5 z-30 border-[#5a4232]"
+        className="ac-btn-dark ac-sheen fixed bottom-5 right-5 z-30 border-[#5a4232]"
       >
         Find aid
       </button>
@@ -82,7 +82,7 @@ export default function QuickIntakeLauncher() {
       <p className="mt-3 text-[1.05rem] leading-relaxed text-[#55483d]">
         Answer a few questions to explore programs that may fit your situation.
       </p>
-      <button type="button" onClick={() => setIsChatOpen(true)} className="ac-btn mt-5 w-full">
+      <button type="button" onClick={() => setIsChatOpen(true)} className="ac-btn ac-sheen mt-5 w-full">
         Start the questions
       </button>
     </aside>

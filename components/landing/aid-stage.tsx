@@ -319,7 +319,7 @@ export function AidStage() {
             Aid Compass shows which ones fit your household, what to bring, and when it&apos;s due.
           </p>
           <div className="ls-hero-actions">
-            <Link href="/conversational" className="ls-btn">
+            <Link href="/conversational" className="ls-btn ac-sheen">
               Show me what I qualify for
             </Link>
             <span className="ls-hero-note">Free, about five minutes, and not a government site.</span>
