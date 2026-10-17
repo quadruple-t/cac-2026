@@ -18,11 +18,12 @@ const navItems = [
   { name: 'About', href: '/about', requiresAuth: false },
 ];
 
-export default function Navigation() {
+export default function Navigation({ variant = 'solid' }: { variant?: 'solid' | 'stage' }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const stage = variant === 'stage';
   const visibleNavItems = user ? navItems : navItems.filter((item) => !item.requiresAuth);
 
   async function handleSignOut() {
@@ -31,17 +32,23 @@ export default function Navigation() {
   }
 
   return (
-    <header className="sticky top-0 z-20 border-b border-[#e4d9cf] bg-[#f2ece5]/85 shadow-[0_4px_20px_rgba(61,43,32,0.04)] backdrop-blur-sm">
+    <header
+      className={
+        stage
+          ? 'ac-nav-stage fixed inset-x-0 top-0 z-40 bg-[#f2ece5]/80 backdrop-blur-md'
+          : 'sticky top-0 z-20 border-b border-[#e4d9cf] bg-[#f2ece5]/85 shadow-[0_4px_20px_rgba(61,43,32,0.04)] backdrop-blur-sm'
+      }
+    >
       <nav aria-label="Primary" className="mx-auto flex max-w-[1080px] items-center justify-between gap-2 px-[14px] py-3 sm:gap-4 sm:px-[22px]">
         <Link
           href="/"
-          className="flex items-center gap-1.5 text-[#2a201a] no-underline sm:gap-2.5"
+          className="ac-nav-text flex items-center gap-1.5 text-[#2a201a] no-underline sm:gap-2.5"
         >
           <span
             aria-hidden="true"
-            className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full border-[1.5px] border-[#3d2b20] sm:h-[34px] sm:w-[34px]"
+            className="ac-nav-ring flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full border-[1.5px] border-[#3d2b20] sm:h-[34px] sm:w-[34px]"
           >
-            <CompassMark needleColor="#3d2b20" />
+            <CompassMark needleColor="currentColor" />
           </span>
           <span className="whitespace-nowrap text-[1.05rem] font-bold tracking-[-0.01em] sm:text-[1.2rem]">
             Aid Compass
@@ -54,7 +61,7 @@ export default function Navigation() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`group relative flex items-center whitespace-nowrap text-[0.83rem] font-medium no-underline transition-all ${
+                className={`ac-nav-text group relative flex items-center whitespace-nowrap text-[0.83rem] font-medium no-underline transition-all ${
                   pathname === item.href
                   ? 'rounded-full bg-[#eadbce] px-3 py-2 text-[1rem] text-[#895031] shadow-sm'
                     : 'rounded-full px-3 py-2 text-[1rem] text-[#6b5a4e] hover:bg-[#f7efe8] hover:text-[#2a201a]'
@@ -73,14 +80,14 @@ export default function Navigation() {
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="flex-none rounded-lg border border-[#e4d9cf] bg-white px-3 py-2 text-[0.95rem] font-semibold text-[#2a201a] no-underline transition-colors hover:bg-[#f2ece5] sm:px-4 sm:text-[1rem]"
+                className="ac-nav-cta flex-none rounded-lg border border-[#e4d9cf] bg-white px-3 py-2 text-[0.95rem] font-semibold text-[#2a201a] no-underline transition-colors hover:bg-[#f2ece5] sm:px-4 sm:text-[1rem]"
               >
                 Sign out
               </button>
             ) : (
               <Link
                 href="/sign-in"
-                className="flex-none rounded-lg bg-[#3d2b20] px-3 py-2 text-[0.95rem] font-semibold text-white no-underline transition-colors hover:bg-[#2b1e15] sm:px-4 sm:text-[1rem]"
+                className="ac-nav-cta flex-none rounded-lg bg-[#3d2b20] px-3 py-2 text-[0.95rem] font-semibold text-white no-underline transition-colors hover:bg-[#2b1e15] sm:px-4 sm:text-[1rem]"
               >
                 Sign in
               </Link>
