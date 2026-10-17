@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import { useAuth } from '@/lib/firebase/use-auth';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/navigation';
+import SiteFooter from '@/components/site-footer';
+import { PageHeader } from '@/components/page-header';
 import FemaExplainer from '@/components/features/fema-explainer';
 
 export default function FemaExplainerPage() {
@@ -21,10 +23,11 @@ export default function FemaExplainerPage() {
       <div className="min-h-full bg-[#f2ece5] flex flex-col flex-1">
         <Navigation />
         <main className="flex-1">
-          <div className="text-center py-12">
-            <p className="text-[#6b5a4e]">Loading...</p>
+          <div className="ac-page ac-page-narrow">
+            <p className="ac-muted" role="status">Loading…</p>
           </div>
         </main>
+        <SiteFooter />
       </div>
     );
   }
@@ -34,10 +37,15 @@ export default function FemaExplainerPage() {
       <Navigation />
 
       <main className="flex-1">
-        <section className="mx-auto max-w-[1080px] px-[22px] py-[66px]">
+        <div className="ac-page ac-page-narrow">
+          <PageHeader
+            title="Understand your FEMA letter"
+            lead="Paste what the letter says. We'll tell you where your application stands, any date you need to hit, and what to do next."
+          />
           <FemaExplainer />
-        </section>
+        </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }

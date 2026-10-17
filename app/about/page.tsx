@@ -1,5 +1,36 @@
+import Link from 'next/link';
 import Navigation from '@/components/navigation';
+import { PageHeader } from '@/components/page-header';
+import SiteFooter from '@/components/site-footer';
 import { TeamAvatar } from '@/components/team-avatar';
+
+const features = [
+  {
+    title: "Talk it through with Wren",
+    body: "Describe what happened in your own words. Wren asks the follow-up questions and turns your answers into a list of programs to look at.",
+    href: "/conversational",
+  },
+  {
+    title: "See which programs fit",
+    body: "Federal, state, and local programs ranked against your answers, with a link to each program's own application.",
+    href: "/dashboard",
+  },
+  {
+    title: "Know what to bring",
+    body: "The documents each program asks for, gathered into one list so you collect them once.",
+    href: "/dashboard",
+  },
+  {
+    title: "Keep track of deadlines",
+    body: "Pinned programs sorted by which date comes first, with who to call for each one.",
+    href: "/deadlines",
+  },
+  {
+    title: "Make sense of a FEMA letter",
+    body: "Paste the letter and get back what it means for your application and what to do next.",
+    href: "/fema",
+  },
+];
 
 const trustPoints = [
   {
@@ -11,7 +42,7 @@ const trustPoints = [
     body: "No cost, no upsell, no account required to see your matches. Recovery is expensive enough.",
   },
   {
-    title: "Independent — not a government site",
+    title: "Independent, not a government site",
     body: "Aid Compass is not FEMA, the State of North Carolina, or any agency. We point you to their official pages; we don't speak for them.",
   },
   {
@@ -29,17 +60,36 @@ const contributors = [
   {
     name: "Mukesh Ramanathan",
     photo: "/team/mukesh-ramanathan.jpg",
-    bio: "Mukesh worked the majority of the frontend. He worked on the conversational AI intake, the program discovery, and the document checklist features.",
+    bio: "Mukesh built most of the frontend, including the conversational AI intake, program discovery, and the document checklist.",
   },
   {
     name: "Ansh Nayak",
     photo: "/team/ansh-nayak.jpg",
-    bio: "Ansh built the majority of the database of programs and charitable organizations, and optimized the website integration across features.",
+    bio: "Ansh built most of the database of programs and charitable organizations, and tuned how it connects to each feature.",
   },
   {
     name: "Hannah Kim",
     photo: "/team/hannah-kim.jpg",
     bio: "Hannah brought a people-first perspective to the project, helping us keep the language welcoming and easy to understand.",
+  },
+];
+
+const credits = [
+  {
+    title: "Development",
+    body: "Built with Next.js, React, TypeScript, and Firebase Authentication.",
+  },
+  {
+    title: "AI",
+    body: "Firebase AI (Gemini) handles natural language and document analysis.",
+  },
+  {
+    title: "Data sources",
+    body: "Program information comes from FEMA, SBA, USDA, NC Emergency Management, the American Red Cross, and NC 211.",
+  },
+  {
+    title: "Special thanks",
+    body: "To the disaster relief organizations and volunteers who work tirelessly to help communities recover.",
   },
 ];
 
@@ -49,161 +99,122 @@ export default function AboutPage() {
       <Navigation />
 
       <main className="flex-1">
-        <section className="mx-auto max-w-[1080px] px-[22px] py-[66px]">
-          {/* Header */}
-          <div className="mb-[34px] text-center">
-            <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-              About
-            </p>
-            <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-              Aid Compass
-            </h1>
-            <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-              Helping disaster survivors navigate the complex landscape of federal, state, and local aid programs.
-            </p>
-          </div>
+        <div className="ac-page">
+          <PageHeader
+            title="A student-built guide through Helene recovery aid"
+            lead="Aid Compass helps disaster survivors in western North Carolina find their way through federal, state, and local aid programs."
+          />
 
           {/* Mission */}
-          <div className="bg-[#faf6f1] rounded-[14px] p-8 border border-[#e4d9cf] mb-8">
-            <h2 className="font-serif text-[1.5rem] font-medium text-[#1f1610] mb-4">
-              Our Mission
-            </h2>
-            <p className="text-[#6b5a4e] text-[1.05rem] leading-relaxed">
-              Aid Compass was created to simplify the disaster recovery process for individuals and families affected by disasters. We understand that navigating multiple aid programs, understanding eligibility requirements, and managing application deadlines can be overwhelming. Our platform consolidates this information into one easy-to-use interface, helping survivors access the support they need quickly and efficiently.
-            </p>
-          </div>
+          <section
+            aria-labelledby="mission-h"
+            className="grid gap-x-12 gap-y-4 border-t border-[#e4d9cf] pt-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)]"
+          >
+            <h2 id="mission-h" className="ac-h2">Our mission</h2>
+            <div className="max-w-[62ch] space-y-4 text-[1.05rem] leading-relaxed text-[#55483d]">
+              <p>
+                Aid Compass makes the recovery process simpler for people and families hit by a disaster. Juggling several aid programs, each with its own eligibility rules and deadlines, is overwhelming.
+              </p>
+              <p>
+                We gather that information in one place, so survivors can reach the support they need quickly.
+              </p>
+            </div>
+          </section>
 
           {/* Features */}
-          <div className="bg-[#faf6f1] rounded-[14px] p-8 border border-[#e4d9cf] mb-8">
-            <h2 className="font-serif text-[1.5rem] font-medium text-[#1f1610] mb-4">
-              What We Offer
-            </h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="font-semibold text-[#1f1610] mb-2">Conversational AI Intake</h3>
-                <p className="text-[#6b5a4e] text-[1.05rem]">
-                  Natural language interface powered by AI to understand your situation and match you with eligible programs.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-[#1f1610] mb-2">Aid Program Discovery</h3>
-                <p className="text-[#6b5a4e] text-[1.05rem]">
-                  Comprehensive database of federal, state, and local aid programs with eligibility matching.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-[#1f1610] mb-2">Document Checklist</h3>
-                <p className="text-[#6b5a4e] text-[1.05rem]">
-                  Personalized document requirements for each program to streamline your application process.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-[#1f1610] mb-2">Deadline Tracking</h3>
-                <p className="text-[#6b5a4e] text-[1.05rem]">
-                  Track application deadlines with urgency indicators and contact information for each organization.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-[#1f1610] mb-2">FEMA Letter Explainer</h3>
-                <p className="text-[#6b5a4e] text-[1.05rem]">
-                  AI-powered analysis of FEMA correspondence to help you understand your application status and next steps.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-[#1f1610] mb-2">Application Status Tracking</h3>
-                <p className="text-[#6b5a4e] text-[1.05rem]">
-                  Monitor your application progress across multiple programs in one centralized dashboard.
-                </p>
-              </div>
+          <section aria-labelledby="features-h" className="mt-20">
+            <div className="ac-page-head">
+              <h2 id="features-h" className="ac-h2">What Aid Compass does</h2>
             </div>
-          </div>
+            <ul className="m-0 list-none border-t border-[#e4d9cf] p-0">
+              {features.map((feature) => (
+                <li
+                  key={feature.title}
+                  className="grid gap-x-12 gap-y-1 border-b border-[#e4d9cf] py-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)]"
+                >
+                  <h3 className="ac-h3">
+                    <Link href={feature.href} className="text-[#1f1610] underline decoration-[#d8c8b9] underline-offset-4 hover:decoration-[#a85f38]">
+                      {feature.title}
+                    </Link>
+                  </h3>
+                  <p className="m-0 max-w-[60ch] text-[1.05rem] leading-relaxed text-[#55483d]">{feature.body}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
 
-          {/* Who Built This */}
-          <div className="bg-[#33241a] text-[#eaddd0] rounded-[14px] p-8 mb-8">
-            <div className="max-w-[760px]">
-              <p className="mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#cc9c82]">
-                Who built this
-              </p>
-              <h2 className="mb-[30px] font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-white">
-                Built to help, not to collect.
-              </h2>
+          {/* Who built this */}
+          <section
+            aria-labelledby="trust-h"
+            className="ac-band-dark mt-20 rounded-[16px] border px-6 py-10 md:px-10 md:py-12"
+          >
+            <div className="mb-8 max-w-[46rem]">
+              <h2 id="trust-h" className="ac-h2">Built to help, not to collect.</h2>
             </div>
-            <ul className="m-0 flex list-none flex-wrap gap-[22px] p-0">
+            <ul className="m-0 grid list-none gap-x-10 gap-y-7 p-0 md:grid-cols-2">
               {trustPoints.map((point) => (
-                <li key={point.title} className="min-w-[280px] flex-1 basis-[300px]">
-                  <h3 className="mb-1.5 text-[1.05rem] font-semibold text-white">
-                    {point.title}
-                  </h3>
-                  <p className="m-0 text-[0.98rem] text-[#cbb8a8]">
-                    {point.body}
-                  </p>
+                <li key={point.title} className="border-t border-[#4a3628] pt-5">
+                  <h3 className="ac-h3">{point.title}</h3>
+                  <p className="ac-muted m-0 text-[1rem] leading-relaxed">{point.body}</p>
                 </li>
               ))}
             </ul>
-            <ul className="m-0 mt-10 grid list-none grid-cols-1 gap-x-6 gap-y-10 p-0 sm:grid-cols-2">
+          </section>
+
+          {/* Team */}
+          <section aria-labelledby="team-h" className="mt-20">
+            <div className="ac-page-head">
+              <h2 id="team-h" className="ac-h2">The team</h2>
+            </div>
+            <ul className="m-0 grid list-none gap-x-6 gap-y-10 p-0 sm:grid-cols-2 lg:grid-cols-4">
               {contributors.map((person) => (
-                <li key={person.name} className="flex flex-col items-center text-center">
+                <li key={person.name} className="flex flex-col items-start">
                   <TeamAvatar name={person.name} photo={person.photo} />
-                  <h3 className="mb-1 mt-4 font-serif text-[1.02rem] font-semibold text-white">
-                    {person.name}
-                  </h3>
-                  <p className="m-0 max-w-[240px] font-sans text-[0.92rem] text-[#cbb8a8]">
-                    {person.bio}
-                  </p>
+                  <h3 className="ac-h3 mt-5!">{person.name}</h3>
+                  <p className="m-0 text-[0.98rem] leading-relaxed text-[#55483d]">{person.bio}</p>
                 </li>
               ))}
             </ul>
-          </div>
+          </section>
 
           {/* Credits */}
-          <div className="bg-[#faf6f1] rounded-[14px] p-8 border border-[#e4d9cf] mb-8">
-            <h2 className="font-serif text-[1.5rem] font-medium text-[#1f1610] mb-4">
-              Credits
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-semibold text-[#1f1610] mb-2">Development Team</h3>
-                <p className="text-[#6b5a4e] text-[1.05rem]">
-                  Built with Next.js, React, TypeScript, and Firebase Authentication.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-[#1f1610] mb-2">AI Integration</h3>
-                <p className="text-[#6b5a4e] text-[1.05rem]">
-                  Powered by Firebase AI (Gemini) for natural language processing and document analysis.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-[#1f1610] mb-2">Data Sources</h3>
-                <p className="text-[#6b5a4e] text-[1.05rem]">
-                  Aid program information sourced from FEMA, SBA, USDA, NC Emergency Management, American Red Cross, and NC 211.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-[#1f1610] mb-2">Special Thanks</h3>
-                <p className="text-[#6b5a4e] text-[1.05rem]">
-                  To all the disaster relief organizations and volunteers who work tirelessly to help communities recover.
-                </p>
-              </div>
+          <section aria-labelledby="credits-h" className="mt-20">
+            <div className="ac-page-head">
+              <h2 id="credits-h" className="ac-h2">Credits</h2>
             </div>
-          </div>
+            <dl className="ac-card m-0 grid gap-x-10 gap-y-6 md:grid-cols-2">
+              {credits.map((credit) => (
+                <div key={credit.title}>
+                  <dt className="ac-h3">{credit.title}</dt>
+                  <dd className="m-0 text-[1rem] leading-relaxed text-[#55483d]">{credit.body}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
 
           {/* Contact */}
-          <div className="mt-8 text-center">
-            <p className="text-[#6b5a4e] text-[1.05rem]">
-              Questions or feedback? This project is open source and welcomes contributions.
-            </p>
-            <a 
-              href="https://github.com/quadruple-t/cac-2026" 
-              target="_blank" 
+          <section
+            aria-labelledby="contact-h"
+            className="mt-20 flex flex-col gap-5 border-t border-[#e4d9cf] pt-10 md:flex-row md:items-center md:justify-between"
+          >
+            <div>
+              <h2 id="contact-h" className="ac-h3">Questions or feedback?</h2>
+              <p className="ac-muted m-0 text-[1rem]">
+                Aid Compass is open source, and we welcome contributions.
+              </p>
+            </div>
+            <a
+              href="https://github.com/quadruple-t/cac-2026"
+              target="_blank"
               rel="noopener noreferrer"
-              className="inline-block mt-4 text-[#b0673f] hover:text-[#895031] font-medium"
+              className="ac-btn-ghost flex-none"
             >
-              View on GitHub
+              View the code on GitHub
             </a>
-          </div>
-        </section>
+          </section>
+        </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }

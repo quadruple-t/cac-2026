@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { getGeminiModel, isAIBusyError, AI_BUSY_MESSAGE } from '@/lib/firebase/ai';
-import { CompleteIcon } from '@/components/feature-icons';
+import { AmountIcon, ClockIcon, CompleteIcon } from '@/components/feature-icons';
+import { CompassStatus } from '@/components/compass-status';
 
 interface AnalysisResult {
   status: string;
@@ -23,10 +24,10 @@ export default function FemaExplainer() {
   const [walkthroughStep, setWalkthroughStep] = useState(0);
 
   const steps = [
-    { id: 'upload', label: 'Upload Letter', icon: '1' },
-    { id: 'analyzing', label: 'Analyzing', icon: '2' },
+    { id: 'upload', label: 'Paste letter', icon: '1' },
+    { id: 'analyzing', label: 'Reading', icon: '2' },
     { id: 'results', label: 'Results', icon: '3' },
-    { id: 'walkthrough', label: 'Next Steps', icon: '4' },
+    { id: 'walkthrough', label: 'Next steps', icon: '4' },
   ];
 
   const handleAnalyze = async (e: React.FormEvent) => {
@@ -80,7 +81,7 @@ Return ONLY the JSON, no other text.`;
       setError(
         isAIBusyError(err)
           ? AI_BUSY_MESSAGE
-          : `Failed to analyze the letter: ${errorMessage}. Please try again or make sure you have pasted the full letter text.`
+          : `We couldn't read this letter (${errorMessage}). Check that you pasted the full text, then try again.`
       );
       setCurrentStep('upload');
     } finally {
@@ -114,373 +115,266 @@ Return ONLY the JSON, no other text.`;
 
   const getStepIndex = () => steps.findIndex(s => s.id === currentStep);
 
-  return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-          FEMA Letter Help
-        </p>
-        <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-          Understand Your FEMA Letter
-        </h1>
-        <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-          We&apos;ll help you understand your FEMA letter in plain English and show you what to do next.
-        </p>
-      </div>
+  const commonStatuses = [
+    { tone: 'progress' as const, name: 'Under review', meaning: 'FEMA is still processing your application.' },
+    { tone: 'success' as const, name: 'Approved', meaning: 'You are eligible for assistance.' },
+    { tone: 'attention' as const, name: 'Denied', meaning: 'Not approved. You can appeal within 60 days.' },
+    { tone: 'attention' as const, name: 'More information needed', meaning: 'FEMA needs more documents from you.' },
+  ];
 
-      {/* Progress Steps */}
-      <div className="ac-reveal-3 flex items-center justify-center mb-8">
+  return (
+    <div>
+      {/* Progress steps */}
+      <ol className="mb-10 grid grid-cols-4 gap-2 sm:gap-3" aria-label="Progress">
         {steps.map((step, index) => {
           const isActive = step.id === currentStep;
           const isCompleted = getStepIndex() > index;
-          
+          const barColor = isActive ? '#b0673f' : isCompleted ? '#3f7d5c' : '#e4d9cf';
+
           return (
-            <div key={step.id} className="flex items-center">
-              <div className="flex flex-col items-center">
-                <div
-                  className={`w-12 h-12 rounded-full flex items-center justify-center text-xl transition-all ${
-                    isActive
-                      ? 'bg-[#b0673f] text-white scale-110'
-                      : isCompleted
-                      ? 'bg-[#10b981] text-white'
-                      : 'bg-[#e4d9cf] text-[#6b5a4e]'
-                  }`}
-                >
-                  {isCompleted ? <CompleteIcon /> : step.icon}
-                </div>
+            <li key={step.id} aria-current={isActive ? 'step' : undefined}>
+              <div className="h-[3px] rounded-full" style={{ background: barColor }} />
+              <div className="mt-2.5 flex flex-col items-start gap-1.5 sm:flex-row sm:items-center sm:gap-2">
+                {isCompleted ? (
+                  <CompleteIcon className="h-6 w-6 text-[#3f7d5c]" />
+                ) : (
+                  <span
+                    className={`flex h-6 w-6 flex-none items-center justify-center rounded-full border text-[0.8rem] font-bold ${
+                      isActive
+                        ? 'border-[#a85f38] bg-[#a85f38] text-white'
+                        : 'border-[#d8c8b9] text-[#6b5a4e]'
+                    }`}
+                  >
+                    {step.icon}
+                  </span>
+                )}
                 <span
-                  className={`text-xs mt-2 font-medium ${
-                    isActive ? 'text-[#b0673f]' : isCompleted ? 'text-[#10b981]' : 'text-[#6b5a4e]'
+                  className={`text-[0.9rem] leading-tight ${
+                    isActive ? 'font-bold text-[#1f1610]' : 'font-medium text-[#6b5a4e]'
                   }`}
                 >
                   {step.label}
+                  {isCompleted && <span className="sr-only"> (done)</span>}
                 </span>
               </div>
-              {index < steps.length - 1 && (
-                <div
-                  className={`w-16 h-1 mx-2 rounded ${
-                    isCompleted ? 'bg-[#10b981]' : 'bg-[#e4d9cf]'
-                  }`}
-                />
-              )}
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ol>
 
-      {/* Upload Step */}
+      {/* Error */}
+      {error && (
+        <div
+          role="alert"
+          className="mb-6 rounded-[16px] border border-[#d8b9a4] border-l-[3px] border-l-[#b0673f] bg-[#fffaf5] px-5 py-4"
+        >
+          <h2 className="font-serif text-[1.2rem] font-medium text-[#1f1610]">We couldn&apos;t explain this letter</h2>
+          <p className="mt-1.5 leading-relaxed text-[#55483d]">{error}</p>
+        </div>
+      )}
+
+      {/* Upload step */}
       {currentStep === 'upload' && (
-        <div className="ac-reveal-3 bg-[#faf6f1] rounded-[14px] p-8 border border-[#e4d9cf]">
-          <div className="text-center mb-6">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-[#b0673f] flex items-center justify-center">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
-              </svg>
-            </div>
-            <h3 className="font-serif text-[1.5rem] font-medium text-[#1f1610] mb-2">
-              Upload Your FEMA Letter
-            </h3>
-            <p className="text-[#6b5a4e]">
-              Paste the full text of your FEMA letter or status update below
-            </p>
-          </div>
-          <form onSubmit={handleAnalyze}>
+        <section className="ac-card" aria-labelledby="fema-upload-heading">
+          <h2 id="fema-upload-heading" className="ac-h3">
+            Paste your letter
+          </h2>
+          <p className="ac-muted leading-relaxed">
+            Copy the full text of your FEMA letter or status update into the box below.
+          </p>
+          <form onSubmit={handleAnalyze} className="mt-6">
+            <label htmlFor="letter" className="ac-label">
+              Letter text
+            </label>
             <textarea
               id="letter"
               value={letterText}
               onChange={(e) => setLetterText(e.target.value)}
               placeholder="Paste the full text of your FEMA letter or status update..."
               rows={12}
-              className="w-full px-4 py-3 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white text-[1.05rem] transition-shadow resize-none"
+              className="ac-input resize-y leading-relaxed"
               required
             />
-            <div className="mt-6 flex justify-center">
-              <button
-                type="submit"
-                disabled={!letterText.trim()}
-                className="bg-[#3d2b20] text-white px-8 py-4 rounded-[10px] font-semibold text-[1.1rem] hover:bg-[#2b1e15] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Analyze My Letter →
+            <div className="mt-6">
+              <button type="submit" disabled={!letterText.trim()} className="ac-btn">
+                Explain my letter
               </button>
             </div>
           </form>
-        </div>
+        </section>
       )}
 
-      {/* Analyzing Step */}
+      {/* Analyzing step */}
       {currentStep === 'analyzing' && (
-        <div className="ac-reveal-3 bg-[#faf6f1] rounded-[14px] p-12 border border-[#e4d9cf] text-center">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#b0673f] flex items-center justify-center animate-pulse">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
+        <section className="ac-card" role="status" aria-live="polite">
+          <div className="mb-4">
+            <CompassStatus tone="progress" label="Working" />
           </div>
-          <h3 className="font-serif text-[1.5rem] font-medium text-[#1f1610] mb-4">
-            Analyzing Your Letter
-          </h3>
-          <p className="text-[#6b5a4e] mb-6">
-            Our AI is reviewing your FEMA letter to understand your status and next steps...
+          <h2 className="ac-h3">Reading your letter</h2>
+          <p className="ac-muted leading-relaxed">
+            Aid Compass is finding your status, any deadlines, and what you need to do next.
           </p>
-          <div className="w-full max-w-md mx-auto bg-[#e4d9cf] rounded-full h-2">
-            <div className="bg-[#b0673f] h-2 rounded-full animate-pulse" style={{ width: '60%' }} />
-          </div>
-        </div>
+        </section>
       )}
 
-      {/* Results Step */}
+      {/* Results step */}
       {currentStep === 'results' && analysis && (
-        <div className="ac-reveal space-y-6">
-          {/* Status Card */}
-          <div className="bg-[#3d2b20] rounded-[14px] p-8 text-white">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-serif text-[1.5rem] font-medium">Your Status</h3>
-              <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                  <line x1="16" y1="13" x2="8" y2="13"></line>
-                  <line x1="16" y1="17" x2="8" y2="17"></line>
-                  <polyline points="10 9 9 9 8 9"></polyline>
-                </svg>
-              </div>
+        <div className="space-y-6">
+          {/* Letter explanation, echoing the dark letter frame on the homepage */}
+          <section className="ac-card ac-card-flush ac-band-dark" aria-labelledby="fema-result-heading">
+            <div className="flex items-baseline justify-between gap-3 border-b border-[#4a3628] px-6 py-4">
+              <h2 id="fema-result-heading" className="font-serif text-[1.25rem] font-medium text-white">
+                Your letter, explained
+              </h2>
             </div>
-            <p className="text-2xl font-bold mb-2">{analysis.status}</p>
-            <p className="text-[#eaddd0]">{analysis.meaning}</p>
-          </div>
-
-          {/* Key Details */}
-          <div className="grid md:grid-cols-2 gap-4">
-            {analysis.amount && (
-              <div className="bg-[#faf6f1] border border-[#e4d9cf] rounded-[14px] p-6">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-full bg-[#b0673f] flex items-center justify-center">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                      <line x1="12" y1="1" x2="12" y2="23"></line>
-                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                    </svg>
-                  </div>
-                  <h4 className="font-semibold text-[#895031]">Assistance Amount</h4>
-                </div>
-                <p className="text-[#1f1610] font-medium text-xl">{analysis.amount}</p>
+            <div className="space-y-5 p-6">
+              <div>
+                <p className="mb-1 text-[0.9rem] font-bold text-[#e6b595]">Status</p>
+                <p className="font-serif text-[clamp(1.5rem,3.4vw,1.95rem)] font-medium leading-[1.15] tracking-[-0.01em] text-white">
+                  {analysis.status}
+                </p>
               </div>
-            )}
-            {analysis.deadline && (
-              <div className="bg-[#faf6f1] border border-[#e4d9cf] rounded-[14px] p-6">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-full bg-[#b0673f] flex items-center justify-center">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                  </div>
-                  <h4 className="font-semibold text-[#895031]">Important Deadline</h4>
-                </div>
-                <p className="text-[#1f1610]">{analysis.deadline}</p>
+              <div className="grid gap-1 rounded-[4px] border-l-[3px] border-[#e6b595] bg-[#2a1d14] px-4 py-3.5">
+                <span className="text-[0.88rem] font-bold text-[#e6b595]">In plain words</span>
+                <p className="text-[1.05rem] leading-relaxed text-[#f2ece5]">{analysis.meaning}</p>
               </div>
-            )}
-          </div>
 
-          {/* Appeal Warning */}
+              {(analysis.amount || analysis.deadline) && (
+                <div className="grid gap-3 md:grid-cols-2">
+                  {analysis.amount && (
+                    <div className="rounded-[12px] border border-[#4a3628] bg-[#33241a] p-4">
+                      <p className="flex items-center gap-2 text-[0.9rem] font-bold text-[#e6b595]">
+                        <AmountIcon />
+                        Assistance amount
+                      </p>
+                      <p className="mt-1.5 font-serif text-[1.4rem] font-medium text-white">{analysis.amount}</p>
+                    </div>
+                  )}
+                  {analysis.deadline && (
+                    <div className="rounded-[12px] border border-[#4a3628] bg-[#33241a] p-4">
+                      <p className="flex items-center gap-2 text-[0.9rem] font-bold text-[#e6b595]">
+                        <ClockIcon />
+                        Deadline
+                      </p>
+                      <p className="mt-1.5 leading-relaxed text-[#f2ece5]">{analysis.deadline}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Appeal information */}
           {analysis.appealInfo && (
-            <div className="bg-[#fffbeb] border-2 border-[#f59e0b] rounded-[14px] p-6">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-full bg-[#f59e0b] flex items-center justify-center flex-shrink-0">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                    <line x1="12" y1="9" x2="12" y2="13"></line>
-                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-[#b0673f] mb-2">Appeal Information</h4>
-                  <p className="text-[#6b5a4e]">{analysis.appealInfo}</p>
-                </div>
+            <section
+              className="rounded-[16px] border border-[#e4d9cf] border-l-[3px] border-l-[#b0673f] bg-[#faf6f1] p-6"
+              aria-labelledby="fema-appeal-heading"
+            >
+              <div className="mb-3">
+                <CompassStatus tone="attention" label="Appeal rights" />
               </div>
-            </div>
+              <h3 id="fema-appeal-heading" className="ac-h3">
+                How to appeal
+              </h3>
+              <p className="leading-relaxed text-[#55483d]">{analysis.appealInfo}</p>
+            </section>
           )}
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={handleStartWalkthrough}
-              className="bg-[#b0673f] text-white px-8 py-4 rounded-[10px] font-semibold text-[1.1rem] hover:bg-[#895031] transition-colors"
-            >
-              Start Step-by-Step Guide →
+          {/* Actions */}
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button type="button" onClick={handleStartWalkthrough} className="ac-btn">
+              Walk through next steps
             </button>
-            <button
-              onClick={handleReset}
-              className="bg-[#faf6f1] text-[#1f1610] border border-[#e4d9cf] px-8 py-4 rounded-[10px] font-semibold text-[1.1rem] hover:bg-[#e4d9cf] transition-colors"
-            >
-              Analyze Another Letter
+            <button type="button" onClick={handleReset} className="ac-btn-ghost">
+              Explain another letter
             </button>
           </div>
         </div>
       )}
 
-      {/* Walkthrough Step */}
+      {/* Walkthrough step */}
       {currentStep === 'walkthrough' && analysis && (
-        <div className="ac-reveal space-y-6">
-          <div className="bg-[#faf6f1] rounded-[14px] p-8 border border-[#e4d9cf]">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-serif text-[1.5rem] font-medium text-[#1f1610]">
-                Your Action Plan
-              </h3>
-              <div className="text-sm text-[#6b5a4e]">
-                Step {walkthroughStep + 1} of {analysis.nextSteps.length}
-              </div>
-            </div>
+        <section className="ac-card" aria-labelledby="fema-plan-heading">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h2 id="fema-plan-heading" className="ac-h3">
+              Your action plan
+            </h2>
+            <p className="ac-note">
+              {walkthroughStep < analysis.nextSteps.length
+                ? `Step ${walkthroughStep + 1} of ${analysis.nextSteps.length}`
+                : `All ${analysis.nextSteps.length} steps done`}
+            </p>
+          </div>
 
-            {/* Progress Bar */}
-            <div className="w-full bg-[#e4d9cf] rounded-full h-2 mb-8">
-              <div
-                className="bg-[#b0673f] h-2 rounded-full transition-all duration-300"
-                style={{ width: `${((walkthroughStep + 1) / analysis.nextSteps.length) * 100}%` }}
-              />
-            </div>
+          {/* Progress bar */}
+          <div className="mb-8 mt-4 h-1.5 w-full rounded-full bg-[#e4d9cf]">
+            <div
+              className={`h-1.5 rounded-full ${
+                walkthroughStep >= analysis.nextSteps.length ? 'bg-[#3f7d5c]' : 'bg-[#b0673f]'
+              }`}
+              style={{ width: `${Math.min(100, ((walkthroughStep + 1) / analysis.nextSteps.length) * 100)}%` }}
+            />
+          </div>
 
-            {/* Current Step */}
-            {walkthroughStep < analysis.nextSteps.length ? (
-              <div className="text-center">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#b0673f] flex items-center justify-center">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                  </svg>
-                </div>
-                <div className="bg-white border border-[#e4d9cf] rounded-[14px] p-8 mb-8">
-                  <p className="text-[#1f1610] text-xl font-medium leading-relaxed">
-                    {analysis.nextSteps[walkthroughStep]}
-                  </p>
-                </div>
+          {/* Current step */}
+          {walkthroughStep < analysis.nextSteps.length ? (
+            <div>
+              <p className="ac-kicker">Step {walkthroughStep + 1}</p>
+              <p className="font-serif text-[clamp(1.3rem,2.8vw,1.6rem)] font-medium leading-snug tracking-[-0.01em] text-[#1f1610]">
+                {analysis.nextSteps[walkthroughStep]}
+              </p>
 
-                {/* Navigation */}
-                <div className="flex justify-center gap-4">
-                  <button
-                    onClick={handlePreviousWalkthrough}
-                    disabled={walkthroughStep === 0}
-                    className="bg-[#faf6f1] text-[#1f1610] border border-[#e4d9cf] px-6 py-3 rounded-[10px] font-semibold hover:bg-[#e4d9cf] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    ← Previous
-                  </button>
-                  <button
-                    onClick={handleNextWalkthrough}
-                    disabled={walkthroughStep === analysis.nextSteps.length - 1}
-                    className="bg-[#b0673f] text-white px-6 py-3 rounded-[10px] font-semibold hover:bg-[#895031] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {walkthroughStep === analysis.nextSteps.length - 1 ? 'Complete' : 'Next →'}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#10b981] flex items-center justify-center">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" aria-hidden="true">
-                    <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                <h4 className="font-serif text-[1.5rem] font-medium text-[#1f1610] mb-4">
-                  You&apos;re All Set!
-                </h4>
-                <p className="text-[#6b5a4e] mb-8">
-                  You&apos;ve gone through every step in your action plan. If anything changes with your case, come back and re-run the analysis on the new letter.
-                </p>
+              {/* Navigation */}
+              <div className="mt-8 flex flex-wrap gap-3">
                 <button
-                  onClick={handleReset}
-                  className="bg-[#3d2b20] text-white px-8 py-4 rounded-[10px] font-semibold text-[1.1rem] hover:bg-[#2b1e15] transition-colors"
+                  type="button"
+                  onClick={handlePreviousWalkthrough}
+                  disabled={walkthroughStep === 0}
+                  className="ac-btn-ghost"
                 >
-                  Analyze Another Letter
+                  Previous step
+                </button>
+                <button type="button" onClick={handleNextWalkthrough} className="ac-btn">
+                  {walkthroughStep === analysis.nextSteps.length - 1 ? 'Complete' : 'Next step'}
                 </button>
               </div>
-            )}
-          </div>
-        </div>
+            </div>
+          ) : (
+            <div>
+              <CompleteIcon className="mb-4 h-10 w-10 text-[#3f7d5c]" />
+              <h3 className="ac-h3">You&apos;re all set</h3>
+              <p className="max-w-prose leading-relaxed text-[#55483d]">
+                You&apos;ve gone through every step in your action plan. If anything changes with your case, come back and run the new letter through here.
+              </p>
+              <button type="button" onClick={handleReset} className="ac-btn mt-6">
+                Explain another letter
+              </button>
+            </div>
+          )}
+        </section>
       )}
 
-      {/* Error Section */}
-      {error && (
-        <div className="ac-reveal bg-[#fee2e2] border-2 border-[#dc2626] rounded-[14px] p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-full bg-[#dc2626] flex items-center justify-center flex-shrink-0">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="15" y1="9" x2="9" y2="15"></line>
-                <line x1="9" y1="9" x2="15" y2="15"></line>
-              </svg>
-            </div>
-            <div>
-              <h4 className="font-semibold text-[#dc2626] mb-2">Analysis Failed</h4>
-              <p className="text-[#dc2626]">{error}</p>
-            </div>
-          </div>
+      {/* Reference */}
+      <section className="ac-card ac-card-flush mt-12" aria-labelledby="fema-statuses-heading">
+        <div className="ac-card-head">
+          <h2 id="fema-statuses-heading" className="font-serif text-[1.2rem] font-medium text-[#1f1610]">
+            Common FEMA statuses
+          </h2>
         </div>
-      )}
-
-      {/* Info Section */}
-      <div className="bg-[#faf6f1] rounded-[14px] p-6 border border-[#e4d9cf]">
-        <h3 className="font-serif text-[1.15rem] font-medium text-[#1f1610] mb-4">
-          Common FEMA Status Codes
-        </h3>
-        <div className="grid md:grid-cols-2 gap-4 text-sm">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#b0673f] flex items-center justify-center flex-shrink-0">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-            </div>
-            <div>
-              <h4 className="font-medium text-[#1f1610] mb-1">Under Review</h4>
-              <p className="text-[#6b5a4e]">Application is being processed</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#10b981] flex items-center justify-center flex-shrink-0">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-            </div>
-            <div>
-              <h4 className="font-medium text-[#1f1610] mb-1">Approved</h4>
-              <p className="text-[#6b5a4e]">Eligible for assistance</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#dc2626] flex items-center justify-center flex-shrink-0">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="15" y1="9" x2="9" y2="15"></line>
-                <line x1="9" y1="9" x2="15" y2="15"></line>
-              </svg>
-            </div>
-            <div>
-              <h4 className="font-medium text-[#1f1610] mb-1">Denied</h4>
-              <p className="text-[#6b5a4e]">Not eligible - can appeal within 60 days</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#f59e0b] flex items-center justify-center flex-shrink-0">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
-              </svg>
-            </div>
-            <div>
-              <h4 className="font-medium text-[#1f1610] mb-1">Additional Info Needed</h4>
-              <p className="text-[#6b5a4e]">FEMA requires more documentation</p>
-            </div>
-          </div>
-        </div>
-      </div>
+        <ul className="m-0 list-none p-0">
+          {commonStatuses.map((s) => (
+            <li
+              key={s.name}
+              className="flex flex-col gap-2 border-t border-[#eadfd4] px-5 py-3.5 first:border-t-0 sm:flex-row sm:items-center sm:gap-4"
+            >
+              <span className="sm:w-[230px] sm:flex-none">
+                <CompassStatus tone={s.tone} label={s.name} />
+              </span>
+              <span className="text-[0.98rem] leading-relaxed text-[#55483d]">{s.meaning}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }

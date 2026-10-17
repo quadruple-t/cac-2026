@@ -1,11 +1,12 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useId, useRef, useState, useEffect } from 'react';
 import type { ChatSession, Content } from 'firebase/ai';
 import { UserSituation } from '@/lib/aid-programs';
 import { getGeminiModel, getSituationExtractionModel, aiErrorMessage } from '@/lib/firebase/ai';
 import { CompassStatus } from '@/components/compass-status';
 import AidIntakeForm from '@/components/features/aid-intake';
+import { PageHeader } from '@/components/page-header';
 
 interface ConversationalIntakeProps {
   onComplete: (situation: UserSituation) => void | Promise<void>;
@@ -59,6 +60,24 @@ const REQUIRED_FIELDS = [
   'hasAppliedToFEMA',
 ] as const;
 
+// Display labels for the gathered-answers summary (presentation only).
+const FIELD_LABELS: Record<(typeof REQUIRED_FIELDS)[number], string> = {
+  county: 'County',
+  damageType: 'Damage to',
+  ownershipStatus: 'Own or rent',
+  damageSeverity: 'Damage level',
+  hasInsurance: 'Insurance',
+  isFarmer: 'Farm land',
+  incomeRange: 'Income',
+  hasAppliedToFEMA: 'Applied to FEMA',
+};
+
+function formatFieldValue(value: unknown): string {
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  const text = String(value).replace(/_/g, ' ');
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
 const ERROR_THRESHOLD = 3;
 const CHAT_HISTORY_STORAGE_KEY = 'wrenChatMessages';
 const GATHERED_SITUATION_STORAGE_KEY = 'wrenGatheredSituation';
@@ -69,17 +88,17 @@ function validateSituation(raw: Record<string, unknown>): Partial<UserSituation>
   if (typeof raw.county === 'string' && raw.county.trim().length > 0) {
     out.county = raw.county.trim();
   }
-  if (typeof raw.damageType === 'string' && DAMAGE_TYPES.includes(raw.damageType as any)) {
-    out.damageType = raw.damageType as any;
+  if (typeof raw.damageType === 'string' && (DAMAGE_TYPES as readonly string[]).includes(raw.damageType)) {
+    out.damageType = raw.damageType as UserSituation['damageType'];
   }
-  if (typeof raw.ownershipStatus === 'string' && OWNERSHIP_STATUSES.includes(raw.ownershipStatus as any)) {
-    out.ownershipStatus = raw.ownershipStatus as any;
+  if (typeof raw.ownershipStatus === 'string' && (OWNERSHIP_STATUSES as readonly string[]).includes(raw.ownershipStatus)) {
+    out.ownershipStatus = raw.ownershipStatus as UserSituation['ownershipStatus'];
   }
-  if (typeof raw.damageSeverity === 'string' && DAMAGE_SEVERITIES.includes(raw.damageSeverity as any)) {
-    out.damageSeverity = raw.damageSeverity as any;
+  if (typeof raw.damageSeverity === 'string' && (DAMAGE_SEVERITIES as readonly string[]).includes(raw.damageSeverity)) {
+    out.damageSeverity = raw.damageSeverity as UserSituation['damageSeverity'];
   }
-  if (typeof raw.incomeRange === 'string' && INCOME_RANGES.includes(raw.incomeRange as any)) {
-    out.incomeRange = raw.incomeRange as any;
+  if (typeof raw.incomeRange === 'string' && (INCOME_RANGES as readonly string[]).includes(raw.incomeRange)) {
+    out.incomeRange = raw.incomeRange as UserSituation['incomeRange'];
   }
   if (typeof raw.hasInsurance === 'boolean') out.hasInsurance = raw.hasInsurance;
   if (typeof raw.isFarmer === 'boolean') out.isFarmer = raw.isFarmer;
@@ -156,6 +175,8 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
   const [inputValue, setInputValue] = useState('');
   const [errorCount, setErrorCount] = useState(0);
   const [useManualFallback, setUseManualFallback] = useState(false);
+
+  const inputId = useId();
 
   const chatSessionRef = useRef<ChatSession | null>(null);
   const situationRef = useRef<Partial<UserSituation>>(userSituation);
@@ -266,18 +287,17 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
 
   if (useManualFallback) {
     return (
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-[34px] text-center">
-          <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-            Conversational Intake
+      <div>
+        {compact ? (
+          <p className="mb-3 px-1 text-[0.95rem] leading-relaxed text-[#55483d]">
+            No problem. Fill out the short form below instead.
           </p>
-          <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-            Let&apos;s Find Your Aid Programs
-          </h1>
-          <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-            No problem — fill out the quick form below instead.
-          </p>
-        </div>
+        ) : (
+          <PageHeader
+            title="Fill in the short form"
+            lead="Same questions Wren would ask, as a form. Your answers go to the same place."
+          />
+        )}
         <AidIntakeForm
           onSubmit={onComplete}
           initialData={userSituation}
@@ -287,104 +307,113 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
     );
   }
 
-  return (
-    <div className={compact ? '' : 'max-w-3xl mx-auto'}>
-      {!compact && <div className="mb-[34px] text-center">
-        <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-          Chat with Us
-        </p>
-        <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-          Let&apos;s Find Your Aid Programs
-        </h1>
-        <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] max-w-2xl mx-auto">
-          Ask me anything about disaster aid, or just start telling me about your situation. I&apos;ll guide you through finding the right programs.
-        </p>
-      </div>}
+  const gatheredKeys = REQUIRED_FIELDS.filter((key) => userSituation[key] !== undefined);
 
-      {/* Chat Interface */}
-      <div className={`bg-[#faf6f1] rounded-[14px] border border-[#e4d9cf] overflow-hidden ${compact ? '' : 'ac-reveal-3'}`}>
+  return (
+    <div>
+      {!compact && (
+        <PageHeader
+          title="Tell Wren what happened"
+          lead="Start with the storm and your home, in your own words. Wren asks a few follow-up questions, then shows the programs that fit."
+        />
+      )}
+
+      {/* Chat interface */}
+      <div className="ac-card ac-card-flush">
+        {!compact && (
+          <div className="flex items-baseline justify-between gap-3 border-b border-[#e4d9cf] px-5 py-3.5">
+            <span className="font-serif text-[1.2rem] font-medium text-[#1f1610]">{ASSISTANT_NAME}</span>
+            <span className="ac-note">Disaster aid assistant</span>
+          </div>
+        )}
+
         {/* Messages */}
-        <div className={`${compact ? 'h-[220px] p-3 space-y-3' : 'h-[400px] p-6 space-y-4'} overflow-y-auto`}>
+        <div className={`${compact ? 'h-[220px] p-3 space-y-3' : 'h-[400px] p-5 space-y-4'} overflow-y-auto`}>
           {messages.map((message, index) => (
             <div
               key={index}
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`${compact ? 'max-w-[88%] p-2.5' : 'max-w-[80%] p-4'} rounded-[14px] ${
+                className={`${compact ? 'max-w-[88%] px-3 py-2.5' : 'max-w-[80%] px-4 py-3'} rounded-[14px] ${
                   message.role === 'user'
-                    ? 'bg-[#b0673f] text-white'
-                    : 'bg-white border border-[#e4d9cf] text-[#1f1610]'
+                    ? 'rounded-br-[4px] bg-[#3d2b20] text-white'
+                    : 'rounded-bl-[4px] border border-[#e4d9cf] bg-white text-[#1f1610]'
                 }`}
               >
-                <p className={`${compact ? 'text-sm' : 'text-[1.05rem]'} leading-relaxed whitespace-pre-wrap`}>{message.content}</p>
+                <p className={`${compact ? 'text-[0.95rem]' : 'text-[1.05rem]'} leading-relaxed whitespace-pre-wrap`}>{message.content}</p>
               </div>
             </div>
           ))}
 
           {isTyping && messages[messages.length - 1]?.role === 'user' && (
             <div className="flex justify-start">
-              <div className="bg-white border border-[#e4d9cf] p-3 rounded-[14px]">
-                <div className="flex space-x-2">
-                  <div className="w-2 h-2 bg-[#b0673f] rounded-full animate-bounce" />
-                  <div className="w-2 h-2 bg-[#b0673f] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                  <div className="w-2 h-2 bg-[#b0673f] rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
-                </div>
+              <div className="rounded-[14px] rounded-bl-[4px] border border-[#e4d9cf] bg-white px-4 py-2.5">
+                <p className="text-[0.95rem] italic text-[#6b5a4e]">{ASSISTANT_NAME} is writing a reply…</p>
               </div>
             </div>
           )}
         </div>
 
         {/* Input */}
-        <div className={`${compact ? 'p-3' : 'p-4'} border-t border-[#e4d9cf]`}>
-          <form onSubmit={handleSubmit} className="flex gap-3">
+        <div className={`${compact ? 'p-3' : 'p-4 sm:p-5'} border-t border-[#e4d9cf]`}>
+          <form onSubmit={handleSubmit} className="flex gap-2.5">
+            <label htmlFor={inputId} className="sr-only">
+              Message {ASSISTANT_NAME}
+            </label>
             <input
+              id={inputId}
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder={compact ? 'Tell me what happened...' : 'Ask a question or tell me about your situation...'}
               disabled={isTyping}
-              className={`${compact ? 'px-3 py-2 text-sm' : 'px-4 py-3 text-[1.05rem]'} flex-1 border border-[#e4d9cf] rounded-[14px] focus:ring-2 focus:ring-[#b0673f] focus:border-[#b0673f] text-[#1f1610] bg-white transition-shadow disabled:opacity-50`}
+              className="ac-input min-w-0 flex-1"
             />
             <button
               type="submit"
               disabled={!inputValue.trim() || isTyping}
-              className={`${compact ? 'px-3 py-2 text-sm' : 'px-6 py-3 text-[1.05rem]'} bg-[#3d2b20] text-white rounded-[10px] font-semibold hover:bg-[#2b1e15] transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`ac-btn-dark flex-none ${compact ? 'px-4' : ''}`}
             >
               Send
             </button>
           </form>
 
-          <div className="flex justify-between items-center mt-3">
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
             <button
+              type="button"
               onClick={handleRestart}
-              className="text-[#895031] hover:text-[#6b5a4e] font-medium text-sm"
+              className="inline-flex min-h-11 items-center rounded-[6px] px-1 text-[0.95rem] font-semibold text-[#895031] underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#b0673f]"
             >
-              Start Over
+              Start over
             </button>
 
             {gatheredCount > 0 && (
               <button
+                type="button"
                 onClick={handleShowResults}
                 disabled={isFinishing}
-                className="text-[#b0673f] hover:text-[#895031] font-medium text-sm disabled:opacity-50"
+                className={compact ? 'ac-btn ac-btn-sm min-h-11' : 'ac-btn'}
               >
-                {isFinishing ? 'Saving...' : `Show Results (${gatheredCount}/${REQUIRED_FIELDS.length} fields)`}
+                {isFinishing
+                  ? 'Saving...'
+                  : compact
+                    ? `Show my results (${gatheredCount}/${REQUIRED_FIELDS.length})`
+                    : `Show my results (${gatheredCount} of ${REQUIRED_FIELDS.length} answered)`}
               </button>
             )}
           </div>
 
           {errorCount >= ERROR_THRESHOLD && (
-            <div className="mt-4 bg-white rounded-[14px] p-4 border border-[#e4d9cf] flex items-center justify-between gap-4 flex-wrap">
-              <div className="flex items-center gap-3">
-                <CompassStatus tone="attention" label="Having trouble" />
-                <p className="text-sm text-[#6b5a4e]">
-                  The assistant is having trouble right now. You can keep trying, or switch to the quick form instead.
-                </p>
-              </div>
+            <div className="mt-4 rounded-[12px] border border-[#e4d9cf] bg-white p-4">
+              <CompassStatus tone="attention" label="Having trouble" />
+              <p className="mt-2.5 text-[0.95rem] leading-relaxed text-[#55483d]">
+                {ASSISTANT_NAME} can&apos;t reply right now. You can keep trying, or answer the same questions in a short form instead.
+              </p>
               <button
+                type="button"
                 onClick={() => setUseManualFallback(true)}
-                className="text-[#b0673f] hover:text-[#895031] font-medium text-sm whitespace-nowrap"
+                className="ac-btn-ghost mt-3"
               >
                 Use the form instead
               </button>
@@ -395,20 +424,21 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
 
       {/* Info gathered indicator */}
       {gatheredCount > 0 && (
-        <div className="mt-6 bg-[#faf6f1] rounded-[14px] p-4 border border-[#e4d9cf]">
-          <p className="text-sm text-[#895031] font-semibold uppercase tracking-[0.08em] mb-2">
-            Information Gathered
+        <div className={`${compact ? 'mt-3 p-3' : 'mt-6 p-5'} rounded-[16px] border border-[#e4d9cf] bg-[#faf6f1]`}>
+          <p className="mb-3 font-serif text-[1.1rem] font-medium text-[#1f1610]">
+            What {ASSISTANT_NAME} knows so far
             {pendingExtractions > 0 && (
-              <span className="ml-2 normal-case tracking-normal font-normal text-[#6b5a4e]">updating...</span>
+              <span className="ml-2 font-sans text-[0.88rem] font-normal text-[#6b5a4e]">Updating…</span>
             )}
           </p>
-          <div className="flex flex-wrap gap-2">
-            {REQUIRED_FIELDS.filter((key) => userSituation[key] !== undefined).map((key) => (
-              <span key={key} className="text-xs bg-white border border-[#e4d9cf] px-2 py-1 rounded-full text-[#6b5a4e]">
-                {key}: {String(userSituation[key])}
-              </span>
+          <dl className={`grid gap-x-5 gap-y-3 ${compact ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-4'}`}>
+            {gatheredKeys.map((key) => (
+              <div key={key}>
+                <dt className="text-[0.85rem] text-[#6b5a4e]">{FIELD_LABELS[key]}</dt>
+                <dd className="text-[0.98rem] font-semibold text-[#1f1610]">{formatFieldValue(userSituation[key])}</dd>
+              </div>
             ))}
-          </div>
+          </dl>
         </div>
       )}
     </div>

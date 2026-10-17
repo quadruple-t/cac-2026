@@ -1,8 +1,10 @@
 import Link from "next/link";
 import Navigation from "@/components/navigation";
+import { PageHeader } from "@/components/page-header";
+import SiteFooter from "@/components/site-footer";
 
 export const metadata = {
-  title: "Privacy — Aid Compass",
+  title: "Privacy",
   description:
     "Why Aid Compass asks you to sign in, what we save, and how you can delete it.",
 };
@@ -12,7 +14,7 @@ const sections = [
     title: "Why you need an account",
     body: [
       "Your answers describe a hard moment in your life: where you live, what was damaged, your household and income. An account lets us keep that information tied only to you, so no one else can open it.",
-      "It also means you don't have to start over. Your answers, pinned programs, deadline progress, and chat with Wren are saved to your account and are there when you come back on any device.",
+      "It also means you don't have to start over. Your answers and pinned programs are saved to your account and are there when you come back on any device. Your chat with Wren and your deadline checklist progress are kept in this browser only.",
     ],
   },
   {
@@ -20,7 +22,7 @@ const sections = [
     list: [
       "Your sign-in details: your email address, or the basic profile Google shares with us if you choose Continue with Google. We never see or store your Google password.",
       "Your situation: the answers you give in the questionnaire or chat, such as county, address, what was damaged, ownership, damage severity, household income range, insurance, and farm status.",
-      "Your activity: programs you pin, application status you mark, deadline steps you complete, and your conversation with Wren.",
+      "Your pinned programs, saved to your account. Your conversation with Wren and the deadline steps you check off are stored only in your browser, not on our servers, and clearing your browser data removes them.",
     ],
   },
   {
@@ -33,7 +35,7 @@ const sections = [
     title: "How we use it",
     list: [
       "To match you with aid programs and show your deadlines and next steps.",
-      "To generate plain-language summaries, answers, and letter explanations with AI. When you use these features, the relevant text (for example your answers, your chat messages, or a FEMA letter you paste) is sent to Google's Gemini model through Firebase to produce a response.",
+      "To write summaries, answer your questions, and explain letters with AI. When you use these features, the relevant text (for example your answers, your chat messages, or a FEMA letter you paste) is sent to Google's Gemini model through Firebase to produce a response.",
       "We don't sell your information and we don't use it for advertising.",
     ],
   },
@@ -65,38 +67,31 @@ export default function PrivacyPage() {
       <Navigation />
 
       <main className="flex-1">
-        <section className="mx-auto max-w-[720px] px-[22px] py-[66px]">
-          <div className="mb-[34px] text-center">
-            <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-              Privacy
-            </p>
-            <h1 className="ac-reveal mb-4 font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610]">
-              Your information, in plain language
-            </h1>
-            <p className="ac-reveal-2 text-[#6b5a4e]">
-              Last updated October 14, 2026
-            </p>
-          </div>
+        <div className="ac-page ac-page-narrow">
+          <PageHeader
+            title="What we keep, and why"
+            lead="Why we ask you to sign in, what we save, and how you can delete it."
+          >
+            <p className="ac-note m-0">Last updated October 14, 2026</p>
+          </PageHeader>
 
-          <div className="ac-reveal-2 flex flex-col gap-4">
+          <div className="max-w-[68ch]">
             {sections.map((section) => (
               <section
                 key={section.title}
-                className="rounded-[14px] border border-[#e4d9cf] bg-[#faf6f1] p-6"
+                className="border-t border-[#e4d9cf] py-8"
               >
-                <h2 className="mb-3 font-serif text-[1.2rem] font-medium text-[#1f1610]">
-                  {section.title}
-                </h2>
+                <h2 className="ac-h3 mb-3!">{section.title}</h2>
                 {section.body?.map((paragraph) => (
                   <p
                     key={paragraph}
-                    className="mb-3 text-[0.95rem] leading-relaxed text-[#6b5a4e] last:mb-0"
+                    className="mb-4 text-[1.05rem] leading-relaxed text-[#55483d] last:mb-0"
                   >
                     {paragraph}
                   </p>
                 ))}
                 {section.list && (
-                  <ul className="m-0 flex list-disc flex-col gap-2 pl-5 text-[0.95rem] leading-relaxed text-[#6b5a4e]">
+                  <ul className="ac-points text-[1.05rem] leading-relaxed text-[#55483d]">
                     {section.list.map((item) => (
                       <li key={item}>{item}</li>
                     ))}
@@ -104,15 +99,16 @@ export default function PrivacyPage() {
                 )}
               </section>
             ))}
-          </div>
 
-          <p className="mt-8 text-center text-sm text-[#6b5a4e]">
-            <Link href="/" className="font-semibold text-[#3d2b20]">
-              Back to home
-            </Link>
-          </p>
-        </section>
+            <p className="mt-10 border-t border-[#e4d9cf] pt-8 text-[1rem]">
+              <Link href="/" className="ac-link">
+                Back to home
+              </Link>
+            </p>
+          </div>
+        </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }

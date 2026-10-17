@@ -17,9 +17,36 @@ const publicSans = Public_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Aid Compass — Support after Hurricane Helene",
+  title: {
+    default: "Aid Compass: Hurricane Helene aid, sorted for you",
+    template: "%s | Aid Compass",
+  },
   description:
-    "Aid Compass helps people in western North Carolina find Hurricane Helene recovery support, deadlines, and official application links.",
+    "FEMA, SBA, and North Carolina recovery programs in one place. See what you qualify for, what to bring, and every deadline. Free, and not a government site.",
+  applicationName: "Aid Compass",
+  keywords: [
+    "Hurricane Helene aid",
+    "Helene recovery assistance",
+    "western North Carolina disaster aid",
+    "FEMA Individual Assistance",
+    "SBA disaster loan",
+    "Disaster SNAP North Carolina",
+    "disaster aid deadlines",
+  ],
+  openGraph: {
+    type: "website",
+    siteName: "Aid Compass",
+    locale: "en_US",
+    title: "Aid Compass: Hurricane Helene aid, sorted for you",
+    description:
+      "Disaster aid is a maze. Aid Compass walks western North Carolina survivors through FEMA, SBA, and state programs, with checklists and deadlines.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Aid Compass: Hurricane Helene aid, sorted for you",
+    description:
+      "Find the Helene recovery programs you qualify for, what to bring, and every deadline. Free.",
+  },
 };
 
 export default function RootLayout({

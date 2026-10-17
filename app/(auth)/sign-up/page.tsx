@@ -30,7 +30,9 @@ export default function SignUpPage() {
       await establishServerSession(credential.user);
       window.location.assign("/dashboard");
     } catch {
-      setError("Could not create an account with that email and password.");
+      setError(
+        "We couldn't create your account. If that email already has an account, sign in instead. Otherwise, check the email and use a password of at least 6 characters.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -47,7 +49,9 @@ export default function SignUpPage() {
       await establishServerSession(credential.user);
       window.location.assign("/dashboard");
     } catch {
-      setError("Could not sign up with Google.");
+      setError(
+        "Google sign-up didn't finish. Try again, or sign up with your email and a password.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -55,67 +59,84 @@ export default function SignUpPage() {
 
   return (
     <div>
-      <h1 className="mb-6 font-serif text-2xl font-medium text-[#1f1610]">
-        Create your account
-      </h1>
+      <h1 className="ac-h2">Create your account</h1>
+      <p className="ac-muted mt-0 mb-7 text-[1rem] leading-relaxed">
+        Save your answers and pinned programs so you can come back to them on
+        any device.
+      </p>
 
-      <AuthPrivacyNote />
-
-      <form onSubmit={handleEmailSignUp} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1.5 text-sm text-[#55483d]">
-          Email
+      <form onSubmit={handleEmailSignUp} className="flex flex-col gap-5">
+        <div>
+          <label htmlFor="sign-up-email" className="ac-label">
+            Email
+          </label>
           <input
+            id="sign-up-email"
             type="email"
+            autoComplete="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-lg border border-[#e4d9cf] bg-white px-3.5 py-2.5 text-[#1f1610] outline-none focus-visible:border-[#3d2b20]"
+            className="ac-input"
           />
-        </label>
-        <label className="flex flex-col gap-1.5 text-sm text-[#55483d]">
-          Password
+        </div>
+        <div>
+          <label htmlFor="sign-up-password" className="ac-label">
+            Password
+          </label>
           <input
+            id="sign-up-password"
             type="password"
+            autoComplete="new-password"
             required
             minLength={6}
+            aria-describedby="sign-up-password-hint"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="rounded-lg border border-[#e4d9cf] bg-white px-3.5 py-2.5 text-[#1f1610] outline-none focus-visible:border-[#3d2b20]"
+            className="ac-input"
           />
-        </label>
+          <p id="sign-up-password-hint" className="ac-note mb-0 mt-1.5">
+            At least 6 characters.
+          </p>
+        </div>
 
-        {error && <p className="text-sm text-[#a13c2c]">{error}</p>}
+        {error && (
+          <p
+            role="alert"
+            className="m-0 rounded-[10px] border border-[#e0b4a4] bg-[#fbf1ec] px-3.5 py-3 text-[0.95rem] leading-snug text-[#8f2f1f]"
+          >
+            {error}
+          </p>
+        )}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded-lg bg-[#3d2b20] px-4 py-2.5 font-semibold text-white transition-colors hover:bg-[#2b1e15] disabled:opacity-60"
-        >
-          Sign up
+        <button type="submit" disabled={submitting} className="ac-btn w-full">
+          {submitting ? "Creating account…" : "Create account"}
         </button>
       </form>
 
-      <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-[0.06em] text-[#8a705d]">
-        <span className="h-px flex-1 bg-[#e4d9cf]" />
+      <div className="my-5 flex items-center gap-3 text-[0.9rem] text-[#6b5a4e]">
+        <span aria-hidden="true" className="h-px flex-1 bg-[#e4d9cf]" />
         or
-        <span className="h-px flex-1 bg-[#e4d9cf]" />
+        <span aria-hidden="true" className="h-px flex-1 bg-[#e4d9cf]" />
       </div>
 
       <button
         type="button"
         onClick={handleGoogleSignUp}
         disabled={submitting}
-        className="w-full rounded-lg border border-[#e4d9cf] bg-white px-4 py-2.5 font-semibold text-[#2a201a] transition-colors hover:bg-[#f2ece5] disabled:opacity-60"
+        className="ac-btn-ghost w-full"
       >
         Continue with Google
       </button>
 
-      <p className="mt-6 text-sm text-[#6b5a4e]">
+      <p className="ac-muted mb-0 mt-6 text-[0.95rem]">
         Already have an account?{" "}
-        <Link href="/sign-in" className="font-semibold text-[#3d2b20]">
+        <Link href="/sign-in" className="ac-link">
           Sign in
         </Link>
       </p>
+
+      <AuthPrivacyNote />
     </div>
   );
 }

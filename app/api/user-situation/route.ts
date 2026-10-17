@@ -25,6 +25,9 @@ export async function POST(request: NextRequest) {
     }
 
     const situation = await request.json();
+    if (!situation || typeof situation !== 'object' || Array.isArray(situation)) {
+      return NextResponse.json({ error: 'Body must be a JSON object' }, { status: 400 });
+    }
     const docId = await saveUserSituation(user.uid, situation);
     return NextResponse.json({ id: docId });
   } catch (error) {
