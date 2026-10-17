@@ -208,13 +208,14 @@
   left: 50%;
   top: 50%;
   z-index: 5;
-  width: min(500px, 86vw);
+  width: min(560px, 86vw);
   text-align: center;
   opacity: 0;
   transform: translate(-50%, -50%);
 }
 .ls-hero-kicker {
-  margin: 0 0 14px;
+  width: fit-content;
+  margin: 0 auto 14px;
   font-size: 0.92rem;
   font-weight: 700;
   color: #895031;
@@ -222,7 +223,7 @@
 .ls-hero-h {
   margin: 0 0 16px;
   font-family: var(--font-newsreader), Georgia, serif;
-  font-size: clamp(2.05rem, 4.3vw, 3.3rem);
+  font-size: clamp(2.05rem, 4vw, 3.1rem);
   font-weight: 500;
   line-height: 1.04;
   letter-spacing: -0.025em;
@@ -231,7 +232,7 @@
 }
 .ls-hero-p {
   margin: 0 auto 22px;
-  max-width: 30rem;
+  max-width: 34rem;
   font-size: clamp(1rem, 1.5vw, 1.15rem);
   line-height: 1.5;
   color: #55483d;
@@ -282,24 +283,22 @@
 }
 
 .ls-cue {
-  position: absolute;
-  left: 50%;
-  bottom: 12px;
-  z-index: 5;
   display: flex;
+  width: fit-content;
+  margin-inline: auto;
   flex-direction: column;
   align-items: center;
   gap: 8px;
   font-size: 0.82rem;
   font-weight: 600;
   color: #6b5a4e;
+  margin-top: 16px;
   opacity: 0;
-  transform: translateX(-50%);
   pointer-events: none;
 }
 .ls-cue-line {
   width: 1px;
-  height: 28px;
+  height: 22px;
   background: #895031;
   transform-origin: top;
   animation: ls-cue 2.2s ease-in-out infinite;
@@ -378,11 +377,11 @@
     grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
     gap: 64px;
   }
-  .is-final .ls-panel-grid {
-    grid-template-columns: minmax(0, 1fr);
-    justify-items: center;
-    text-align: center;
-  }
+}
+.is-final .ls-panel-grid {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
 }
 
 .ls-panel-h {

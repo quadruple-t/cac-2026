@@ -53,6 +53,7 @@ const ease = (a: number, b: number, x: number) => {
   const t = clamp((x - a) / (b - a));
   return t * t * (3 - 2 * t);
 };
+const superellipse = (v: number) => Math.sign(v) * Math.abs(v) ** 0.6;
 // Deterministic scatter so the opening frame is the same on every load.
 const seeded = (i: number, salt: number) => {
   const x = Math.sin(i * 127.1 + salt * 311.7) * 43758.5453;
@@ -62,6 +63,8 @@ const seeded = (i: number, salt: number) => {
 /* Scroll map (fractions of the track). Keep in sync with the CSS track height. */
 const PANELS_START = 0.4;
 const PANELS_SPAN = 0.54;
+/* Desktop ring and headline sit centered in the space under the fixed nav. */
+const NAV_OFFSET = 30;
 
 /* -------------------------------------------------------------------------- */
 /*  Component                                                                 */
@@ -148,8 +151,9 @@ export function AidStage() {
       const q = ease(0.3, 0.4, P); // arc sweeps away
 
       /* Ring geometry */
-      const ringRx = small ? w * 0.8 : Math.min(w * 0.38, 560);
-      const ringRy = small ? h * 0.4 : Math.min(h * 0.36, 340);
+      const ringRx = small ? w * 0.8 : Math.min(w * 0.44, 660);
+      const ringRy = small ? h * 0.4 : Math.min(h * 0.39, 390);
+      const ringCy = small ? 0 : NAV_OFFSET;
       const ringScale = small ? 0.72 : 1;
       const spin = time * 0.003;
 
@@ -164,8 +168,10 @@ export function AidStage() {
       for (let i = 0; i < n; i++) {
         const card = cards[i];
         const a = ((i / n) * 360 + spin) * (Math.PI / 180);
-        const ringX = Math.cos(a) * ringRx;
-        const ringY = Math.sin(a) * ringRy;
+        // Superellipse: pushes the diagonal cards outward so the corners of
+        // the headline block keep their breathing room.
+        const ringX = superellipse(Math.cos(a)) * ringRx;
+        const ringY = superellipse(Math.sin(a)) * ringRy + ringCy;
         const ringRot = Math.sin(a) * 10;
 
         const sc = scatter[i];
@@ -195,7 +201,7 @@ export function AidStage() {
       if (hero) {
         const o = ease(0.5, 1, introE) * clamp(1 - z * 2.2);
         hero.style.opacity = o.toFixed(3);
-        hero.style.transform = `translate(-50%, calc(-50% + ${((1 - ease(0.5, 1, introE)) * 14 - z * 36).toFixed(1)}px))`;
+        hero.style.transform = `translate(-50%, calc(-50% + ${((small ? 0 : NAV_OFFSET) + (1 - ease(0.5, 1, introE)) * 14 - z * 36).toFixed(1)}px))`;
         hero.style.pointerEvents = o > 0.5 ? 'auto' : 'none';
         hero.toggleAttribute('inert', o <= 0.5);
       }
@@ -263,9 +269,9 @@ export function AidStage() {
     const tick = (_t: number, dt: number) => {
       const step = Math.min(dt, 64);
       time += step;
-      cur += (target - cur) * (1 - Math.exp(-step / 110));
+      cur += (target - cur) * (1 - Math.exp(-dt / 110));
       if (Math.abs(target - cur) < 0.00002) cur = target;
-      mouseSmooth += (mouse - mouseSmooth) * (1 - Math.exp(-step / 260));
+      mouseSmooth += (mouse - mouseSmooth) * (1 - Math.exp(-dt / 260));
       render();
     };
     gsap.ticker.add(tick);
@@ -306,28 +312,28 @@ export function AidStage() {
 
         {/* Frame 1: headline inside the ring */}
         <div ref={heroRef} className="ls-hero">
-          <p className="ls-hero-kicker">Hurricane Helene recovery · Western North Carolina</p>
-          <h1 className="ls-hero-h">Find the disaster aid you actually qualify for.</h1>
+          <p className="ls-hero-kicker">For Hurricane Helene survivors in western North Carolina</p>
+          <h1 className="ls-hero-h">Disaster aid is a maze. We&apos;ll walk it with you.</h1>
           <p className="ls-hero-p">
-            Answer a few simple questions to explore support programs, deadlines, and official application links.
+            FEMA, SBA, state and local programs each have their own rules and deadlines. Answer a few questions and
+            Aid Compass shows which ones fit your household, what to bring, and when it&apos;s due.
           </p>
           <div className="ls-hero-actions">
             <Link href="/conversational" className="ls-btn">
-              See support for me
+              Show me what I qualify for
             </Link>
-            <span className="ls-hero-note">Free to use · Not a government site</span>
+            <span className="ls-hero-note">Free, about five minutes, and not a government site.</span>
           </div>
-        </div>
-
-        <div ref={cueRef} className="ls-cue" aria-hidden="true">
-          Scroll to explore
-          <span className="ls-cue-line" />
+          <div ref={cueRef} className="ls-cue" aria-hidden="true">
+            Scroll to explore
+            <span className="ls-cue-line" />
+          </div>
         </div>
 
         {/* Frame 2: ring has opened into an arc */}
         <div ref={arcRef} className="ls-arc" aria-hidden="true">
-          <h2 className="ls-arc-h">Every program, one clear path.</h2>
-          <p className="ls-arc-p">Federal, state and local help, sorted for your household. Hover a card to flip it.</p>
+          <h2 className="ls-arc-h">We sort the pile for you.</h2>
+          <p className="ls-arc-p">Federal, state and local help in one list, best fit first. Hover a card to see what it covers.</p>
         </div>
 
         {/* Frames 3–7: pinned feature scenes */}

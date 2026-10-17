@@ -2,7 +2,7 @@ import Link from "next/link";
 import Navigation from "@/components/navigation";
 
 export const metadata = {
-  title: "Privacy — Aid Compass",
+  title: "Privacy",
   description:
     "Why Aid Compass asks you to sign in, what we save, and how you can delete it.",
 };
