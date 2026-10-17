@@ -35,7 +35,7 @@ const sections = [
     title: "How we use it",
     list: [
       "To match you with aid programs and show your deadlines and next steps.",
-      "To generate plain-language summaries, answers, and letter explanations with AI. When you use these features, the relevant text (for example your answers, your chat messages, or a FEMA letter you paste) is sent to Google's Gemini model through Firebase to produce a response.",
+      "To write summaries, answer your questions, and explain letters with AI. When you use these features, the relevant text (for example your answers, your chat messages, or a FEMA letter you paste) is sent to Google's Gemini model through Firebase to produce a response.",
       "We don't sell your information and we don't use it for advertising.",
     ],
   },
@@ -69,8 +69,7 @@ export default function PrivacyPage() {
       <main className="flex-1">
         <div className="ac-page ac-page-narrow">
           <PageHeader
-            kicker="Privacy policy"
-            title="Your information, in plain language"
+            title="What we keep, and why"
             lead="Why we ask you to sign in, what we save, and how you can delete it."
           >
             <p className="ac-note m-0">Last updated October 14, 2026</p>

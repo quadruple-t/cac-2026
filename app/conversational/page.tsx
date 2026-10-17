@@ -80,7 +80,6 @@ export default function ConversationalPage() {
           ) : (
             <div>
               <PageHeader
-                kicker="Your results"
                 title="Programs that may fit"
                 lead={`Based on what you shared${userSituation.county ? ` about ${userSituation.county}` : ''}, here ${
                   eligiblePrograms.length === 1 ? 'is 1 program' : `are ${eligiblePrograms.length} programs`

@@ -67,13 +67,11 @@ export default function DeadlinesPage() {
         <div className="ac-page">
           {isSignedOut ? (
             <PageHeader
-              kicker="Deadline tracker"
               title="Sign in to view your plan"
               lead="Your deadlines and progress are available after you sign in."
             />
           ) : (
             <PageHeader
-              kicker="Deadline tracker"
               title="Track your application deadlines"
               lead="Turn the programs you pinned into a short list of deadlines and next steps."
             />

@@ -39,9 +39,8 @@ export default function FemaExplainerPage() {
       <main className="flex-1">
         <div className="ac-page ac-page-narrow">
           <PageHeader
-            kicker="FEMA letter help"
             title="Understand your FEMA letter"
-            lead="Paste the letter and get a plain-language explanation of your status, any deadlines, and what to do next."
+            lead="Paste what the letter says. We'll tell you where your application stands, any date you need to hit, and what to do next."
           />
           <FemaExplainer />
         </div>

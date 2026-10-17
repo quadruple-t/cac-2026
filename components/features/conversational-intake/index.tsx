@@ -294,9 +294,8 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
           </p>
         ) : (
           <PageHeader
-            kicker="Find aid"
-            title="Let's find your aid programs"
-            lead="No problem. Fill out the short form below instead."
+            title="Fill in the short form"
+            lead="Same questions Wren would ask, as a form. Your answers go to the same place."
           />
         )}
         <AidIntakeForm
@@ -314,9 +313,8 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
     <div>
       {!compact && (
         <PageHeader
-          kicker="Find aid"
-          title="Let's find your aid programs"
-          lead="Ask Wren anything about disaster aid, or start by describing what happened. Wren will guide you to programs that fit."
+          title="Tell Wren what happened"
+          lead="Start with the storm and your home, in your own words. Wren asks a few follow-up questions, then shows the programs that fit."
         />
       )}
 

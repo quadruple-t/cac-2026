@@ -341,7 +341,7 @@ export function AidStage() {
           <Panel
             title="See what you may qualify for."
             body="Answer a few questions and Aid Compass ranks the programs that fit your household, with what each one covers and where to apply."
-            points={['Plain-language matches, best fit first', 'Pin programs to track them later', 'Official application links only']}
+            points={[]}
             cta={{ href: '/conversational', label: 'Find my programs' }}
           >
             <MockCard title="Your matches" meta="Sample data">
@@ -360,7 +360,7 @@ export function AidStage() {
           <Panel
             title="Know what to bring before you apply."
             body="Every program asks for paperwork. Aid Compass turns your answers into one checklist so you gather documents once, not five times."
-            points={['One list across all your programs', 'Tells you where to replace what you lost', 'Saved to your account']}
+            points={[]}
             cta={{ href: '/dashboard', label: 'Open my checklist' }}
           >
             <MockCard title="Documents" meta="2 of 4 ready">
@@ -374,7 +374,7 @@ export function AidStage() {
           <Panel
             title="Never miss a deadline."
             body="Pin the programs you care about and see which dates are closing first. Steps are ordered by what needs attention soonest."
-            points={['Soonest deadline always on top', 'Your plan stays on your device and account', 'Calm reminders, no countdown panic']}
+            points={[]}
             cta={{ href: '/deadlines', label: 'See my deadlines' }}
           >
             <MockCard title="Deadlines" meta="Sample data">
@@ -394,7 +394,7 @@ export function AidStage() {
             dark
             title="Decode the letter from FEMA."
             body="Paste or type what the letter says. Aid Compass explains it in plain words and tells you the next step, so a request for documents does not end your claim."
-            points={['Plain-language summary', 'What to do, and by when', 'Nothing is sent to FEMA']}
+            points={[]}
             cta={{ href: '/fema', label: 'Explain my letter' }}
           >
             <MockCard title="FEMA letter" meta="Sample" dark>

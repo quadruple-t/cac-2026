@@ -6,16 +6,16 @@ import { AidStage } from '@/components/landing/aid-stage';
 
 const steps = [
   {
-    title: "Tell us what you need",
-    body: "Answer a few simple questions about your household. No documents needed to start.",
+    title: "Tell us what happened",
+    body: "Chat with Wren or fill in the questionnaire: where you live, what was damaged, and whether you own or rent.",
   },
   {
-    title: "Explore your options",
-    body: "See programs that may fit your situation, along with key deadlines.",
+    title: "See what fits",
+    body: "Programs are ranked against your answers. Pin the ones you want to follow and their deadlines line up for you.",
   },
   {
-    title: "Take the next step",
-    body: "Use the official application link when you’re ready to apply.",
+    title: "Apply on the official site",
+    body: "Every program links to its own official application. You apply there; we never ask for your Social Security or bank details.",
   },
 ];
 
@@ -44,16 +44,19 @@ export default function Home() {
         <section id="how-it-works" aria-labelledby="how-h" className="ac-page">
           <div className="ac-page-head">
             <h2 id="how-h" className="ac-h2">Three steps, about five minutes.</h2>
-            <p className="ac-lead">No documents needed to start. You can stop and come back any time.</p>
+            <p className="ac-lead">You don&apos;t need any documents to start.</p>
           </div>
-          <ol className="m-0 grid list-none gap-5 p-0 md:grid-cols-3">
+          <ol className="m-0 list-none border-t border-[#e4d9cf] p-0">
             {steps.map((step, i) => (
-              <li key={step.title} className="ac-card">
-                <span aria-hidden="true" className="mb-5 block font-serif text-[2.4rem] leading-none text-[#b0673f]">
+              <li
+                key={step.title}
+                className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-x-4 border-b border-[#e4d9cf] py-6 md:grid-cols-[3.5rem_minmax(0,0.9fr)_minmax(0,1.6fr)] md:gap-x-10"
+              >
+                <span aria-hidden="true" className="font-serif text-[2rem] leading-none text-[#a85f38]">
                   {i + 1}
                 </span>
                 <h3 className="ac-h3">{step.title}</h3>
-                <p className="m-0 text-[1.05rem] leading-relaxed text-[#55483d]">{step.body}</p>
+                <p className="col-start-2 m-0 max-w-[56ch] text-[1.05rem] leading-relaxed text-[#55483d] md:col-start-auto">{step.body}</p>
               </li>
             ))}
           </ol>

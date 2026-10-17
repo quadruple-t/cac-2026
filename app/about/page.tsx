@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Navigation from '@/components/navigation';
 import { PageHeader } from '@/components/page-header';
 import SiteFooter from '@/components/site-footer';
@@ -5,28 +6,29 @@ import { TeamAvatar } from '@/components/team-avatar';
 
 const features = [
   {
-    title: "Conversational intake",
-    body: "Tell Wren about your situation in your own words. AI turns your answers into a list of programs you may qualify for.",
+    title: "Talk it through with Wren",
+    body: "Describe what happened in your own words. Wren asks the follow-up questions and turns your answers into a list of programs to look at.",
+    href: "/conversational",
   },
   {
-    title: "Aid program discovery",
-    body: "Federal, state, and local aid programs in one place, matched to your eligibility.",
+    title: "See which programs fit",
+    body: "Federal, state, and local programs ranked against your answers, with a link to each program's own application.",
+    href: "/dashboard",
   },
   {
-    title: "Document checklist",
-    body: "The documents each program asks for, so you can gather them before you apply.",
+    title: "Know what to bring",
+    body: "The documents each program asks for, gathered into one list so you collect them once.",
+    href: "/dashboard",
   },
   {
-    title: "Deadline tracking",
-    body: "Application deadlines ranked by urgency, with contact details for each organization.",
+    title: "Keep track of deadlines",
+    body: "Pinned programs sorted by which date comes first, with who to call for each one.",
+    href: "/deadlines",
   },
   {
-    title: "FEMA letter explainer",
-    body: "Paste a FEMA letter and AI explains, in plain language, where your application stands and what to do next.",
-  },
-  {
-    title: "Application status tracking",
-    body: "Follow your progress across several programs from one dashboard.",
+    title: "Make sense of a FEMA letter",
+    body: "Paste the letter and get back what it means for your application and what to do next.",
+    href: "/fema",
   },
 ];
 
@@ -124,11 +126,18 @@ export default function AboutPage() {
             <div className="ac-page-head">
               <h2 id="features-h" className="ac-h2">What Aid Compass does</h2>
             </div>
-            <ul className="m-0 grid list-none gap-5 p-0 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="m-0 list-none border-t border-[#e4d9cf] p-0">
               {features.map((feature) => (
-                <li key={feature.title} className="ac-card">
-                  <h3 className="ac-h3">{feature.title}</h3>
-                  <p className="m-0 text-[1rem] leading-relaxed text-[#55483d]">{feature.body}</p>
+                <li
+                  key={feature.title}
+                  className="grid gap-x-12 gap-y-1 border-b border-[#e4d9cf] py-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)]"
+                >
+                  <h3 className="ac-h3">
+                    <Link href={feature.href} className="text-[#1f1610] underline decoration-[#d8c8b9] underline-offset-4 hover:decoration-[#a85f38]">
+                      {feature.title}
+                    </Link>
+                  </h3>
+                  <p className="m-0 max-w-[60ch] text-[1.05rem] leading-relaxed text-[#55483d]">{feature.body}</p>
                 </li>
               ))}
             </ul>
@@ -140,7 +149,6 @@ export default function AboutPage() {
             className="ac-band-dark mt-20 rounded-[16px] border px-6 py-10 md:px-10 md:py-12"
           >
             <div className="mb-8 max-w-[46rem]">
-              <p className="mb-3 text-[0.92rem] font-bold text-[#e0a987]">Who built this</p>
               <h2 id="trust-h" className="ac-h2">Built to help, not to collect.</h2>
             </div>
             <ul className="m-0 grid list-none gap-x-10 gap-y-7 p-0 md:grid-cols-2">

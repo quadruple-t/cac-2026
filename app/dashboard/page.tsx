@@ -178,7 +178,6 @@ export default function DashboardPage() {
         <div className="ac-page">
           {showingForm ? (
             <PageHeader
-              kicker="My aid"
               title={userSituation ? 'Update your answers' : 'Find aid for your situation'}
               lead={
                 userSituation
@@ -188,7 +187,6 @@ export default function DashboardPage() {
             />
           ) : (
             <PageHeader
-              kicker="My aid"
               title="Programs that may fit"
               lead={`Based on your situation in ${userSituation?.county || 'your area'}, here ${
                 programCount === 1 ? 'is 1 program' : `are ${programCount} programs`

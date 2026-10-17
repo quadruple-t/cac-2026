@@ -102,7 +102,7 @@ export default function SettingsPage() {
       const diff = parseCorrectionResponse(result.response.text());
 
       if (Object.keys(diff).length === 0) {
-        setExtractError("I couldn't tell what to update from that — try naming the specific detail that changed.");
+        setExtractError("Couldn't tell which answer changed. Try naming it, for example: we moved to Black Mountain.");
       } else {
         setPendingChanges(diff);
       }
@@ -197,9 +197,8 @@ export default function SettingsPage() {
       <main className="flex-1">
         <div className="ac-page ac-page-narrow">
           <PageHeader
-            kicker="My info"
             title="What we know about your situation"
-            lead="Here's what Aid Compass saved from your chat and questionnaire. Edit any answer directly, or tell us what changed in your own words."
+            lead="These are the answers saved from your chat and questionnaire. Change any of them below, or describe what changed and we'll suggest the edits."
           />
 
           {isPageLoading ? (
