@@ -22,7 +22,7 @@ export default function SignInPage() {
 
 function SignInForm() {
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/dashboard";
+  const next = searchParams.get("next") || "/conversational";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

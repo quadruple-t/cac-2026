@@ -1,8 +1,11 @@
 import type { AidProgram } from '@/lib/aid-programs';
 
-// The shape actually sent over the wire by /api/aid-programs: matchReason.sourceUrl
-// is resolved server-side (aid-programs-sheet.ts is server-only and can't be
-// imported here, since this adapter also runs in the client dashboard bundle).
+// The shape actually sent over the wire by /api/aid-programs. matchReason.sourceUrl
+// is the program's official info page (resolved server-side from whichever sheet
+// column has it — aid-programs-sheet.ts is server-only and can't be imported here,
+// since this adapter also runs in the client dashboard bundle). matchReason.caseworkerUrl
+// is the old "link straight to the sheet row" behavior — kept available, but no longer
+// the default/primary link surfaced to end users (see rankedProgramToAidProgram).
 export interface RankedAidProgramResponse {
   program: {
     name: string;
@@ -16,16 +19,56 @@ export interface RankedAidProgramResponse {
     sourceUrl: string;
     phone: string;
     email: string;
+    eligibleApplicantTypes: string;
+    homeownerRenterRequirements: string;
+    requiredDamageType: string;
+    primaryResidenceOnly: string;
+    mustBeInDeclaredDisasterArea: string;
+    ruralOnly: string;
+    eligibleCounties: string;
   };
   score: number;
   matchReason: {
     sentence: string;
     sourceUrl: string;
+    caseworkerUrl: string;
   };
 }
 
+/** Plain-language "who qualifies" fields pulled from the sheet's eligibility columns. */
+export interface AidProgramQualifications {
+  eligibleApplicantTypes?: string;
+  homeownerRenterRequirements?: string;
+  requiredDamageType?: string;
+  primaryResidenceOnly?: string;
+  mustBeInDeclaredDisasterArea?: string;
+  ruralOnly?: string;
+  eligibleCounties?: string;
+}
+
+/**
+ * AidProgram plus sheet-sourced extras the static `aidPrograms` list in
+ * lib/aid-programs.ts has no slots for. Both new fields are optional, so a
+ * plain AidProgram (e.g. from the static list) is still assignable here, and
+ * this type is still assignable anywhere a plain AidProgram is expected.
+ */
+export type AidProgramWithExtras = AidProgram & {
+  qualifications?: AidProgramQualifications;
+  /** Raw sheet-row citation — the pre-existing "View Details" link behavior, now gated behind a "Caseworker view" toggle instead of being the default link. */
+  caseworkerUrl?: string;
+};
+
+/** Short, stable (non-cryptographic) hash, for building IDs that won't collide across rows that happen to share a sourceUrl. */
+function hashString(input: string): string {
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
+  }
+  return hash.toString(16).padStart(8, '0');
+}
+
 /** Best-effort urgency from free-text deadline strings — most sheet programs are "ongoing/no deadline". */
-function estimateUrgency(deadlineText: string): AidProgram['deadlineUrgency'] {
+export function estimateUrgency(deadlineText: string): AidProgram['deadlineUrgency'] {
   const isoMatch = deadlineText.match(/(\d{4})-(\d{2})-(\d{2})/);
   const slashMatch = deadlineText.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
   const date = isoMatch
@@ -74,10 +117,24 @@ function mapToDocumentIds(text: string): string[] {
 }
 
 /** Maps a ranked Google Sheet row onto the AidProgram shape so the existing dashboard UI can render it unchanged. */
-export function rankedProgramToAidProgram({ program, matchReason }: RankedAidProgramResponse): AidProgram {
+export function rankedProgramToAidProgram({ program, matchReason }: RankedAidProgramResponse): AidProgramWithExtras {
+  const qualifications: AidProgramQualifications = {
+    eligibleApplicantTypes: program.eligibleApplicantTypes || undefined,
+    homeownerRenterRequirements: program.homeownerRenterRequirements || undefined,
+    requiredDamageType: program.requiredDamageType || undefined,
+    primaryResidenceOnly: program.primaryResidenceOnly || undefined,
+    mustBeInDeclaredDisasterArea: program.mustBeInDeclaredDisasterArea || undefined,
+    ruralOnly: program.ruralOnly || undefined,
+    eligibleCounties: program.eligibleCounties || undefined,
+  };
+  const hasQualifications = Object.values(qualifications).some(Boolean);
+
   return {
-    // Stable across re-ranking (no array index), so pins keep matching.
-    id: program.sourceUrl || `${program.name}-${program.agency}`.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    // Hashing name+agency (not sourceUrl) keeps IDs unique even when multiple
+    // sheet rows share a sourceUrl (e.g. several disasterassistance.gov
+    // programs linking to the same general page) — a shared sourceUrl used to
+    // collapse those rows onto the same ID, breaking "View Details"/"Pin".
+    id: `sheet-${hashString(`${program.name}|${program.agency}`)}`,
     name: program.name,
     agency: program.agency,
     description: program.description,
@@ -92,6 +149,10 @@ export function rankedProgramToAidProgram({ program, matchReason }: RankedAidPro
       website: program.infoUrl || undefined,
     },
     eligibility: {},
-    matchReason,
+    // sourceUrl here is the program's official info page (see route.ts), not
+    // a link into the raw sheet — that citation is now caseworkerUrl below.
+    matchReason: { sentence: matchReason.sentence, sourceUrl: matchReason.sourceUrl },
+    qualifications: hasQualifications ? qualifications : undefined,
+    caseworkerUrl: matchReason.caseworkerUrl,
   };
 }

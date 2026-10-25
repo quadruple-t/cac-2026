@@ -10,11 +10,12 @@ import { CompassMark } from '@/components/compass-mark';
 
 // Links flagged requiresAuth are hidden until the visitor is signed in.
 const navItems = [
-  { name: 'Find aid', href: '/conversational', requiresAuth: false },
-  { name: 'My aid', href: '/dashboard', requiresAuth: true },
+  { name: 'Chatbot', href: '/conversational', requiresAuth: false },
+  { name: 'Question Form', href: '/dashboard', requiresAuth: true },
+  { name: 'Programs', href: '/programs', requiresAuth: true },
   { name: 'Deadlines', href: '/deadlines', requiresAuth: true },
-  { name: 'My info', href: '/settings', requiresAuth: true },
   { name: 'FEMA letter', href: '/fema', requiresAuth: true },
+  { name: 'My info', href: '/settings', requiresAuth: true },
   { name: 'About', href: '/about', requiresAuth: false },
 ];
 

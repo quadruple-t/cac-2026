@@ -1,28 +1,22 @@
 'use client';
 
 /**
- * Aid Dashboard page ("Disaster Aid Center").
+ * Question Form page.
  *
- * This is the main authenticated hub of Aid Compass. It has two jobs:
- *   1. Collect a "situation" from the user (county, damage type, ownership,
- *      income, etc.) via a short intake form.
- *   2. Once a situation exists, show the user two tabs built from that same
- *      situation: the list of aid programs they're eligible for, and a
- *      personalized document checklist for applying to those programs.
- *
- * The user's situation is persisted to Firestore (via /api/user-situation) so
- * it's shared across this page, the Deadline Tracker, Settings, and the
- * chatbot without re-asking the same questions.
+ * Collects a "situation" from the user (county, damage type, ownership,
+ * income, etc.) via a short intake form, and saves it to Firestore (via
+ * /api/user-situation) so it's shared across this page, the Programs tab,
+ * the Deadline Tracker, Settings, and the chatbot without re-asking the
+ * same questions. Submitting sends the user to the Programs tab to see
+ * their matches.
  */
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/firebase/use-auth';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/navigation';
-import AidDashboard from '@/components/features/aid-dashboard';
 import AidIntakeForm from '@/components/features/aid-intake';
-import { UserSituation, AidProgram } from '@/lib/aid-programs';
-import { rankedProgramToAidProgram } from '@/lib/sheets/aid-programs-adapter';
+import { UserSituation } from '@/lib/aid-programs';
 import {
   clearPendingSituation,
   readPendingSituation,
@@ -30,62 +24,28 @@ import {
 } from '@/lib/user-situation-client';
 
 export default function DashboardPage() {
-  // Firebase auth state. `loading` is true until Firebase has resolved
-  // whether a user is signed in; `user` is null when signed out.
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  // The user's answers from the intake form (county, damage type, etc.).
-  // Null until they've submitted the form at least once (this session or a
-  // previous one, via localStorage).
+  // The user's previously-saved answers, if any — pre-fills the form so
+  // revisiting this tab edits rather than starts from scratch. Null until
+  // we've checked (this session or a previous one, via Firestore).
   const [userSituation, setUserSituation] = useState<UserSituation | null>(null);
 
-  // Aid programs the current situation qualifies for, pre-sorted so the
-  // most time-sensitive deadlines surface first. Derived from
-  // `userSituation` any time it changes (see handlers below).
-  const [eligiblePrograms, setEligiblePrograms] = useState<AidProgram[]>([]);
-
   // Local "is this page ready to render" flag, separate from Firebase's own
-  // `loading`. Covers the synchronous localStorage read below so we don't
-  // flash the intake form for a split second before swapping to the
-  // dashboard/checklist view.
+  // `loading`. Covers the fetch below so we don't flash an empty form for a
+  // split second before swapping in the saved answers.
   const [isLoading, setIsLoading] = useState(true);
-
-  // True while the user has re-opened the intake form to edit an existing
-  // situation (as opposed to `!userSituation`, which is the first-time path).
-  const [isEditing, setIsEditing] = useState(false);
-
-  // Ranks the live Google Sheet program database against a situation via
-  // the server (the Sheets API credentials can't live in the browser).
-  const loadRankedPrograms = async (situation: UserSituation) => {
-    try {
-      const res = await fetch('/api/aid-programs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(situation),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setEligiblePrograms(data.programs.map(rankedProgramToAidProgram));
-      } else {
-        const errorData = await res.json();
-        console.error('Failed to load aid programs:', res.status, errorData);
-      }
-    } catch (error) {
-      console.error('Error loading aid programs:', error);
-    }
-  };
 
   useEffect(() => {
     // Route guard: bounce anonymous visitors to sign-in once Firebase has
-    // finished checking auth state. (Also enforced server-side by the
-    // proxy/middleware, but this handles the client-rendered case too.)
+    // finished checking auth state. (Also enforced server-side by proxy.ts,
+    // but this handles the client-rendered case too.)
     if (!loading && !user) {
       router.push('/sign-in');
       return;
     }
 
-    // Load user situation from Firebase
     const loadUserSituation = async () => {
       if (!user) return;
       try {
@@ -101,7 +61,6 @@ export default function DashboardPage() {
           const data = await res.json();
           if (data.situation) {
             setUserSituation(data.situation);
-            await loadRankedPrograms(data.situation);
           }
         }
       } catch (error) {
@@ -121,9 +80,7 @@ export default function DashboardPage() {
         body: JSON.stringify(situation),
       });
       if (res.ok) {
-        setUserSituation(situation);
-        await loadRankedPrograms(situation);
-        setIsEditing(false);
+        router.push('/programs');
       } else {
         const errorData = await res.json();
         console.error('Failed to save user situation:', errorData);
@@ -135,19 +92,9 @@ export default function DashboardPage() {
     }
   };
 
-  const handleReset = async () => {
-    try {
-      await fetch('/api/user-situation', { method: 'DELETE' });
-      setUserSituation(null);
-      setEligiblePrograms([]);
-    } catch (error) {
-      console.error('Error deleting user situation:', error);
-    }
-  };
-
-  // While Firebase auth is still resolving, or while we're checking
-  // localStorage for a saved situation, show a minimal loading state rather
-  // than the intake form (which would otherwise flash briefly).
+  // While Firebase auth is still resolving, or while we're checking for a
+  // saved situation, show a minimal loading state rather than the form
+  // (which would otherwise flash briefly empty, then pre-filled).
   if (loading || isLoading) {
     return (
       <div className="min-h-full bg-[#f2ece5] flex flex-col flex-1">
@@ -168,13 +115,12 @@ export default function DashboardPage() {
       <main className="flex-1">
         <section className="relative mx-auto max-w-[1080px] overflow-hidden px-[22px] py-[56px]">
           <div aria-hidden="true" className="pointer-events-none absolute -right-40 top-0 h-80 w-80 rounded-full bg-[#d9b69d]/20 blur-3xl" />
-          {/* Header — always visible, regardless of which step the user is on. */}
           <div className="relative mb-[34px] text-center">
             <p className="ac-reveal mb-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031]">
-              My Aid Programs
+              Question Form
             </p>
             <h1 className="ac-reveal font-serif text-[clamp(1.6rem,4vw,2.2rem)] font-medium leading-[1.15] tracking-[-0.01em] text-[#1f1610] mb-4">
-              Find Help for Your Situation
+              Tell Us About Your Situation
             </h1>
             <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] leading-relaxed max-w-2xl mx-auto">
               Answer a few quick questions to see which aid programs you can apply for.
@@ -184,36 +130,11 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Main Content:
-              - No situation yet, or the user chose to edit -> show the intake form.
-              - Situation exists -> show the tabbed programs/documents view. */}
-          {!userSituation || isEditing ? (
-            <AidIntakeForm
-              onSubmit={handleFormSubmit}
-              initialData={userSituation ?? undefined}
-              onCancel={userSituation ? () => setIsEditing(false) : undefined}
-              submitLabel={userSituation ? 'Update My Results' : undefined}
-            />
-          ) : (
-            <div>
-              <AidDashboard programs={eligiblePrograms} userSituation={userSituation} />
-
-              <div className="text-center mt-8 flex items-center justify-center gap-6">
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="text-[#895031] hover:text-[#6b5a4e] font-medium text-sm"
-                >
-                  ← Edit Answers
-                </button>
-                <button
-                  onClick={handleReset}
-                  className="text-[#895031] hover:text-[#6b5a4e] font-medium text-sm"
-                >
-                  Start Over
-                </button>
-              </div>
-            </div>
-          )}
+          <AidIntakeForm
+            onSubmit={handleFormSubmit}
+            initialData={userSituation ?? undefined}
+            submitLabel={userSituation ? 'Update & See My Programs' : 'Save & See My Programs'}
+          />
         </section>
       </main>
     </div>

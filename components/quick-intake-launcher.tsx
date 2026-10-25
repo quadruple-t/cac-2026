@@ -50,7 +50,7 @@ export default function QuickIntakeLauncher() {
           compact
           onComplete={async (situation) => {
             const outcome = await persistIntakeSituation(situation);
-            router.push(outcome === 'saved' ? '/dashboard' : '/conversational');
+            router.push(outcome === 'saved' ? '/programs' : '/conversational');
           }}
         />
         <Link href="/conversational" className="mt-3 block text-center text-[0.95rem] font-semibold text-[#895031] no-underline hover:text-[#6b5a4e]">

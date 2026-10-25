@@ -2,12 +2,53 @@
 
 import { useState, useEffect } from 'react';
 import { AidProgram, ApplicationStatus } from '@/lib/aid-programs';
-import { ClockIcon, CompleteIcon, GlobeIcon, MailIcon, PhoneIcon } from '@/components/feature-icons';
+import { ClockIcon, CompleteIcon, GlobeIcon, MailIcon, PhoneIcon, PinIcon } from '@/components/feature-icons';
+import { CompassStatus } from '@/components/compass-status';
 
 interface DeadlineTrackerProps {
   programs: AidProgram[];
   applicationStatuses: Record<string, ApplicationStatus>;
   onStatusChange: (programId: string, status: ApplicationStatus) => void;
+}
+
+// Labels/tones for AidProgram['deadlineUrgency'] ('high' | 'medium' | 'low'),
+// already computed per-program (lib/aid-programs.ts's hardcoded entries, and
+// lib/sheets/aid-programs-adapter.ts's estimateUrgency() for sheet-sourced
+// ones). Kept in sync in wording with the urgency badge the aid-dashboard
+// feature shows on program cards, so "Due soon"/"Upcoming"/"Ongoing" mean the
+// same thing everywhere in the app.
+const URGENCY_LABEL: Record<AidProgram['deadlineUrgency'], string> = {
+  high: 'Due soon',
+  medium: 'Upcoming',
+  low: 'Ongoing',
+};
+
+const URGENCY_TONE: Record<AidProgram['deadlineUrgency'], 'attention' | 'progress' | 'neutral'> = {
+  high: 'attention',
+  medium: 'progress',
+  low: 'neutral',
+};
+
+/**
+ * Best-effort real-date extraction from a deadline string, matching only
+ * ISO (YYYY-MM-DD) and US slash (MM/DD/YYYY) dates. Most sheet-sourced
+ * deadlines are free text ("Ongoing", "Varies by program", "Not specified")
+ * and intentionally fall through to null so they sort after real dates
+ * instead of being parsed as nonsense.
+ */
+function parseDeadlineDate(deadlineText: string): Date | null {
+  const isoMatch = deadlineText.match(/(\d{4})-(\d{2})-(\d{2})/);
+  const slashMatch = deadlineText.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  const date = isoMatch
+    ? new Date(`${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`)
+    : slashMatch
+      ? new Date(`${slashMatch[3]}-${slashMatch[1]}-${slashMatch[2]}`)
+      : null;
+  return date && !Number.isNaN(date.getTime()) ? date : null;
+}
+
+function formatDeadlineDate(date: Date): string {
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
 export default function DeadlineTracker({ programs, applicationStatuses, onStatusChange }: DeadlineTrackerProps) {
@@ -38,6 +79,52 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
   const filteredPrograms = pinnedPrograms
     .map(id => programs.find(p => p.id === id) ?? pinnedSnapshots.find(p => p.id === id))
     .filter((program): program is AidProgram => Boolean(program));
+
+  // Real, parseable deadlines sort chronologically first; everything else
+  // ("Ongoing", "Not specified", "Varies by program", ...) is pushed to the
+  // end in its existing relative order (Array#sort is a stable sort).
+  const sortedPrograms = [...filteredPrograms].sort((a, b) => {
+    const dateA = parseDeadlineDate(a.deadline);
+    const dateB = parseDeadlineDate(b.deadline);
+    if (dateA && dateB) return dateA.getTime() - dateB.getTime();
+    if (dateA && !dateB) return -1;
+    if (!dateA && dateB) return 1;
+    return 0;
+  });
+
+  const summaryLine = (() => {
+    if (sortedPrograms.length === 0) return null;
+    const count = sortedPrograms.length;
+    const countLabel = `${count} program${count === 1 ? '' : 's'} tracked`;
+    const soonestDate = parseDeadlineDate(sortedPrograms[0].deadline);
+    return soonestDate ? `${countLabel}, next deadline ${formatDeadlineDate(soonestDate)}` : countLabel;
+  })();
+
+  const unpinProgram = async (programId: string) => {
+    const previousPinned = pinnedPrograms;
+    const previousSnapshots = pinnedSnapshots;
+    const newPinned = pinnedPrograms.filter(id => id !== programId);
+    const newSnapshots = pinnedSnapshots.filter(p => p.id !== programId);
+
+    setPinnedPrograms(newPinned);
+    setPinnedSnapshots(newSnapshots);
+
+    try {
+      const res = await fetch('/api/pinned-programs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ programIds: newPinned, programs: newSnapshots }),
+      });
+      if (!res.ok) {
+        setPinnedPrograms(previousPinned);
+        setPinnedSnapshots(previousSnapshots);
+      }
+    } catch (error) {
+      console.error('Error unpinning program:', error);
+      setPinnedPrograms(previousPinned);
+      setPinnedSnapshots(previousSnapshots);
+    }
+  };
 
   const completedStepsFor = (programId: string) => {
     const status = applicationStatuses[programId] || 'not_applied';
@@ -100,7 +187,7 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
         </p>
       </div>
 
-      {filteredPrograms.length > 0 ? (
+      {sortedPrograms.length > 0 ? (
         <section aria-labelledby="recovery-plan-heading" className="ac-reveal-3 rounded-[14px] border border-[#e4d9cf] bg-[#faf6f1] p-6">
           <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -110,12 +197,13 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
               <h2 id="recovery-plan-heading" className="font-serif text-[1.35rem] font-medium text-[#1f1610]">
                 Work through each application, one step at a time
               </h2>
+              {summaryLine && <p className="mt-1 text-sm text-[#895031]">{summaryLine}</p>}
             </div>
             <p className="text-sm text-[#6b5a4e]">Complete the next open step to keep your plan moving.</p>
           </div>
 
           <div className="space-y-6">
-            {filteredPrograms.map((program) => {
+            {sortedPrograms.map((program) => {
               const completedSteps = completedStepsFor(program.id);
               const steps = [
                 { title: 'Prepare', detail: 'Gather required documents' },
@@ -126,14 +214,27 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
 
               return (
                 <figure key={program.id} className="rounded-[10px] border border-[#e4d9cf] bg-white p-4">
-                  <figcaption className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                  <figcaption className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <span>
-                      <span className="block font-medium text-[#1f1610]">{program.name}</span>
+                      <span className="flex items-center gap-2">
+                        <span className="font-medium text-[#1f1610]">{program.name}</span>
+                        <CompassStatus tone={URGENCY_TONE[program.deadlineUrgency]} label={URGENCY_LABEL[program.deadlineUrgency]} />
+                      </span>
                       <span className="mt-1 flex items-center gap-1.5 text-sm text-[#6b5a4e]">
                         <ClockIcon className="text-[#b0673f]" /> Due: {program.deadline}
                       </span>
                     </span>
-                    <span className="text-sm text-[#6b5a4e]">{completedSteps} of 3 steps complete</span>
+                    <span className="flex items-center gap-3">
+                      <span className="text-sm text-[#6b5a4e]">{completedSteps} of 3 steps complete</span>
+                      <button
+                        type="button"
+                        onClick={() => unpinProgram(program.id)}
+                        aria-label={`Unpin ${program.name}`}
+                        className="inline-flex flex-none items-center gap-1.5 rounded-lg border border-[#e4d9cf] px-2.5 py-1.5 text-sm font-medium text-[#895031] transition-colors hover:bg-[#f2ece5] hover:text-[#6b5a4e]"
+                      >
+                        <PinIcon className="w-3.5 h-3.5" /> Unpin
+                      </button>
+                    </span>
                   </figcaption>
 
                   {program.contactInfo && (
@@ -220,7 +321,7 @@ export default function DeadlineTracker({ programs, applicationStatuses, onStatu
       ) : (
         <section className="rounded-[14px] border border-[#e4d9cf] bg-[#faf6f1] p-6 text-center">
           <h2 className="font-serif text-[1.35rem] font-medium text-[#1f1610]">Your recovery plan will appear here</h2>
-          <p className="mt-2 text-[#6b5a4e]">Pin programs from My Aid Programs to create a focused deadline tracker.</p>
+          <p className="mt-2 text-[#6b5a4e]">Pin programs from the Programs tab to create a focused deadline tracker.</p>
         </section>
       )}
     </div>

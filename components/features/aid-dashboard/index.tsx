@@ -2,12 +2,26 @@
 
 import { useState, useEffect } from 'react';
 import { AidProgram, ApplicationStatus } from '@/lib/aid-programs';
+import { AidProgramWithExtras } from '@/lib/sheets/aid-programs-adapter';
 import { groupDocumentsByCategory } from '@/lib/document-requirements';
 import { CompassStatus } from '@/components/compass-status';
 import { AmountIcon, ClockIcon, DocumentIcon, PinIcon } from '@/components/feature-icons';
 
+// Urgency badge copy/tone — reuses the compass-needle CompassStatus pattern
+// (the app's shared status/urgency motif) instead of a plain colored pill.
+const URGENCY_LABELS: Record<AidProgram['deadlineUrgency'], string> = {
+  high: 'Due soon',
+  medium: 'Upcoming',
+  low: 'Ongoing',
+};
+const URGENCY_TONE: Record<AidProgram['deadlineUrgency'], 'success' | 'progress' | 'attention' | 'neutral'> = {
+  high: 'attention',
+  medium: 'progress',
+  low: 'neutral',
+};
+
 interface AidDashboardProps {
-  programs: AidProgram[];
+  programs: AidProgramWithExtras[];
   userSituation?: {
     county?: string;
     damageType?: string;
@@ -155,7 +169,7 @@ export default function AidDashboard({ programs, userSituation, applicationStatu
 }
 
 interface ProgramCardProps {
-  program: AidProgram;
+  program: AidProgramWithExtras;
   isExpanded: boolean;
   onToggle: () => void;
   status: ApplicationStatus;
@@ -167,6 +181,8 @@ interface ProgramCardProps {
 }
 
 function ProgramCard({ program, isExpanded, onToggle, status, onStatusChange, statusTone, statusLabel, isPinned, onPin }: ProgramCardProps) {
+  const [showCaseworkerView, setShowCaseworkerView] = useState(false);
+
   return (
     <div className="ac-lift bg-[#faf6f1] rounded-[18px] border border-[#e4d9cf] overflow-hidden">
       {/* Card Header */}
@@ -179,11 +195,12 @@ function ProgramCard({ program, isExpanded, onToggle, status, onStatusChange, st
             <p className="text-[#6b5a4e] text-[0.92rem]">{program.agency}</p>
           </div>
           <div className="flex flex-col items-end gap-2">
+            <CompassStatus tone={URGENCY_TONE[program.deadlineUrgency]} label={URGENCY_LABELS[program.deadlineUrgency]} />
             <button
               onClick={onPin}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                isPinned 
-                  ? 'bg-[#b0673f] text-white' 
+                isPinned
+                  ? 'bg-[#b0673f] text-white'
                   : 'bg-[#f2ece5] text-[#6b5a4e] hover:bg-[#e4d9cf]'
               }`}
               aria-label={isPinned ? 'Unpin program' : 'Pin program'}
@@ -200,14 +217,44 @@ function ProgramCard({ program, isExpanded, onToggle, status, onStatusChange, st
         </p>
 
         {program.matchReason && (
-          <a
-            href={program.matchReason.sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block mb-4 text-[0.9rem] italic text-[#895031] hover:text-[#b0673f] leading-relaxed underline decoration-[#e4d9cf] underline-offset-2"
-          >
-            {program.matchReason.sentence}
-          </a>
+          <div className="mb-4">
+            <p className="text-[0.9rem] italic text-[#895031] leading-relaxed">
+              {program.matchReason.sentence}
+            </p>
+            {program.matchReason.sourceUrl && (
+              <a
+                href={program.matchReason.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 inline-block text-[0.85rem] font-medium text-[#895031] hover:text-[#b0673f] underline decoration-[#e4d9cf] underline-offset-2"
+              >
+                Learn more about this program →
+              </a>
+            )}
+            {program.caseworkerUrl && (
+              <div className="mt-1.5">
+                <button
+                  type="button"
+                  onClick={() => setShowCaseworkerView(prev => !prev)}
+                  className="text-[0.72rem] font-semibold uppercase tracking-[0.06em] text-[#895031]/70 hover:text-[#895031]"
+                >
+                  {showCaseworkerView ? 'Hide caseworker view' : 'Caseworker view'}
+                </button>
+                {showCaseworkerView && (
+                  <p className="mt-1 text-[0.8rem] text-[#6b5a4e]">
+                    <a
+                      href={program.caseworkerUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline text-[#895031] hover:text-[#b0673f]"
+                    >
+                      View source row in the aid programs sheet →
+                    </a>
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
         )}
 
         {/* Key Details */}
@@ -254,6 +301,37 @@ function ProgramCard({ program, isExpanded, onToggle, status, onStatusChange, st
       {/* Expanded Content */}
       {isExpanded && (
         <div className="px-6 pb-6 border-t border-[#e4d9cf] pt-6">
+          {program.qualifications && (
+            <div className="mb-6">
+              <h4 className="text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-3">
+                Who Qualifies
+              </h4>
+              <ul className="space-y-1.5 text-[0.92rem] text-[#6b5a4e]">
+                {program.qualifications.eligibleApplicantTypes && (
+                  <li><span className="font-semibold text-[#1f1610]">Eligible applicants: </span>{program.qualifications.eligibleApplicantTypes}</li>
+                )}
+                {program.qualifications.homeownerRenterRequirements && (
+                  <li><span className="font-semibold text-[#1f1610]">Homeowner/renter requirements: </span>{program.qualifications.homeownerRenterRequirements}</li>
+                )}
+                {program.qualifications.requiredDamageType && (
+                  <li><span className="font-semibold text-[#1f1610]">Type of damage covered: </span>{program.qualifications.requiredDamageType}</li>
+                )}
+                {program.qualifications.primaryResidenceOnly && (
+                  <li><span className="font-semibold text-[#1f1610]">Primary residence required: </span>{program.qualifications.primaryResidenceOnly}</li>
+                )}
+                {program.qualifications.mustBeInDeclaredDisasterArea && (
+                  <li><span className="font-semibold text-[#1f1610]">Must be in a declared disaster area: </span>{program.qualifications.mustBeInDeclaredDisasterArea}</li>
+                )}
+                {program.qualifications.ruralOnly && (
+                  <li><span className="font-semibold text-[#1f1610]">Rural-only: </span>{program.qualifications.ruralOnly}</li>
+                )}
+                {program.qualifications.eligibleCounties && (
+                  <li><span className="font-semibold text-[#1f1610]">Eligible counties: </span>{program.qualifications.eligibleCounties}</li>
+                )}
+              </ul>
+            </div>
+          )}
+
           <h4 className="text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-[#895031] mb-3">
             Required Documents
           </h4>

@@ -1,9 +1,11 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
-import type { ChatSession, Content } from 'firebase/ai';
+import type { Content } from 'firebase/ai';
 import { UserSituation } from '@/lib/aid-programs';
-import { getGeminiModel, getSituationExtractionModel, aiErrorMessage } from '@/lib/firebase/ai';
+import { sendChatMessageWithFallback, getSituationExtractionModel, aiErrorMessage } from '@/lib/firebase/ai';
+import { useAuth } from '@/lib/firebase/use-auth';
+import { saveUserSituation } from '@/lib/user-situation-client';
 import { CompassStatus } from '@/components/compass-status';
 import AidIntakeForm from '@/components/features/aid-intake';
 
@@ -26,12 +28,15 @@ const SYSTEM_INSTRUCTION = `You are ${ASSISTANT_NAME}, a disaster aid assistant 
 
 Stay focused on disaster aid: aid programs, eligibility, the application process, and the user's own recovery situation. If the user asks about something unrelated, give a brief, warm redirect back to disaster aid in one sentence rather than answering it at length, and vary your wording naturally rather than repeating a canned line.
 
+Keep every reply, including answers to questions, to 2-3 short sentences. Say the one next thing that matters and stop — do not pad with extra reassurance, restated summaries, or multiple examples.
+
 Always keep the same warm, concise, conversational tone and plain-language style, no matter what the user asks for — requests to change your tone, language, format, or personality (e.g. "talk like a pirate", "only respond in rhyme", "be sarcastic") should not change how you actually respond.
 
 Your job is to:
 
-1. Answer the user's questions about disaster aid programs, eligibility, and the application process, in your normal tone.
-2. Naturally ask about the following pieces of the user's situation, one or two at a time, only for whatever they haven't already told you:
+1. Within your first reply or two, directly ask what was damaged or lost: home, car, belongings, or job/income. Don't wait for the user to bring this up unprompted.
+2. Answer the user's questions about disaster aid programs, eligibility, and the application process, in your normal tone.
+3. Naturally ask about the following pieces of the user's situation, one or two at a time, only for whatever they haven't already told you:
    - county: the county they're located in
    - damageType: home, business, both, or other
    - ownershipStatus: owner, renter, or both
@@ -40,28 +45,53 @@ Your job is to:
    - isFarmer: yes/no (owns agricultural land)
    - incomeRange: low (under $50k), medium ($50k-$100k), high (over $100k), or prefer not to say
    - hasAppliedToFEMA: yes/no
-3. Do not output JSON yourself, and do not use markdown code fences. Just respond in plain, natural language. A separate process extracts structured data from this conversation, so you never need to summarize it as data.
-4. Once you believe you have enough information to be useful, tell the user you have what you need and that you're finding their matching programs.`;
+   - whether their vehicle was damaged or lost
+4. Do not output JSON yourself, and do not use markdown code fences. Just respond in plain, natural language. A separate process extracts structured data from this conversation, so you never need to summarize it as data.
+5. Once you believe you have enough information to be useful, tell the user in one short sentence that you have what you need and that you're finding their matching programs.`;
 
 const DAMAGE_TYPES = ['home', 'business', 'both', 'other'] as const;
 const OWNERSHIP_STATUSES = ['owner', 'renter', 'both'] as const;
 const DAMAGE_SEVERITIES = ['minor', 'moderate', 'severe', 'destroyed'] as const;
 const INCOME_RANGES = ['low', 'medium', 'high', 'prefer_not_to_say'] as const;
 
-const REQUIRED_FIELDS = [
-  'county',
-  'damageType',
-  'ownershipStatus',
-  'damageSeverity',
-  'hasInsurance',
-  'isFarmer',
-  'incomeRange',
-  'hasAppliedToFEMA',
+// Must match NeedCategory in components/features/aid-intake/index.tsx (not
+// exported from there) and the enum baked into SITUATION_SCHEMA in
+// lib/firebase/ai.ts.
+const NEED_CATEGORIES = [
+  'home',
+  'rental',
+  'personal_property',
+  'vehicle',
+  'utilities',
+  'childcare',
+  'medical',
+  'employment',
+  'business',
+  'agricultural',
+  'nonprofit',
 ] as const;
 
-const ERROR_THRESHOLD = 3;
+const NEED_LABELS: Record<(typeof NEED_CATEGORIES)[number], string> = {
+  home: 'Home damage',
+  rental: 'Rental damage',
+  personal_property: 'Personal property loss',
+  vehicle: 'Vehicle damage',
+  utilities: 'Utilities & essentials',
+  childcare: 'Childcare impact',
+  medical: 'Medical, disability, or funeral needs',
+  employment: 'Job or income loss',
+  business: 'Business damage',
+  agricultural: 'Agricultural damage',
+  nonprofit: 'Nonprofit damage',
+};
+
+const ERROR_THRESHOLD = 2;
 const CHAT_HISTORY_STORAGE_KEY = 'wrenChatMessages';
 const GATHERED_SITUATION_STORAGE_KEY = 'wrenGatheredSituation';
+
+function isOneOf<T extends string>(value: unknown, options: readonly T[]): value is T {
+  return typeof value === 'string' && (options as readonly string[]).includes(value);
+}
 
 function validateSituation(raw: Record<string, unknown>): Partial<UserSituation> {
   const out: Partial<UserSituation> = {};
@@ -69,23 +99,89 @@ function validateSituation(raw: Record<string, unknown>): Partial<UserSituation>
   if (typeof raw.county === 'string' && raw.county.trim().length > 0) {
     out.county = raw.county.trim();
   }
-  if (typeof raw.damageType === 'string' && DAMAGE_TYPES.includes(raw.damageType as any)) {
-    out.damageType = raw.damageType as any;
-  }
-  if (typeof raw.ownershipStatus === 'string' && OWNERSHIP_STATUSES.includes(raw.ownershipStatus as any)) {
-    out.ownershipStatus = raw.ownershipStatus as any;
-  }
-  if (typeof raw.damageSeverity === 'string' && DAMAGE_SEVERITIES.includes(raw.damageSeverity as any)) {
-    out.damageSeverity = raw.damageSeverity as any;
-  }
-  if (typeof raw.incomeRange === 'string' && INCOME_RANGES.includes(raw.incomeRange as any)) {
-    out.incomeRange = raw.incomeRange as any;
-  }
+  if (isOneOf(raw.damageType, DAMAGE_TYPES)) out.damageType = raw.damageType;
+  if (isOneOf(raw.ownershipStatus, OWNERSHIP_STATUSES)) out.ownershipStatus = raw.ownershipStatus;
+  if (isOneOf(raw.damageSeverity, DAMAGE_SEVERITIES)) out.damageSeverity = raw.damageSeverity;
+  if (isOneOf(raw.incomeRange, INCOME_RANGES)) out.incomeRange = raw.incomeRange;
   if (typeof raw.hasInsurance === 'boolean') out.hasInsurance = raw.hasInsurance;
   if (typeof raw.isFarmer === 'boolean') out.isFarmer = raw.isFarmer;
   if (typeof raw.hasAppliedToFEMA === 'boolean') out.hasAppliedToFEMA = raw.hasAppliedToFEMA;
+  if (typeof raw.vehicleDamaged === 'boolean') out.vehicleDamaged = raw.vehicleDamaged;
+  if (isOneOf(raw.primaryNeed, NEED_CATEGORIES)) out.primaryNeed = raw.primaryNeed;
+  if (Array.isArray(raw.supplementaryNeeds)) {
+    const needs = raw.supplementaryNeeds.filter((n): n is (typeof NEED_CATEGORIES)[number] =>
+      isOneOf(n, NEED_CATEGORIES)
+    );
+    if (needs.length > 0) out.supplementaryNeeds = needs;
+  }
 
   return out;
+}
+
+// A car (or any other vehicle) being damaged should always surface as a
+// "vehicle" need downstream, even if the model didn't separately call it out
+// as the primary/supplementary need in the same exchange that confirmed
+// vehicleDamaged. Operates on the full merged situation (not a single raw
+// extraction patch) so it never clobbers needs learned in earlier turns.
+function withVehicleNeedEnsured(situation: Partial<UserSituation>): Partial<UserSituation> {
+  if (!situation.vehicleDamaged || situation.primaryNeed === 'vehicle') return situation;
+  const needs = situation.supplementaryNeeds ?? [];
+  if (needs.includes('vehicle')) return situation;
+  return { ...situation, supplementaryNeeds: [...needs, 'vehicle'] };
+}
+
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// Turns the raw extracted situation fields into short, human-readable chip
+// labels for display, instead of printing "key: value" pairs directly.
+function describeSituation(situation: Partial<UserSituation>): string[] {
+  const chips: string[] = [];
+
+  if (situation.county) chips.push(`County: ${situation.county}`);
+
+  if (situation.damageType === 'home') chips.push('Home damaged');
+  else if (situation.damageType === 'business') chips.push('Business damaged');
+  else if (situation.damageType === 'both') chips.push('Home & business damaged');
+  else if (situation.damageType === 'other') chips.push('Other property damaged');
+
+  if (situation.ownershipStatus === 'owner') chips.push('Owns home');
+  else if (situation.ownershipStatus === 'renter') chips.push('Rents home');
+  else if (situation.ownershipStatus === 'both') chips.push('Owns & rents');
+
+  if (situation.damageSeverity) chips.push(`${capitalize(situation.damageSeverity)} damage`);
+
+  if (situation.hasInsurance !== undefined) {
+    chips.push(situation.hasInsurance ? 'Has insurance' : 'No insurance');
+  }
+
+  if (situation.isFarmer !== undefined) {
+    chips.push(situation.isFarmer ? 'Farms or owns agricultural land' : 'Not a farmer');
+  }
+
+  if (situation.incomeRange === 'low') chips.push('Income under $50k');
+  else if (situation.incomeRange === 'medium') chips.push('Income $50k-$100k');
+  else if (situation.incomeRange === 'high') chips.push('Income over $100k');
+  else if (situation.incomeRange === 'prefer_not_to_say') chips.push('Income: prefer not to say');
+
+  if (situation.hasAppliedToFEMA !== undefined) {
+    chips.push(situation.hasAppliedToFEMA ? 'Applied to FEMA' : 'Has not applied to FEMA yet');
+  }
+
+  if (situation.vehicleDamaged !== undefined) {
+    chips.push(situation.vehicleDamaged ? 'Car damaged' : 'No vehicle damage');
+  }
+
+  const needs = new Set<string>();
+  if (situation.primaryNeed) needs.add(situation.primaryNeed);
+  for (const need of situation.supplementaryNeeds ?? []) needs.add(need);
+  for (const need of needs) {
+    const label = NEED_LABELS[need as (typeof NEED_CATEGORIES)[number]];
+    if (label) chips.push(label);
+  }
+
+  return chips;
 }
 
 async function runExtraction(
@@ -96,7 +192,7 @@ async function runExtraction(
   // Only the newest exchange plus what we already know, so the prompt stays
   // small however long the conversation gets, and it can run in parallel with
   // the chat reply (it doesn't need the reply).
-  const prompt = `Extract any of the situation fields that can be confidently determined from the user's latest message (the assistant's previous message is only context for short answers like "yes"). Omit any field not clearly stated by the user; do not guess.
+  const prompt = `Extract any of the situation fields clearly implied by the user's latest message (the assistant's previous message is only context for short answers like "yes"). Use straightforward real-world inference to map plain language onto the closest field/enum value — e.g. "my house burned down" implies damageType: home and damageSeverity: destroyed, even though neither word appears literally. Don't fabricate details the user didn't imply at all, but don't skip a field just because the user didn't use the schema's exact vocabulary.
 
 Already known: ${JSON.stringify(known)}
 Assistant: ${previousAssistantMessage}
@@ -125,7 +221,7 @@ function loadStoredSituation(): Partial<UserSituation> {
   if (typeof window === 'undefined') return {};
   try {
     const stored = localStorage.getItem(GATHERED_SITUATION_STORAGE_KEY);
-    if (stored) return validateSituation(JSON.parse(stored));
+    if (stored) return withVehicleNeedEnsured(validateSituation(JSON.parse(stored)));
   } catch {
     // Ignore malformed storage.
   }
@@ -148,6 +244,7 @@ function toChatHistory(messages: Message[]): Content[] {
 }
 
 export default function ConversationalIntake({ onComplete, compact = false }: ConversationalIntakeProps) {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>(loadStoredMessages);
   const [userSituation, setUserSituation] = useState<Partial<UserSituation>>(loadStoredSituation);
   const [isTyping, setIsTyping] = useState(false);
@@ -157,7 +254,6 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
   const [errorCount, setErrorCount] = useState(0);
   const [useManualFallback, setUseManualFallback] = useState(false);
 
-  const chatSessionRef = useRef<ChatSession | null>(null);
   const situationRef = useRef<Partial<UserSituation>>(userSituation);
   const extractionsRef = useRef<Set<Promise<void>>>(new Set());
 
@@ -170,9 +266,30 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
     localStorage.setItem(GATHERED_SITUATION_STORAGE_KEY, JSON.stringify(userSituation));
   }, [userSituation]);
 
-  const gatheredCount = REQUIRED_FIELDS.filter(
-    (key) => userSituation[key] !== undefined
-  ).length;
+  // Saves whatever Wren has gathered so far to the signed-in user's account,
+  // not just once the full flow finishes — otherwise answers typed into the
+  // chat never show up on the Settings page unless "See my programs" is
+  // clicked. Debounced so each keystroke-driven extraction doesn't fire its
+  // own request.
+  useEffect(() => {
+    if (!user || Object.keys(userSituation).length === 0) return;
+    const timer = setTimeout(() => {
+      void saveUserSituation(userSituation);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [user, userSituation]);
+
+  const situationChips = describeSituation(userSituation);
+
+  // Baseline heuristic for "enough info gathered": no explicit model signal
+  // for this exists yet (the extraction schema has no done/complete flag), so
+  // we use county + damage type + at least one need category (which
+  // vehicleDamaged alone also satisfies via withVehicleNeedEnsured).
+  const readyForResults = Boolean(
+    userSituation.county &&
+      userSituation.damageType &&
+      (userSituation.primaryNeed || (userSituation.supplementaryNeeds?.length ?? 0) > 0)
+  );
 
   // Runs in the background so the user can keep chatting while their answer
   // is turned into structured fields.
@@ -181,7 +298,7 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
     const task: Promise<void> = runExtraction(previousAssistantMessage, userMessage, situationRef.current)
       .then((validated) => {
         if (Object.keys(validated).length > 0) {
-          const merged = { ...situationRef.current, ...validated };
+          const merged = withVehicleNeedEnsured({ ...situationRef.current, ...validated });
           situationRef.current = merged;
           setUserSituation(merged);
         }
@@ -203,6 +320,7 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
     const userMessage = inputValue;
     const previousAssistantMessage =
       [...messages].reverse().find((m) => m.role === 'assistant')?.content ?? '';
+    const history = toChatHistory(messages);
     const messagesWithUser = [...messages, { role: 'user' as const, content: userMessage }];
     setMessages(messagesWithUser);
     setInputValue('');
@@ -212,17 +330,18 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
 
     let replyText = '';
     try {
-      if (!chatSessionRef.current) {
-        chatSessionRef.current = getGeminiModel().startChat({
-          systemInstruction: SYSTEM_INSTRUCTION,
-          history: toChatHistory(messages),
-        });
-      }
-
-      const { stream } = await chatSessionRef.current.sendMessageStream(userMessage);
-      for await (const chunk of stream) {
-        replyText += chunk.text();
-        setMessages([...messagesWithUser, { role: 'assistant', content: replyText }]);
+      for await (const { text, reset } of sendChatMessageWithFallback({
+        history,
+        systemInstruction: SYSTEM_INSTRUCTION,
+        message: userMessage,
+      })) {
+        // A retry/fallback restarted the stream from scratch — discard
+        // whatever partial text we'd accumulated before continuing.
+        if (reset) replyText = '';
+        if (text) {
+          replyText += text;
+          setMessages([...messagesWithUser, { role: 'assistant', content: replyText }]);
+        }
       }
       if (!replyText) throw new Error('Empty response');
 
@@ -247,13 +366,12 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
     setInputValue('');
     setErrorCount(0);
     setUseManualFallback(false);
-    chatSessionRef.current = null;
     localStorage.removeItem(CHAT_HISTORY_STORAGE_KEY);
     localStorage.removeItem(GATHERED_SITUATION_STORAGE_KEY);
   };
 
   const handleShowResults = async () => {
-    if (gatheredCount === 0 || isFinishing) return;
+    if (!readyForResults || isFinishing) return;
     setIsFinishing(true);
     // Let any in-flight extraction land so the last answer isn't missed.
     await Promise.allSettled([...extractionsRef.current]);
@@ -362,16 +480,6 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
             >
               Start Over
             </button>
-
-            {gatheredCount > 0 && (
-              <button
-                onClick={handleShowResults}
-                disabled={isFinishing}
-                className="text-[#b0673f] hover:text-[#895031] font-medium text-sm disabled:opacity-50"
-              >
-                {isFinishing ? 'Saving...' : `Show Results (${gatheredCount}/${REQUIRED_FIELDS.length} fields)`}
-              </button>
-            )}
           </div>
 
           {errorCount >= ERROR_THRESHOLD && (
@@ -393,8 +501,21 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
         </div>
       </div>
 
+      {/* Large, prominent CTA once Wren has enough to go on */}
+      {readyForResults && (
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={handleShowResults}
+            disabled={isFinishing}
+            className="w-full md:w-auto px-10 py-4 bg-[#b0673f] text-white text-[1.1rem] font-semibold rounded-[14px] hover:bg-[#895031] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-none"
+          >
+            {isFinishing ? 'Saving...' : 'See my programs'}
+          </button>
+        </div>
+      )}
+
       {/* Info gathered indicator */}
-      {gatheredCount > 0 && (
+      {situationChips.length > 0 && (
         <div className="mt-6 bg-[#faf6f1] rounded-[14px] p-4 border border-[#e4d9cf]">
           <p className="text-sm text-[#895031] font-semibold uppercase tracking-[0.08em] mb-2">
             Information Gathered
@@ -403,9 +524,9 @@ export default function ConversationalIntake({ onComplete, compact = false }: Co
             )}
           </p>
           <div className="flex flex-wrap gap-2">
-            {REQUIRED_FIELDS.filter((key) => userSituation[key] !== undefined).map((key) => (
-              <span key={key} className="text-xs bg-white border border-[#e4d9cf] px-2 py-1 rounded-full text-[#6b5a4e]">
-                {key}: {String(userSituation[key])}
+            {situationChips.map((label) => (
+              <span key={label} className="text-xs bg-white border border-[#e4d9cf] px-2 py-1 rounded-full text-[#6b5a4e]">
+                {label}
               </span>
             ))}
           </div>
