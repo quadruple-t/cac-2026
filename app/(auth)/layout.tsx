@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CompassMark } from "@/components/compass-mark";
+import { Logo } from "@/components/logo";
 
 export default function AuthLayout({
   children,
@@ -13,12 +13,7 @@ export default function AuthLayout({
           href="/"
           className="ac-reveal mb-6 flex items-center justify-center gap-2.5 text-[#2a201a] no-underline"
         >
-          <span
-            aria-hidden="true"
-            className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-full border-[1.5px] border-[#3d2b20]"
-          >
-            <CompassMark needleColor="#3d2b20" />
-          </span>
+          <Logo size={36} />
           <span className="text-[1.06rem] font-bold tracking-[-0.01em]">
             Aid Compass
           </span>

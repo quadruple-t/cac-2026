@@ -1,7 +1,7 @@
 'use client';
 
 import Navigation from '@/components/navigation';
-import { CompassMark } from '@/components/compass-mark';
+import { Logo } from '@/components/logo';
 import { HeroRotator } from '@/components/hero-rotator';
 
 const CONTOUR_PATHS = [
@@ -149,12 +149,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-[1080px] flex-wrap justify-between gap-x-12 gap-y-7 px-[22px] py-11">
           <div className="max-w-[340px]">
             <div className="mb-3 flex items-center gap-2.5">
-              <span
-                aria-hidden="true"
-                className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full border-[1.5px] border-[#8a705d]"
-              >
-                <CompassMark needleColor="#cdbcae" />
-              </span>
+              <Logo size={34} />
               <span className="text-base font-bold text-white">
                 Aid Compass
               </span>

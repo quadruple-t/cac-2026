@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { getFirebaseAuth } from '@/lib/firebase/client';
 import { clearServerSession } from '@/lib/firebase/session-client';
 import { useAuth } from '@/lib/firebase/use-auth';
-import { CompassMark } from '@/components/compass-mark';
+import { Logo } from '@/components/logo';
 
 // Links flagged requiresAuth are hidden until the visitor is signed in.
 const navItems = [
@@ -38,12 +38,7 @@ export default function Navigation() {
           href="/"
           className="flex items-center gap-1.5 text-[#2a201a] no-underline sm:gap-2.5"
         >
-          <span
-            aria-hidden="true"
-            className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full border-[1.5px] border-[#3d2b20] sm:h-[34px] sm:w-[34px]"
-          >
-            <CompassMark needleColor="#3d2b20" />
-          </span>
+          <Logo size={36} />
           <span className="whitespace-nowrap text-[1.05rem] font-bold tracking-[-0.01em] sm:text-[1.2rem]">
             Aid Compass
           </span>
