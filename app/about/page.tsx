@@ -34,6 +34,10 @@ const contributors = [
   {
     name: "Ansh Nayak",
     photo: "/team/ansh-nayak.jpg",
+    // Default top-aligned crop leaves too much headroom above his head in
+    // this particular photo, pushing his face toward the bottom of the
+    // circle — shift the crop down from the very top to compensate.
+    photoPosition: "center 30%",
     bio: "Ansh built the majority of the database of programs and charitable organizations, and optimized the website integration across features.",
   },
   {
@@ -143,7 +147,7 @@ export default function AboutPage() {
             <ul className="m-0 mt-10 grid list-none grid-cols-1 gap-x-6 gap-y-10 p-0 sm:grid-cols-2">
               {contributors.map((person) => (
                 <li key={person.name} className="flex flex-col items-center text-center">
-                  <TeamAvatar name={person.name} photo={person.photo} />
+                  <TeamAvatar name={person.name} photo={person.photo} objectPosition={person.photoPosition} />
                   <h3 className="mb-1 mt-4 font-serif text-[1.02rem] font-semibold text-white">
                     {person.name}
                   </h3>

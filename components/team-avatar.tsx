@@ -7,6 +7,8 @@ interface TeamAvatarProps {
   name: string;
   /** Path under /public, e.g. /team/taran-duba.jpg. Falls back to initials if missing or broken. */
   photo?: string;
+  /** CSS object-position for the photo crop. Defaults to top-aligned; override per-photo when that still crops the subject oddly (e.g. too much headroom, face pushed low). */
+  objectPosition?: string;
 }
 
 function initialsFor(name: string) {
@@ -18,7 +20,7 @@ function initialsFor(name: string) {
     .join('');
 }
 
-export function TeamAvatar({ name, photo }: TeamAvatarProps) {
+export function TeamAvatar({ name, photo, objectPosition = 'center top' }: TeamAvatarProps) {
   const [failed, setFailed] = useState(false);
 
   return (
@@ -29,7 +31,8 @@ export function TeamAvatar({ name, photo }: TeamAvatarProps) {
           alt={name}
           fill
           sizes="216px"
-          className="object-cover object-top"
+          className="object-cover"
+          style={{ objectPosition }}
           onError={() => setFailed(true)}
         />
       ) : (
