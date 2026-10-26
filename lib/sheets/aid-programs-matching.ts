@@ -1,5 +1,6 @@
-import { UserSituation } from "@/lib/aid-programs";
+import { UserSituation, AidProgram } from "@/lib/aid-programs";
 import { SheetAidProgram } from "./aid-programs-sheet";
+import { estimateUrgency } from "./aid-programs-adapter";
 
 // Keyword hints per Damage/Needs category (lib/aid-programs.ts's NeedCategory
 // values, duplicated here as plain strings since this module doesn't depend
@@ -62,53 +63,50 @@ const CATEGORY_LABELS: Record<string, string> = {
   nonprofit: "Nonprofit Damage",
 };
 
-const COLUMN_LABELS = {
-  assistanceType: "Assistance Type",
-  requiredDamageType: "Required Damage Type",
-  eligibleApplicantTypes: "Eligible Applicant Types",
-  description: "Official Description",
-} as const;
+// Plain-language "what this program actually does" per category — shown to
+// end users instead of quoting raw sheet column names/text (that raw-sheet
+// citation is still available, just moved behind the "Caseworker view"
+// toggle via MatchExplanation.rowNumber / getSheetRowUrl).
+const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+  home: "Helps repair or rebuild a home damaged by disaster.",
+  rental: "Helps renters recover after disaster-related damage to their housing.",
+  personal_property: "Helps replace personal belongings or household items lost to disaster.",
+  vehicle: "Helps with vehicle repair or replacement after a disaster.",
+  utilities: "Helps cover food, utilities, or other essential needs after a disaster.",
+  childcare: "Helps with childcare needs disrupted by disaster.",
+  medical: "Helps with medical, disability, or funeral costs related to disaster.",
+  employment: "Helps with income lost due to disaster-related job disruption.",
+  business: "Helps businesses recover from disaster-related damage or losses.",
+  agricultural: "Helps farmers and agricultural operations recover from disaster damage.",
+  nonprofit: "Helps nonprofits recover from disaster-related damage.",
+};
 
-function truncate(text: string, max = 110): string {
-  const trimmed = text.trim();
-  return trimmed.length > max ? `${trimmed.slice(0, max - 1)}…` : trimmed;
-}
-
-/** Finds which specific column a category's keywords actually matched in, so the explanation can cite it. */
-function findCategoryMatch(program: SheetAidProgram, category: string): { column: string; snippet: string } | null {
+/** True if any of a category's keywords show up anywhere in the program's free-text fields. */
+function categoryMatches(program: SheetAidProgram, category: string): boolean {
   const keywords = CATEGORY_KEYWORDS[category];
-  if (!keywords) return null;
-  const fields: [string, string][] = [
-    [COLUMN_LABELS.assistanceType, program.assistanceType],
-    [COLUMN_LABELS.requiredDamageType, program.requiredDamageType],
-    [COLUMN_LABELS.eligibleApplicantTypes, program.eligibleApplicantTypes],
-    [COLUMN_LABELS.description, program.description],
-  ];
-  for (const [column, text] of fields) {
-    if (text && includesAny(text, keywords)) {
-      return { column, snippet: truncate(text) };
-    }
-  }
-  return null;
+  if (!keywords) return false;
+  return includesAny(matchableText(program), keywords);
 }
 
 export interface MatchExplanation {
   sentence: string;
+  /** Row in the source sheet this explanation is based on — used only for the "Caseworker view" citation, never shown directly to end users. */
   rowNumber: number;
 }
 
 /**
- * Explains, in one sentence, the specific sheet column/text that made this
- * program relevant — so the citation always points at the actual evidence,
- * not a generic "this seemed relevant" claim.
+ * Explains, in one plain-language sentence, why this program was shown —
+ * no spreadsheet column names or raw cell text, since this is user-facing
+ * copy. The sheet row backing the explanation is still available via
+ * `rowNumber`, surfaced separately as a "Caseworker view" citation.
  */
 export function explainMatch(program: SheetAidProgram, situation: Partial<UserSituation>): MatchExplanation {
   for (const category of needCategoriesOf(situation)) {
-    const match = findCategoryMatch(program, category);
-    if (match) {
+    if (categoryMatches(program, category)) {
       const label = CATEGORY_LABELS[category] ?? category;
+      const description = CATEGORY_DESCRIPTIONS[category] ?? "May help with this type of need.";
       return {
-        sentence: `Matches your ${label} need — its "${match.column}" column says "${match.snippet}."`,
+        sentence: `Matches your ${label} need. ${description}`,
         rowNumber: program.rowNumber,
       };
     }
@@ -117,40 +115,38 @@ export function explainMatch(program: SheetAidProgram, situation: Partial<UserSi
   const county = situation.county?.toLowerCase().trim();
   if (county && program.eligibleCounties.toLowerCase().includes(county)) {
     return {
-      sentence: `Serves ${situation.county} County — its "Eligible Counties" column says "${truncate(program.eligibleCounties)}."`,
+      sentence: `Serves ${situation.county} County.`,
       rowNumber: program.rowNumber,
     };
   }
 
-  const ownershipText = program.homeownerRenterRequirements;
-  const ownershipLower = ownershipText.toLowerCase();
+  const ownershipLower = program.homeownerRenterRequirements.toLowerCase();
   if ((situation.ownershipStatus === "owner" || situation.housingStatus === "homeowner")
     && (ownershipLower.includes("owner") || ownershipLower.includes("homeowner"))) {
     return {
-      sentence: `Matches your homeowner status — its "Homeowner / Renter / Lease Requirements" column says "${truncate(ownershipText)}."`,
+      sentence: "Open to homeowners.",
       rowNumber: program.rowNumber,
     };
   }
   if ((situation.ownershipStatus === "renter" || situation.housingStatus === "renter")
     && (ownershipLower.includes("renter") || ownershipLower.includes("tenant"))) {
     return {
-      sentence: `Matches your renter status — its "Homeowner / Renter / Lease Requirements" column says "${truncate(ownershipText)}."`,
+      sentence: "Open to renters.",
       rowNumber: program.rowNumber,
     };
   }
 
   if (situation.isFarmer || situation.applicantCategory === "farmer") {
-    const match = findCategoryMatch(program, "agricultural");
-    if (match) {
+    if (categoryMatches(program, "agricultural")) {
       return {
-        sentence: `Matches your farm/agricultural situation — its "${match.column}" column says "${match.snippet}."`,
+        sentence: `Matches your farm/agricultural situation. ${CATEGORY_DESCRIPTIONS.agricultural}`,
         rowNumber: program.rowNumber,
       };
     }
   }
 
   return {
-    sentence: `Shown as a generally active, broadly available program — its "Program Status" column says "${truncate(program.status)}."`,
+    sentence: "A generally active, broadly available program in your area.",
     rowNumber: program.rowNumber,
   };
 }
@@ -304,7 +300,10 @@ export interface RankedAidProgram {
   program: SheetAidProgram;
   score: number;
   matchReason: MatchExplanation;
+  urgency: AidProgram['deadlineUrgency'];
 }
+
+const URGENCY_ORDER: Record<AidProgram['deadlineUrgency'], number> = { high: 0, medium: 1, low: 2 };
 
 export function rankAidPrograms(programs: SheetAidProgram[], situation: Partial<UserSituation>): RankedAidProgram[] {
   const relevant = programs.filter(program => isProgramRelevant(program, situation));
@@ -312,6 +311,7 @@ export function rankAidPrograms(programs: SheetAidProgram[], situation: Partial<
     program,
     score: scoreAidProgram(program, situation),
     matchReason: explainMatch(program, situation),
+    urgency: estimateUrgency(program.applicationDeadline),
   }));
 
   // Once the user has given us anything to personalize against, only show
@@ -321,5 +321,11 @@ export function rankAidPrograms(programs: SheetAidProgram[], situation: Partial<
     ? scored.filter(({ program }) => hasPersonalizedMatch(program, situation))
     : scored;
 
-  return candidates.sort((a, b) => b.score - a.score);
+  // Ranked by fit first, then urgency — so a near-deadline program floats up
+  // among others with a similar fit score, matching the "Ranked by fit and
+  // deadline" copy shown in the dashboard.
+  return candidates.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return URGENCY_ORDER[a.urgency] - URGENCY_ORDER[b.urgency];
+  });
 }

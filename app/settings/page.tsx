@@ -17,7 +17,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navigation from '@/components/navigation';
 import { CompassStatus } from '@/components/compass-status';
-import SituationEditor from '@/components/features/situation-editor';
 import { UserSituation } from '@/lib/aid-programs';
 import { getGeminiModel, getCorrectionExtractionModel, aiErrorMessage } from '@/lib/firebase/ai';
 import {
@@ -140,28 +139,6 @@ export default function SettingsPage() {
     setIsSaving(false);
   };
 
-  // Direct edit of the core fields (no AI round trip). Works for users who
-  // have no saved situation yet, too: the first save creates it.
-  const handleDirectSave = async (patch: Partial<UserSituation>) => {
-    try {
-      const res = await fetch('/api/user-situation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(patch),
-      });
-      if (!res.ok) return false;
-
-      const merged = { ...(situation ?? {}), ...patch } as UserSituation;
-      setSituation(merged);
-      setPendingChanges(null);
-      void generateSummary(merged);
-      return true;
-    } catch (error) {
-      console.error('Error saving edits:', error);
-      return false;
-    }
-  };
-
   const handleDiscardChanges = () => {
     setPendingChanges(null);
   };
@@ -209,8 +186,8 @@ export default function SettingsPage() {
               What We Know About Your Situation
             </h1>
             <p className="ac-reveal-2 text-[#6b5a4e] text-[1.05rem] leading-relaxed max-w-2xl mx-auto">
-              Here&apos;s what Aid Compass has saved from your chat and questionnaire. Edit any answer
-              directly, or tell us what changed in your own words.
+              Here&apos;s what Aid Compass has saved from your conversations. Tell us what changed in
+              your own words to update anything.
             </p>
           </div>
 
@@ -220,8 +197,8 @@ export default function SettingsPage() {
                 You haven&apos;t shared any details about your situation yet.
               </p>
               <p className="text-[#6b5a4e] mb-6">
-                Fill in the details below, chat with Wren, or use the full questionnaire. You can come
-                back here anytime to review or correct what you told us.
+                Chat with Wren or use the full questionnaire to get started. You can come back here
+                anytime to review or correct what you told us.
               </p>
               <div className="flex flex-wrap justify-center gap-3">
                 <Link
@@ -236,9 +213,6 @@ export default function SettingsPage() {
                 >
                   Full questionnaire
                 </Link>
-              </div>
-              <div className="mt-8 border-t border-[#e4d9cf] pt-6 text-left">
-                <SituationEditor situation={null} onSave={handleDirectSave} />
               </div>
             </div>
           ) : (
@@ -255,21 +229,6 @@ export default function SettingsPage() {
                 ) : (
                   <p className="text-[#1f1610] leading-relaxed whitespace-pre-wrap">{summary}</p>
                 )}
-              </div>
-
-              {/* Direct edit */}
-              <div className="bg-white rounded-[14px] border border-[#e4d9cf] p-6">
-                <p className="text-sm text-[#895031] font-semibold uppercase tracking-[0.08em] mb-3">
-                  Edit Your Answers
-                </p>
-                <SituationEditor situation={situation} onSave={handleDirectSave} />
-                <p className="mt-4 text-sm text-[#6b5a4e]">
-                  Need to change other details?{' '}
-                  <Link href="/dashboard" className="text-[#895031] font-medium hover:text-[#6b5a4e]">
-                    Open the full questionnaire
-                  </Link>
-                  .
-                </p>
               </div>
 
               {/* Correction box */}

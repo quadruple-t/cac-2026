@@ -172,7 +172,7 @@ export default function Home() {
               <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[0.95rem]">
                 <li>
                   <a
-                    href="/dashboard"
+                    href="/programs"
                     className="text-[#cdbcae] no-underline hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                   >
                     Open Aid Compass

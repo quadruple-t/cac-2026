@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { getGeminiModel, isAIBusyError, AI_BUSY_MESSAGE } from '@/lib/firebase/ai';
+import { getJsonModel, isAIBusyError, AI_BUSY_MESSAGE } from '@/lib/firebase/ai';
 import { CompleteIcon } from '@/components/feature-icons';
+import type { UserSituation } from '@/lib/aid-programs';
 
 interface AnalysisResult {
   status: string;
@@ -15,6 +16,77 @@ interface AnalysisResult {
 
 type Step = 'upload' | 'analyzing' | 'results' | 'walkthrough';
 
+// SAMPLE LETTER — FABRICATED FOR DEMO PURPOSES ONLY. This is not a real FEMA
+// document; it exists purely so a presenter can click "Try a sample letter"
+// during a live demo instead of needing a real letter on hand.
+const SAMPLE_FEMA_LETTER = `[SAMPLE LETTER — FABRICATED FOR DEMO PURPOSES ONLY. NOT A REAL FEMA DOCUMENT.]
+
+FEDERAL EMERGENCY MANAGEMENT AGENCY
+Individual Assistance Program
+Disaster Declaration: DR-4827-NC — Hurricane Helene
+
+Applicant: Jordan A. Sample
+Application Number: 123-4567890
+Property Address: 142 Maple Hollow Road, Asheville, NC 28801
+
+Dear Jordan A. Sample,
+
+Thank you for applying for FEMA Individual Assistance following Hurricane Helene. FEMA has reviewed your application and the inspection report for your damaged property.
+
+DETERMINATION: Your application for FEMA assistance has been DENIED.
+
+Reason for this decision: Based on the inspection completed on October 3, 2026, FEMA determined that the damage to your home is insufficient to make your home unsafe, unsanitary, or uninhabitable. Our records show the reported damage does not meet FEMA's threshold for a finding of disaster-caused damage that renders the home uninhabitable. Additionally, FEMA was unable to verify occupancy at the address listed on your application.
+
+Rental Assistance: If your home is uninhabitable because of the disaster, you may be eligible for Rental Assistance of up to $2,453.00 to help with the cost of temporary housing while repairs are made. Because your application was denied for insufficient damage, this amount has NOT been awarded at this time.
+
+Your Right to Appeal: If you disagree with this determination, you have the right to appeal within 60 days of the date of this letter. Your appeal must be submitted in writing, along with any new information or documentation (such as a contractor's estimate, insurance denial, or photos of the damage) that supports your case.
+
+APPEAL DEADLINE: December 15, 2026
+
+You can submit your appeal by mail, fax, or by uploading it to your online account at DisasterAssistance.gov. For questions, call the FEMA Helpline at 1-800-621-3362.
+
+Sincerely,
+FEMA Individual Assistance Program
+
+[END OF SAMPLE LETTER — FABRICATED FOR DEMO PURPOSES ONLY. NOT A REAL FEMA DOCUMENT.]`;
+
+// Even in JSON mode the model occasionally still wraps its reply in a
+// ```json ... ``` (or plain ```) code fence. Strip that before JSON.parse so
+// analysis doesn't fail with "Failed to analyze the letter" on those replies.
+function stripJsonFences(text: string): string {
+  const trimmed = text.trim();
+  const fenceMatch = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  return fenceMatch ? fenceMatch[1].trim() : trimmed;
+}
+
+// Turns a saved UserSituation into a short bullet list of facts the prompt
+// can use to personalize nextSteps (e.g. mentioning the user's vehicle or
+// county) instead of generating a generic, one-size-fits-all plan.
+function buildSituationContext(situation: Partial<UserSituation>): string {
+  const facts: string[] = [];
+  if (situation.county) facts.push(`Lives in/was affected in ${situation.county}.`);
+  if (situation.damageType) facts.push(`Reported damage type: ${situation.damageType}.`);
+  if (situation.ownershipStatus) facts.push(`Ownership status: ${situation.ownershipStatus}.`);
+  if (situation.damageSeverity) facts.push(`Reported damage severity: ${situation.damageSeverity}.`);
+  if (situation.hasInsurance !== undefined) {
+    facts.push(`Has relevant insurance coverage: ${situation.hasInsurance ? 'yes' : 'no'}.`);
+  }
+  if (situation.vehicleDamaged) {
+    facts.push('Their vehicle was damaged or lost in the disaster — if relevant, mention vehicle/transportation assistance or replacing documentation for the vehicle in the next steps.');
+  }
+  if (situation.hasAppliedToFEMA !== undefined) {
+    facts.push(`Has already applied for FEMA Individual Assistance: ${situation.hasAppliedToFEMA ? 'yes' : 'no'}.`);
+  }
+  if (situation.incomeRange) facts.push(`Household income range: ${situation.incomeRange}.`);
+  if (situation.isFarmer) facts.push('Is a farmer or owns agricultural land — mention USDA/Farm Service Agency resources if relevant.');
+  if (situation.primaryNeed) facts.push(`Told us their primary need is: ${situation.primaryNeed}.`);
+  if (situation.supplementaryNeeds?.length) {
+    facts.push(`Also mentioned these additional needs: ${situation.supplementaryNeeds.join(', ')}.`);
+  }
+  if (facts.length === 0) return '';
+  return `\nThe signed-in user has previously told us about their own situation (separate from anything stated in the letter). Use these facts to make the "nextSteps" concrete and personalized — e.g. naming their county or mentioning their damaged vehicle — but never invent facts beyond what's listed here or stated in the letter itself:\n${facts.map((f) => `- ${f}`).join('\n')}\n`;
+}
+
 export default function FemaExplainer() {
   const [letterText, setLetterText] = useState('');
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
@@ -23,7 +95,7 @@ export default function FemaExplainer() {
   const [walkthroughStep, setWalkthroughStep] = useState(0);
 
   const steps = [
-    { id: 'upload', label: 'Upload Letter', icon: '1' },
+    { id: 'upload', label: 'Paste Letter', icon: '1' },
     { id: 'analyzing', label: 'Analyzing', icon: '2' },
     { id: 'results', label: 'Results', icon: '3' },
     { id: 'walkthrough', label: 'Next Steps', icon: '4' },
@@ -38,14 +110,30 @@ export default function FemaExplainer() {
     setCurrentStep('analyzing');
 
     try {
-      const model = getGeminiModel();
+      // Load the signed-in user's saved situation (if any) so the generated
+      // plan can be personalized. Degrades silently to a non-personalized
+      // plan when the user isn't signed in, has no saved situation, or the
+      // request fails for any reason.
+      let situationContext = '';
+      try {
+        const situationRes = await fetch('/api/user-situation');
+        if (situationRes.ok) {
+          const data = await situationRes.json();
+          if (data?.situation) {
+            situationContext = buildSituationContext(data.situation as Partial<UserSituation>);
+          }
+        }
+      } catch (situationError) {
+        console.error('Error loading user situation for FEMA plan personalization:', situationError);
+      }
+
       const prompt = `You are an expert at interpreting FEMA disaster assistance letters. Analyze the following FEMA letter and provide a clear, easy-to-understand explanation.
 
 FEMA Letter:
 """
 ${letterText}
 """
-
+${situationContext}
 Based on FEMA's official guidance, analyze the letter for:
 1. Application status (Under Review, Approved, Denied, Additional Information Needed, Ineligible, etc.)
 2. Assistance amount if approved
@@ -69,9 +157,9 @@ For denied applications, always mention the 60-day appeal window and the FEMA he
 For "Additional Information Needed" status, emphasize the importance of responding promptly.
 Return ONLY the JSON, no other text.`;
 
-      const result = await model.generateContent(prompt);
+      const result = await getJsonModel().generateContent(prompt);
       const responseText = result.response.text();
-      const parsed = JSON.parse(responseText);
+      const parsed = JSON.parse(stripJsonFences(responseText));
       setAnalysis(parsed);
       setCurrentStep('results');
     } catch (err) {
@@ -183,13 +271,22 @@ Return ONLY the JSON, no other text.`;
               </svg>
             </div>
             <h3 className="font-serif text-[1.5rem] font-medium text-[#1f1610] mb-2">
-              Upload Your FEMA Letter
+              Paste Your FEMA Letter
             </h3>
             <p className="text-[#6b5a4e]">
               Paste the full text of your FEMA letter or status update below
             </p>
           </div>
           <form onSubmit={handleAnalyze}>
+            <div className="mb-3 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setLetterText(SAMPLE_FEMA_LETTER)}
+                className="text-sm font-medium text-[#b0673f] hover:text-[#895031] underline underline-offset-2 transition-colors"
+              >
+                Try a sample letter
+              </button>
+            </div>
             <textarea
               id="letter"
               value={letterText}
